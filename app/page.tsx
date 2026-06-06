@@ -110,6 +110,8 @@ export default function Home() {
   const [slideIdx, setSlideIdx] = useState(0);
   const [showHoverHint, setShowHoverHint] = useState(false);
   const [hintHasBeenShown, setHintHasBeenShown] = useState(false);
+  const [baseFrequency, setBaseFrequency] = useState(0.015);
+  const [distortionScale, setDistortionScale] = useState(22);
   const slides = ['SEE CREATIVITY', 'SEE PROJECTS', 'GET TO KNOW HER'];
 
   useEffect(() => {
@@ -119,9 +121,31 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [slides.length]);
 
+  // Dynamic SVG liquid distortion animation loop
+  useEffect(() => {
+    let animationFrameId: number;
+    const tick = () => {
+      const time = performance.now() * 0.0008;
+      setBaseFrequency(0.012 + Math.sin(time * 1.8) * 0.003);
+      
+      // Decay scale back to 22 smoothly
+      setDistortionScale((prev) => {
+        if (prev > 22.1) {
+          return prev + (22 - prev) * 0.08;
+        }
+        return 22;
+      });
+
+      animationFrameId = requestAnimationFrame(tick);
+    };
+    animationFrameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
   const handleStructureClick = () => {
     if (!hasClicked) setHasClicked(true);
     setThemeIdx((prev) => (prev + 1) % APP_THEMES.length);
+    setDistortionScale(90); // Surge the distortion effect on click!
   };
 
   const handleCanvasMouseEnter = () => {
@@ -139,20 +163,56 @@ export default function Home() {
   return (
     <main className="relative w-screen h-screen bg-black overflow-hidden select-none">
 
-      {/* 1. Dynamic WebGL Canvas Container placed underneath HTML layer */}
+      {/* 1. Background Interactive Area */}
       <div
-        className="absolute inset-0 z-0 cursor-pointer"
+        className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
         onClick={handleStructureClick}
         onMouseEnter={handleCanvasMouseEnter}
       >
-        <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
-          <InteractiveEcosystem currentThemeColor={currentTheme} themeIdx={themeIdx} />
-        </Canvas>
+        {/* Desktop WebGL Canvas */}
+        <div className="hidden md:block w-full h-full">
+          <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
+            <InteractiveEcosystem currentThemeColor={currentTheme} themeIdx={themeIdx} />
+          </Canvas>
+        </div>
+
+        {/* Mobile Flower Image with Dynamic Liquid Distortion */}
+        <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none overflow-hidden">
+          <div className="relative w-72 h-72 opacity-35 select-none">
+            <img
+              src="/images/flower.png"
+              alt="Flower Shape"
+              className="w-full h-full object-contain"
+              style={{ filter: 'url(#liquid-distortion)' }}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Navigation header without mix-blend-difference for readability */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-12 pointer-events-none">
-        <header className="flex justify-end items-start w-full pointer-events-auto">
+      {/* SVG Liquid Distortion Filter */}
+      <svg className="hidden">
+        <defs>
+          <filter id="liquid-distortion">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency={`${baseFrequency} ${baseFrequency * 1.4}`}
+              numOctaves="2"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale={distortionScale}
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Navigation header aligned to center on mobile, right on desktop */}
+      <div className="absolute top-0 left-0 right-0 z-20 p-6 md:p-12 pointer-events-none">
+        <header className="flex justify-center md:justify-end items-start w-full pointer-events-auto">
           <nav className="flex gap-4 font-mono text-xs">
             <a
               href="/projects"
@@ -207,7 +267,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative h-4 w-full empty:hidden">
+          <div className="relative h-4 w-full hidden md:block">
             {showHoverHint && (
               <span
                 className="absolute top-0 left-0 font-mono text-[10px] tracking-widest font-bold block transition-all duration-500 ease-out animate-pulse opacity-50"

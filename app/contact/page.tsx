@@ -176,21 +176,21 @@ export default function Contact() {
       />
 
       {/* ── Header ── */}
-      <header className="absolute top-0 left-0 right-0 z-20 p-12 flex justify-between items-center pointer-events-none">
+      <header className="absolute top-0 left-0 right-0 z-20 pt-10 px-6 pb-4 md:p-12 flex justify-end md:justify-between items-center pointer-events-none">
         <Link
           href="/"
           className="px-5 py-2.5 bg-white/5 border border-white/15 hover:border-white/60 transition-all duration-500 text-xs tracking-widest text-white/70 hover:text-white backdrop-blur-md font-mono pointer-events-auto"
         >
           &larr; BACK
         </Link>
-        <span className="text-[10px] tracking-[0.25em] font-mono uppercase text-white/25">
+        <span className="text-[10px] tracking-[0.25em] font-mono uppercase text-white/25 hidden md:inline">
           {currentTime}&ensp;//&ensp;CONTACT
         </span>
       </header>
 
       {/* ── Main Content Container ── */}
       <div className="absolute inset-0 z-10 flex items-center justify-center px-8 md:px-16 pb-12 pointer-events-none">
-        <div className="max-w-xl w-full flex flex-col items-center pointer-events-auto">
+        <div className="max-w-xl md:max-w-2xl w-full flex flex-col items-center pointer-events-auto">
 
           {/* ── Elegant Title ── */}
           <div className="mb-10 w-full">
@@ -200,8 +200,8 @@ export default function Contact() {
                 Hello
               </span>
             </h1>
-            <p className="text-white/25 font-mono text-[11px] mt-4 tracking-[0.2em]">
-              // let&apos;s build something together
+            <p className="text-white/50 text-base mt-3 tracking-wide" style={{ fontFamily: "'Dancing Script', 'Playfair Display', cursive", fontStyle: "italic" }}>
+              let&apos;s build something together
             </p>
           </div>
 
@@ -383,8 +383,8 @@ export default function Contact() {
       </div>
 
       {/* ── Decoupled Glass Footer (No Clashing) ── */}
-      <footer className="absolute bottom-0 left-0 right-0 z-20 px-12 py-6 flex justify-between items-center bg-[#050505]/80 backdrop-blur-md border-t border-white/[0.04] font-mono text-[10px] text-white/20 tracking-[0.2em] pointer-events-none">
-        <span>PORTFOLIO 2026</span>
+      <footer className="absolute bottom-0 left-0 right-0 z-20 px-12 py-6 flex justify-center md:justify-between items-center bg-[#050505]/80 backdrop-blur-md border-t border-white/[0.04] font-mono text-[10px] text-white/20 tracking-[0.2em] pointer-events-none">
+        <span className="hidden md:inline">PORTFOLIO 2026</span>
 
         {/* Floating Social Icons */}
         <div className="flex gap-8 pointer-events-auto">
@@ -433,7 +433,7 @@ export default function Contact() {
           ))}
         </div>
 
-        <span>CONTACT TERMINAL v1.0</span>
+        <span className="hidden md:inline">CONTACT TERMINAL v1.0</span>
       </footer>
 
     </main>

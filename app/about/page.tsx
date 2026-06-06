@@ -333,14 +333,14 @@ export default function About() {
       />
 
       {/* ── Header ── */}
-      <header className="absolute top-0 left-0 right-0 z-20 p-12 flex justify-between items-center pointer-events-none">
+      <header className="absolute top-0 left-0 right-0 z-20 pt-10 px-6 pb-4 md:p-12 flex justify-end md:justify-between items-center pointer-events-none">
         <Link
           href="/"
           className="px-5 py-2.5 bg-white/5 border border-white/15 hover:border-white/60 transition-all duration-500 text-xs tracking-widest text-white/70 hover:text-white backdrop-blur-md font-mono pointer-events-auto"
         >
           &larr; BACK
         </Link>
-        <span className="text-[10px] tracking-[0.25em] font-mono uppercase text-white/25">
+        <span className="text-[10px] tracking-[0.25em] font-mono uppercase text-white/25 hidden md:inline">
           {currentTime}&ensp;//&ensp;ABOUT SREEJA
         </span>
       </header>

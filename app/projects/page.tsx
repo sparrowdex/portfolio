@@ -268,18 +268,25 @@ function DynamicStarfieldEcosystem({ currentThemeColor, hoverTargetKey }: { curr
     }
     if (constMatRef.current) {
       constMatRef.current.color.lerp(tColor, 0.05);
-      constMatRef.current.opacity = THREE.MathUtils.lerp(constMatRef.current.opacity, hoverTargetKey === 'random' ? 0.0 : 0.7, 0.05);
+      // Fade out quicker on hover off so the lines disappear before they begin to drift
+      constMatRef.current.opacity = THREE.MathUtils.lerp(
+        constMatRef.current.opacity, 
+        hoverTargetKey === 'random' ? 0.0 : 0.7, 
+        hoverTargetKey === 'random' ? 0.15 : 0.05
+      );
     }
 
     // Morph the constellation vertices toward the active target shape (first 100 points only)
     if (constGeoRef.current) {
       const positions = constGeoRef.current.attributes.position.array as Float32Array;
       const targetShape = constellationShapes[hoverTargetKey];
+      // Drastically slow down the morphing speed when returning to random, letting it fade in place
+      const morphSpeed = hoverTargetKey === 'random' ? 0.005 : 0.08;
       for (let i = 0; i < 100; i++) {
         // Fast, fluid sweeping motion like shooting stars organizing into a shape
-        positions[i * 3] += (targetShape[i].x - positions[i * 3]) * 0.08;
-        positions[i * 3 + 1] += (targetShape[i].y - positions[i * 3 + 1]) * 0.08;
-        positions[i * 3 + 2] += (targetShape[i].z - positions[i * 3 + 2]) * 0.08;
+        positions[i * 3] += (targetShape[i].x - positions[i * 3]) * morphSpeed;
+        positions[i * 3 + 1] += (targetShape[i].y - positions[i * 3 + 1]) * morphSpeed;
+        positions[i * 3 + 2] += (targetShape[i].z - positions[i * 3 + 2]) * morphSpeed;
       }
       constGeoRef.current.attributes.position.needsUpdate = true;
     }
@@ -342,9 +349,19 @@ export default function Projects() {
   const [hoveredCardIdx, setHoveredCardIdx] = useState<number | null>(null);
   const [isExpanding, setIsExpanding] = useState(false);
   const [activeExpandingIdx, setActiveExpandingIdx] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const totalDeckCount = 11;
   const titleLetters = ['P', 'r', 'o', 'j', 'e', 'c', 't', 's'];
+  const touchStartRef = useRef(0);
+
+  // Responsive device check
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => { setTimeout(() => setFanned(true), 400); }, []);
 
@@ -360,6 +377,47 @@ export default function Projects() {
     setTimeout(() => { setIsExpanding(false); setActiveExpandingIdx(null); }, 150);
   };
 
+  // Mobile click to center first, click again to select/open
+  const handleCardClick = (proj: Project, idx: number) => {
+    if (isExpanding) return;
+    if (isMobile) {
+      if (hoveredCardIdx === idx) {
+        handleCardSelect(proj, idx);
+      } else {
+        setHoveredCardIdx(idx);
+      }
+    } else {
+      handleCardSelect(proj, idx);
+    }
+  };
+
+  // Swipe gesture handlers for mobile navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isExpanding) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartRef.current - touchEndX;
+
+    if (Math.abs(diff) > 40) { // swipe threshold in px
+      if (diff > 0) {
+        // Swipe Left -> Next Card
+        setHoveredCardIdx((prev) => {
+          const current = prev !== null ? prev : 5;
+          return Math.min(current + 1, totalDeckCount - 1);
+        });
+      } else {
+        // Swipe Right -> Prev Card
+        setHoveredCardIdx((prev) => {
+          const current = prev !== null ? prev : 5;
+          return Math.max(current - 1, 0);
+        });
+      }
+    }
+  };
+
   const activeHoveredProj = hoveredCardIdx !== null ? deckAssignments[hoveredCardIdx] : null;
   const activeColorTheme = activeHoveredProj ? activeHoveredProj.colors[0] : '#d5dbe3';
 
@@ -368,7 +426,10 @@ export default function Projects() {
   const hoverTargetKey = hoveredCardIdx === null ? 'random' : targetShapesMap[hoveredCardIdx % 5];
 
   return (
-    <main className="relative w-screen h-screen bg-black text-white overflow-hidden select-none font-mono">
+    <main 
+      onClick={() => setHoveredCardIdx(null)}
+      className="relative w-screen h-screen bg-black text-white overflow-hidden select-none font-mono"
+    >
 
       <div className="absolute inset-0 z-0 pointer-events-none">
         <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
@@ -387,9 +448,9 @@ export default function Projects() {
         }}
       />
 
-      <header className="absolute top-0 left-0 right-0 z-30 p-12 flex justify-between items-center pointer-events-auto mix-blend-difference text-white">
+      <header className="absolute top-0 left-0 right-0 z-30 pt-10 px-6 pb-4 md:p-12 flex justify-end md:justify-between items-center pointer-events-auto mix-blend-difference text-white">
         <Link href="/" className="px-5 py-2.5 bg-white/5 border border-white/20 hover:border-white transition-all duration-300 rounded-none text-xs tracking-widest backdrop-blur-md">&larr; BACK</Link>
-        <span className="text-[10px] tracking-widest font-bold uppercase opacity-80">PROJECT INDEX 2026</span>
+        <span className="text-[10px] tracking-widest font-bold uppercase opacity-80 hidden md:inline">PROJECT INDEX 2026</span>
       </header>
 
       <div className="absolute inset-0 z-10 flex flex-col justify-center items-center p-12 pb-0 pointer-events-none">
@@ -408,22 +469,34 @@ export default function Projects() {
           </h1>
         </div>
 
-        <div className="absolute bottom-[-110px] w-full max-w-7xl h-[480px] flex justify-center items-end pointer-events-auto card-perspective translate-x-[-24px]">
+        {/* Mobile Swipe-reactive layout */}
+        <div 
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="absolute bottom-[-110px] w-full max-w-7xl h-[480px] flex justify-center items-end pointer-events-auto card-perspective translate-x-[-24px]"
+        >
           {deckAssignments.map((proj, idx) => {
             const isHovered = hoveredCardIdx === idx;
             const isSelected = activeExpandingIdx === idx;
 
-            const transX = fanned ? (idx - 5) * 82 : 1400;
-            const transY = fanned ? Math.pow(idx - 5, 2) * 5.0 : 900;
-            let hoverShiftX = 0; if (hoveredCardIdx !== null && !isHovered && !isExpanding) hoverShiftX = idx < hoveredCardIdx ? -60 : 60;
+            const activeIdx = isMobile && hoveredCardIdx !== null ? hoveredCardIdx : 5;
+            const transX = fanned ? (idx - activeIdx) * (isMobile ? 68 : 82) : 1400;
+            const transY = fanned ? Math.pow(idx - activeIdx, 2) * (isMobile ? 2.5 : 5.0) : 900;
+            let hoverShiftX = 0; if (!isMobile && hoveredCardIdx !== null && !isHovered && !isExpanding) hoverShiftX = idx < hoveredCardIdx ? -60 : 60;
 
             const cardTransform = isSelected
-              ? `scale(2.4) translateY(-24vh) translateX(0px) rotateY(0deg) rotateZ(0deg)`
-              : `translateX(calc(${transX}px + ${hoverShiftX}px)) translateY(${isHovered ? transY - 60 : transY}px) translateZ(${isHovered ? 150 : 0}px) rotateY(${isHovered ? 0 : -50}deg) rotateZ(${isHovered ? 0 : fanned ? (idx - 5) * 5.2 : 90}deg) scale(${isHovered ? 1.15 : 1})`;
+              ? (isMobile ? `scale(1.3) translateY(-10vh) translateX(0px)` : `scale(2.4) translateY(-24vh) translateX(0px) rotateY(0deg) rotateZ(0deg)`)
+              : `translateX(calc(${transX}px + ${hoverShiftX}px)) translateY(${isHovered ? transY - (isMobile ? 40 : 60) : transY}px) translateZ(${isHovered ? 150 : 0}px) rotateY(${isHovered ? 0 : -50}deg) rotateZ(${isHovered ? 0 : fanned ? (idx - activeIdx) * 5.2 : 90}deg) scale(${isHovered ? 1.15 : 1})`;
 
             return (
               <div
-                key={idx} onClick={() => handleCardSelect(proj, idx)} onMouseEnter={() => !isExpanding && setHoveredCardIdx(idx)} onMouseLeave={() => !isExpanding && setHoveredCardIdx(null)}
+                key={idx} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCardClick(proj, idx);
+                }} 
+                onMouseEnter={() => !isMobile && !isExpanding && setHoveredCardIdx(idx)} 
+                onMouseLeave={() => !isMobile && !isExpanding && setHoveredCardIdx(null)}
                 className={`absolute bottom-24 w-[200px] sm:w-[220px] md:w-[240px] h-[250px] sm:h-[270px] md:h-[280px] rounded-xl border flex flex-col justify-between select-none overflow-hidden cursor-pointer duration-[1100ms] cubic-bezier(0.16, 1, 0.3, 1) ${isSelected ? 'z-[200]' : ''}`}
                 style={{
                   transform: cardTransform, transitionDelay: fanned && hoveredCardIdx === null && !isExpanding ? `${(10 - idx) * 95}ms` : '0ms',

@@ -3,6 +3,7 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useRef, useState, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
+import Image from 'next/image';
 
 const APP_THEMES = [
   '#d5dbe3', // 1. Initial State: Reflective Chrome Silver Core
@@ -239,10 +240,12 @@ export default function Home() {
         {/* Mobile Flower Image with Dynamic Liquid Distortion */}
         <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none overflow-hidden">
           <div className="relative w-[75vw] h-[75vw] max-w-[380px] max-h-[380px] min-w-[280px] min-h-[280px] opacity-35 select-none">
-            <img
+            <Image
               src="/images/flower.png"
               alt="Flower Shape"
-              className="w-full h-full object-contain"
+              fill
+              priority
+              className="object-contain"
               style={{ filter: 'url(#liquid-distortion)' }}
             />
           </div>

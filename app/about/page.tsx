@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function About() {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
@@ -78,76 +79,18 @@ export default function About() {
   const resumeSections = [
     {
       title: 'Frontend & Animation',
-      short: 'Crafting rich, interactive visual experiences using Next.js, WebGL (Three.js/R3F), and fluid kinetic physics with Framer Motion.',
-      skills: ['Next.js', 'React.js', 'Three.js', 'React Three Fiber', 'Framer Motion', 'GSAP', 'HTML/CSS'],
-      projects: [
-        {
-          name: 'The Diecast Store',
-          desc: 'Architected a fully functional, serverless full-stack e-commerce platform tailored for diecast hobbyists. Engineered a premium, responsive UI featuring Bento Grid layouts and fluid animations, successfully integrating Razorpay & Shiprocket payment and shipping gateways.',
-          tech: 'Next.js, TypeScript, Prisma, Framer Motion',
-          link: 'http://www.thediecaststore.in'
-        },
-        {
-          name: 'Christmas Spirit',
-          desc: 'Engineered an interactive web app featuring real-time microphone-triggered snowfall effects and cross-platform motion detection. Secured a Top 10 Finish out of 90 individuals in the 4-hour Girls Leading Tech Hackathon.',
-          tech: 'JavaScript, Web Audio API, DeviceMotionEvent'
-        }
-      ]
+      altTitle: 'Reasons behind interaction:',
+      ethos: "My view of computer science was quite narrow until I discovered creative coding. I love embedding hidden interactions—whether it's a viewport shift or a delicate animation—that reward the user's curiosity. Software shouldn't be boring; it should broaden horizons. From struggling with basic Python loops three years ago to chasing the high of finally making a complex WebGL shader work, my goal is always to deliver an 'eye-candy' experience that makes people feel good."
     },
     {
       title: 'Backend & Cloud Systems',
-      short: 'Architecting performant APIs, relational database schemas, and scalable serverless backends powered by Node.js, Prisma, and PostgreSQL.',
-      skills: ['Node.js', 'Express', 'PostgreSQL (Neon)', 'Prisma ORM', 'Firebase', 'Python', 'SQL', 'TypeScript', 'JavaScript (ES6+)'],
-      projects: [
-        {
-          name: 'Inner Voice (Mental Health AI Startup)',
-          desc: 'Architected a full-stack wellness platform utilizing Next.js and Firebase, designing an anonymous interaction model to ensure emotional support and accessible UX.',
-          tech: 'Next.js, Firebase'
-        }
-      ]
+      altTitle: 'Bridging logic and emotion:',
+      ethos: "Bridging the gap between cold architecture and human emotion requires intense intentionality. Building the backend for Inner Voice wasn't just a technical exercise; I was forced into invention by a desire to give my peers a safe space to express themselves without feeling like a burden. Inspiration truly strikes when you love what you do, and I build robust systems so that the software can reliably touch the hearts of the communities I care about."
     },
     {
       title: 'Experience & Achievements',
-      short: 'Founder of Inner Voice, National Informatics Centre intern, and B.Tech honors student building human-centric software solutions.',
-      education: {
-        school: 'SRM Institute of Science & Technology',
-        degree: 'Bachelor of Technology in Computer Science (Core) | Aug 2023 - May 2027',
-        metrics: 'CGPA: 8.95 | Delhi-NCR, India'
-      },
-      experience: [
-        {
-          role: 'Founder & Lead Developer',
-          company: 'Inner Voice (Mental Health AI Startup) | July 2025 - Present',
-          bullets: [
-            'Architected a full-stack wellness platform utilizing Next.js and Firebase, designing an anonymous interaction model to ensure emotional support and accessible UX.',
-            'Engineered a custom "Trusted Friends" network with complex boundary-setting logic. This feature enables supporters to visually manage their emotional availability and mitigate burnout without explicit refusal.',
-            'Guided the product roadmap with a strong emphasis on UX research, interaction design, and planning migrations to proprietary LLMs.'
-          ]
-        },
-        {
-          role: 'Web Development Intern',
-          company: 'National Informatics Centre (NIC) | June 2025 - July 2025',
-          bullets: [
-            'Executed an 8-week internship within the e-Office Project Division, directly contributing to the digitalization of government workflows.',
-            'Evaluated the product suite architecture to identify UI optimizations for secure, large-scale document management systems.'
-          ]
-        }
-      ],
-      achievements: [
-        {
-          name: 'IBM Data Science Professional Certificate',
-          desc: 'Completed March 2026. Specialized in Data Visualization, Machine Learning, and SQL-driven EDA.'
-        },
-        {
-          name: 'NPTEL Certification in Natural Language Processing',
-          desc: 'Specialized in text processing, language modeling, syntactic parsing, and semantic analysis concepts.'
-        },
-        {
-          name: 'Technical Volunteer (BAJSS)',
-          desc: 'Mentored 20+ adolescent girls in coding (Scratch, VSCode) and digital literacy workshops to bridge the technical proficiency gap.'
-        }
-      ],
-      skills: ['Data Science', 'Natural Language Processing', 'Data Visualization', 'Machine Learning', 'SQL-driven EDA', 'UX Research', 'Interaction Design']
+      altTitle: 'The bigger picture:',
+      ethos: "True engineering lies in the hidden architecture. Studying a meticulous, decade-in-the-making system at the National Informatics Centre taught me that a seamless experience is built on rigorous planning. I am the person with 'plans for the plans'—level-headed under pressure, whether I'm refactoring a chaotic early codebase for my startup or designing for real people. My core philosophy is simple, minimal, and impactful: it may take immense effort to build a complex interaction, but the user should only ever feel its effortless magic."
     }
   ];
 
@@ -174,7 +117,10 @@ export default function About() {
 
 
   return (
-    <main className="relative w-screen h-screen bg-black overflow-hidden select-none">
+    <main 
+      className="relative w-screen h-screen bg-black overflow-hidden select-none"
+      onClick={() => { if (activeTab !== null) setActiveTab(null); }}
+    >
 
       {/* ── Custom Animations for the Mindmap ── */}
       <style dangerouslySetInnerHTML={{
@@ -281,6 +227,52 @@ export default function About() {
           opacity: 0;
           animation: flower-entrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        @keyframes fade-word {
+          from {
+            opacity: 0;
+            filter: blur(4px);
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+          }
+        }
+        .animate-word {
+          opacity: 0;
+          animation: fade-word 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          display: inline-block;
+          margin-right: 0.25em;
+        }
+        @keyframes roll-out {
+          to {
+            transform: translateY(-20px);
+            opacity: 0;
+          }
+        }
+        @keyframes roll-in {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .title-roll-out {
+          animation: roll-out 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: 1.5s;
+        }
+        .title-roll-in {
+          position: absolute;
+          top: 0;
+          left: 0;
+          opacity: 0;
+          animation: roll-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: 1.7s;
+        }
       `}} />
 
       {/* ── Flower Accent & Mindmap ── */}
@@ -291,9 +283,9 @@ export default function About() {
         <div className="relative w-full h-full">
           {/* Mobile Clickable Tags */}
           <div className="absolute inset-0 z-30 md:hidden pointer-events-auto flex flex-col justify-center items-center">
-             <button onClick={() => setActiveTab(0)} className={`absolute top-[22%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff3366]/50 text-[#ff3366] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>FRONTEND</button>
-             <button onClick={() => setActiveTab(1)} className={`absolute top-[47%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff7700]/50 text-[#ff7700] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>BACKEND</button>
-             <button onClick={() => setActiveTab(2)} className={`absolute top-[72%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#00d2ff]/50 text-[#00d2ff] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>EXPERIENCE</button>
+             <button onClick={() => setActiveTab(0)} className={`absolute top-[22%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff3366]/50 text-[#ff3366] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>VISION</button>
+             <button onClick={() => setActiveTab(1)} className={`absolute top-[47%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff7700]/50 text-[#ff7700] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>SYSTEMS</button>
+             <button onClick={() => setActiveTab(2)} className={`absolute top-[72%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#00d2ff]/50 text-[#00d2ff] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>JOURNEY</button>
           </div>
           {/* SVG Canvas for Lines (Layered behind the flower images) */}
           {mindmapConfig && (
@@ -346,37 +338,42 @@ export default function About() {
           )}
 
           {/* Base grayscale flower */}
-          <img
+          <Image
             src="/images/flower.svg"
             alt="Flower Base"
-            className="w-full h-full object-contain relative z-10"
+            fill
+            priority
+            className="object-contain z-10"
           />
 
           {/* Top Flower Layer (Red) */}
-          <img
+          <Image
             src="/images/flower_red.svg"
             alt="Top Flower Colored"
-            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-10"
+            fill
+            className="object-contain transition-opacity duration-700 z-10"
             style={{
               opacity: (activeTab === 0 || (activeTab === null && hoveredItem === 0)) ? 1 : 0
             }}
           />
 
           {/* Middle Flower Layer (Orange) */}
-          <img
+          <Image
             src="/images/flower_orange.svg"
             alt="Middle Flower Colored"
-            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-10"
+            fill
+            className="object-contain transition-opacity duration-700 z-10"
             style={{
               opacity: (activeTab === 1 || (activeTab === null && hoveredItem === 1)) ? 1 : 0
             }}
           />
 
           {/* Bottom Flower Layer (Blue) */}
-          <img
+          <Image
             src="/images/flower_blue.svg"
             alt="Bottom Flower Colored"
-            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-10"
+            fill
+            className="object-contain transition-opacity duration-700 z-10"
             style={{
               opacity: (activeTab === 2 || (activeTab === null && hoveredItem === 2)) ? 1 : 0
             }}
@@ -441,7 +438,10 @@ export default function About() {
 
       {/* ── Left Side: Core Interactive Menu ── */}
       <div className="absolute inset-0 z-10 flex items-start md:items-center p-8 pt-28 md:p-24 pointer-events-none">
-        <div className="max-w-md w-full flex flex-col pointer-events-auto">
+        <div 
+          className="max-w-md w-full flex flex-col pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
 
           <h1 className="text-5xl md:text-7xl font-extralight tracking-tight text-white leading-[1.1] mb-6 flex items-baseline select-none">
             <span className="inline-block animate-about">
@@ -452,184 +452,138 @@ export default function About() {
             </span>
           </h1>
 
-          <p className="text-[11px] font-mono text-white/40 tracking-wider mb-8 uppercase leading-relaxed hidden md:block">
-            Select a pillar below to inspect credentials, or click the button below to view all technical skills.
-          </p>
+          <div className={`transition-all duration-700 ease-in-out hidden md:block ${activeTab !== null ? 'max-h-0 opacity-0 overflow-hidden mb-0' : 'max-h-20 opacity-100 mb-8'}`}>
+            <p className="text-[11px] font-mono text-white/40 tracking-wider uppercase leading-relaxed">
+              Select a pillar below to inspect my credentials, or view the complete skills dashboard.
+            </p>
+          </div>
 
           {/* Interactive Menu Items */}
-          <div className="space-y-6 hidden md:block">
+          <div className="flex flex-col gap-6 hidden md:block">
             {resumeSections.map((sec, idx) => {
               const isActive = activeTab === idx;
+              // Fade out unselected pillars entirely
+              const isHidden = activeTab !== null && !isActive;
+
               const accentColors = [
-                { border: 'border-[#ff3366]/80 bg-[#ff3366]/5', text: 'text-[#ff3366]' },
-                { border: 'border-[#ff7700]/80 bg-[#ff7700]/5', text: 'text-[#ff7700]' },
-                { border: 'border-[#00d2ff]/80 bg-[#00d2ff]/5', text: 'text-[#00d2ff]' },
+                { text: 'text-[#ff3366]' },
+                { text: 'text-[#ff7700]' },
+                { text: 'text-[#00d2ff]' },
               ];
               const curAccent = accentColors[idx];
+              const words = sec.ethos.split(' ');
+
               return (
-                <button
-                  key={sec.title}
-                  onMouseEnter={() => setHoveredItem(idx)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                  onClick={() => {
-                    setActiveTab(isActive ? null : idx);
-                    setShowAllSkills(false);
-                  }}
-                  className={`w-full text-left border-l pl-6 py-3 transition-all duration-500 group focus:outline-none animate-pillar ${isActive
-                    ? curAccent.border
-                    : 'border-white/10 hover:border-white/40 hover:bg-white/[0.01]'
-                    }`}
-                  style={{ animationDelay: `${1.1 + idx * 0.2}s` }}
+                <div 
+                  key={sec.title} 
+                  className={`transition-all duration-700 ease-in-out ${isHidden ? 'max-h-0 opacity-0 overflow-hidden m-0' : 'max-h-[800px] opacity-100'}`}
                 >
-                  <h3 className={`font-mono text-xs tracking-widest uppercase mb-2 transition-all duration-300 transform group-hover:translate-x-1 ${isActive ? curAccent.text : 'text-white/40 group-hover:text-white/80'
-                    }`}>
-                    {sec.title}
-                  </h3>
-                  <p className="text-[11px] leading-relaxed text-neutral-500 group-hover:text-neutral-300 font-sans transition-all duration-300 transform group-hover:translate-x-1">
-                    {sec.short}
-                  </p>
-                </button>
+                  <button
+                    onMouseEnter={() => setHoveredItem(idx)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    onClick={() => {
+                      setActiveTab(isActive ? null : idx);
+                      setShowAllSkills(false);
+                    }}
+                    className="w-full text-left py-2 transition-all duration-500 group focus:outline-none animate-pillar"
+                    style={{ animationDelay: `${1.1 + idx * 0.2}s` }}
+                  >
+                    <div className="relative h-6 flex items-center">
+                      <h3 className={`font-mono text-sm tracking-widest uppercase transition-all duration-300 transform group-hover:translate-x-1 ${isActive ? `${curAccent.text} title-roll-out` : 'text-white/40 group-hover:text-white/80'}`}>
+                        {sec.title}
+                      </h3>
+                      {isActive && (
+                        <h3 className={`font-mono text-sm tracking-widest uppercase ${curAccent.text} title-roll-in`}>
+                          {sec.altTitle}
+                        </h3>
+                      )}
+                    </div>
+                  </button>
+                  
+                  {/* WORD-BY-WORD QUOTE CONTENT */}
+                  <div className={`overflow-hidden transition-all duration-700 ease-in-out ${isActive ? 'max-h-[800px] opacity-100 pt-6' : 'max-h-0 opacity-0'}`}>
+                    <p className="text-base leading-relaxed text-neutral-300 font-serif max-w-xl">
+                      {words.map((word, wIdx) => (
+                        <span 
+                          key={wIdx} 
+                          className="animate-word"
+                          style={{ animationDelay: `${wIdx * 0.05}s` }}
+                        >
+                          {word}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
 
-          <button
-            onClick={() => {
-              setShowAllSkills(!showAllSkills);
-              setActiveTab(null);
-            }}
-            className={`mt-8 self-start px-6 py-3 border font-mono text-[10px] tracking-wider uppercase transition-all duration-500 animate-pillar hidden md:block ${showAllSkills
-              ? 'border-[#39ff14] text-[#39ff14] bg-[#39ff14]/5'
-              : 'border-white/10 text-white/50 hover:border-white/40 hover:text-white'
-              }`}
-            style={{ animationDelay: '1.7s' }}
-          >
-            {showAllSkills ? 'Hide All Skills' : 'View All Skills Dashboard'}
-          </button>
+          {/* Global Buttons */}
+          <div className="hidden md:flex gap-4 mt-12 animate-pillar" style={{ animationDelay: '1.7s' }}>
+            <button
+              onClick={() => {
+                setShowAllSkills(!showAllSkills);
+                setActiveTab(null);
+              }}
+              className={`px-6 py-3 border font-mono text-[10px] tracking-wider uppercase transition-all duration-500 ${showAllSkills
+                ? 'border-[#39ff14] text-[#39ff14] bg-[#39ff14]/5'
+                : 'border-white/10 text-white/50 hover:border-white/40 hover:text-white'
+                }`}
+            >
+              {showAllSkills ? 'Hide All Skills' : 'View All Skills Dashboard'}
+            </button>
+
+            <a 
+              href="/resume.pdf" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="px-6 py-3 border border-white/10 text-white/50 font-mono text-[10px] tracking-wider uppercase transition-all duration-500 hover:border-white/40 hover:text-white"
+            >
+              View Full Resume
+            </a>
+          </div>
 
         </div>
       </div>
 
-      {/* ── Sliding Panel: Detailed Credentials ── */}
+      {/* ── Sliding Panel: Detailed Credentials (MOBILE ONLY) ── */}
       <div
-        className={`absolute bottom-0 md:top-0 right-0 h-screen w-full md:w-[600px] bg-[#0c0c0c]/95 backdrop-blur-xl border-t md:border-t-0 md:border-l border-white/[0.08] z-30 transition-all duration-700 ease-in-out p-8 pt-16 md:p-16 overflow-y-auto ${
+        className={`absolute bottom-0 md:hidden right-0 h-screen w-full bg-[#0c0c0c]/95 backdrop-blur-xl border-t border-white/[0.08] z-30 transition-all duration-700 ease-in-out p-8 pt-16 overflow-y-auto ${
           panelTab !== null 
-            ? 'translate-y-0 md:translate-y-0 md:translate-x-0' 
-            : 'translate-y-full md:translate-y-0 md:translate-x-full'
+            ? 'translate-y-0' 
+            : 'translate-y-full'
         }`}
       >
         {panelTab !== null && (
-          <div className="relative h-full flex flex-col justify-between text-white font-sans">
-
-            {/* Close Button */}
+          <div className="relative h-full flex flex-col font-sans text-white">
             <button
               onClick={() => setActiveTab(null)}
-              className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-white/15 hover:border-white/50 rounded-full text-white/50 hover:text-white font-mono text-xs transition-colors cursor-pointer"
-            >
-              ✕
-            </button>
+              className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-white/15 rounded-full text-white/50 text-xs transition-colors"
+            >✕</button>
 
-            <div className="space-y-8 pr-2">
-              {/* Category Title */}
+            <div className="space-y-8 pr-2 flex-1 pb-12">
               <div>
-                <span className={`font-mono text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 ${panelTab === 0 ? 'text-[#ff3366]' : panelTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'
-                  }`}>
-                  Pillar 0{panelTab + 1}
-                </span>
-                <h2 className="text-3xl font-light tracking-tight mt-1 text-[#e2e8f0]">
+                <span className={`font-mono text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 ${panelTab === 0 ? 'text-[#ff3366]' : panelTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'}`}>
                   {resumeSections[panelTab].title}
-                </h2>
+                </span>
+                {resumeSections[panelTab].ethos && (
+                  <p className="mt-6 text-[15px] leading-relaxed text-neutral-300 font-serif">
+                    {resumeSections[panelTab].ethos}
+                  </p>
+                )}
               </div>
 
-              {/* SECTION: SKILLS */}
-              {resumeSections[panelTab].skills && (
-                <div>
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">Tech Stack & Skills</h4>
-                  <div className="flex flex-wrap gap-2.5">
-                    {resumeSections[panelTab].skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="px-3.5 py-1.5 bg-white/5 border border-white/[0.08] hover:border-white/30 text-white/80 hover:text-white rounded-none font-mono text-[11px] transition-all duration-300"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* SECTION: PROJECTS */}
-              {resumeSections[panelTab].projects && (
-                <div className="space-y-6">
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">Featured Projects</h4>
-                  {resumeSections[panelTab].projects.map((proj) => (
-                    <div key={proj.name} className="border-t border-white/[0.06] pt-4">
-                      <div className="flex justify-between items-baseline">
-                        <h5 className="text-sm font-medium text-white/95">{proj.name}</h5>
-                        <span className="font-mono text-[10px] text-white/30">{proj.tech}</span>
-                      </div>
-                      <p className="text-[12px] leading-relaxed text-neutral-400 mt-2">
-                        {proj.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* SECTION: EDUCATION (for Tab 2) */}
-              {panelTab === 2 && resumeSections[panelTab].education && (
-                <div>
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">Education</h4>
-                  <div className="border-t border-white/[0.06] pt-4">
-                    <h5 className="text-sm font-medium text-white/95">{resumeSections[panelTab].education.school}</h5>
-                    <p className="text-[12px] text-neutral-400 mt-1 font-mono text-[11px]">{resumeSections[panelTab].education.degree}</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">{resumeSections[panelTab].education.metrics}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* SECTION: PROFESSIONAL EXPERIENCE (for Tab 2) */}
-              {panelTab === 2 && resumeSections[panelTab].experience && (
-                <div className="space-y-6">
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">Experience</h4>
-                  {resumeSections[panelTab].experience.map((exp) => (
-                    <div key={exp.company} className="border-t border-white/[0.06] pt-4">
-                      <h5 className="text-sm font-medium text-white/95">{exp.role}</h5>
-                      <span className="font-mono text-[10px] mt-0.5 block transition-colors duration-300 text-[#00d2ff]/80">
-                        {exp.company}
-                      </span>
-                      <ul className="list-disc pl-4 mt-2.5 space-y-1.5">
-                        {exp.bullets.map((b, bIdx) => (
-                          <li key={bIdx} className="text-[12px] leading-relaxed text-neutral-400">
-                            {b}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* SECTION: ACHIEVEMENTS & CERTIFICATIONS (for Tab 2) */}
-              {panelTab === 2 && resumeSections[panelTab].achievements && (
-                <div className="space-y-4">
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">Achievements & Certs</h4>
-                  <div className="border-t border-white/[0.06] pt-4 space-y-4">
-                    {resumeSections[panelTab].achievements.map((ach, achIdx) => (
-                      <div key={achIdx}>
-                        <h5 className="text-[13px] font-medium text-white/90">{ach.name}</h5>
-                        <p className="text-[11px] text-neutral-400 mt-0.5">{ach.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="pt-4">
+                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className={`inline-block px-6 py-3 border font-mono text-[11px] tracking-widest uppercase transition-colors ${panelTab === 0 ? 'border-[#ff3366] text-[#ff3366]' : panelTab === 1 ? 'border-[#ff7700] text-[#ff7700]' : 'border-[#00d2ff] text-[#00d2ff]'}`}>
+                  View Full Resume
+                </a>
+              </div>
             </div>
-
-
           </div>
         )}
       </div>
+
 
       {/* ── Consolidated Skills Dashboard Overlay ── */}
       <div
@@ -681,7 +635,6 @@ export default function About() {
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/40 font-mono text-[10px]">
           <div className="flex gap-6">
             <span>EMAIL: sreejadas0405@gmail.com</span>
-            <span>PHONE: +91 7428437763</span>
           </div>
           <div className="flex gap-6">
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#39ff14] transition-colors">GITHUB</a>

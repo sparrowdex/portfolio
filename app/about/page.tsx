@@ -285,15 +285,15 @@ export default function About() {
 
       {/* ── Flower Accent & Mindmap ── */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 bottom-0 md:left-auto md:translate-x-0 md:top-auto md:translate-y-0 md:right-[5%] md:bottom-[-6%] w-[130vw] h-[130vw] md:w-[55vw] md:h-[55vw] max-w-[750px] max-h-[750px] opacity-80 md:opacity-95 pointer-events-none select-none z-0 transition-all duration-700 animate-flower origin-bottom"
+        className="absolute left-1/2 -translate-x-1/2 bottom-0 md:left-auto md:translate-x-0 md:top-auto md:translate-y-0 md:right-[5%] md:bottom-[-6%] w-[85vh] h-[85vh] md:w-[55vw] md:h-[55vw] max-w-none md:max-w-[750px] max-h-none md:max-h-[750px] opacity-80 md:opacity-95 pointer-events-none select-none z-0 transition-all duration-700 animate-flower origin-bottom"
         style={{ animationDelay: '0.8s' }}
       >
         <div className="relative w-full h-full">
           {/* Mobile Clickable Tags */}
           <div className="absolute inset-0 z-30 md:hidden pointer-events-auto flex flex-col justify-center items-center">
-             <button onClick={() => setActiveTab(0)} className={`absolute top-[20%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff3366]/50 text-[#ff3366] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>FRONTEND</button>
-             <button onClick={() => setActiveTab(1)} className={`absolute top-[45%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff7700]/50 text-[#ff7700] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>BACKEND</button>
-             <button onClick={() => setActiveTab(2)} className={`absolute top-[70%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#00d2ff]/50 text-[#00d2ff] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>EXPERIENCE</button>
+             <button onClick={() => setActiveTab(0)} className={`absolute top-[22%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff3366]/50 text-[#ff3366] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>FRONTEND</button>
+             <button onClick={() => setActiveTab(1)} className={`absolute top-[47%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff7700]/50 text-[#ff7700] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>BACKEND</button>
+             <button onClick={() => setActiveTab(2)} className={`absolute top-[72%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#00d2ff]/50 text-[#00d2ff] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>EXPERIENCE</button>
           </div>
           {/* SVG Canvas for Lines (Layered behind the flower images) */}
           {mindmapConfig && (

@@ -573,8 +573,9 @@ export default function About() {
                   {resumeSections[activeTab].experience.map((exp) => (
                     <div key={exp.company} className="border-t border-white/[0.06] pt-4">
                       <h5 className="text-sm font-medium text-white/95">{exp.role}</h5>
-                      <span className={`font-mono text-[10px] mt-0.5 block transition-colors duration-300 ${activeTab === 0 ? 'text-[#ff3366]/80' : activeTab === 1 ? 'text-[#ff7700]/80' : 'text-[#00d2ff]/80'
-                        }`}>{exp.company}</span>
+                      <span className="font-mono text-[10px] mt-0.5 block transition-colors duration-300 text-[#00d2ff]/80">
+                        {exp.company}
+                      </span>
                       <ul className="list-disc pl-4 mt-2.5 space-y-1.5">
                         {exp.bullets.map((b, bIdx) => (
                           <li key={bIdx} className="text-[12px] leading-relaxed text-neutral-400">

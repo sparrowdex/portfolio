@@ -327,7 +327,7 @@ function DynamicStarfieldEcosystem({ currentThemeColor, hoverTargetKey }: { curr
       <group scale={0.4}>
         <line>
           <bufferGeometry ref={constGeoRef}>
-            <bufferAttribute attach="attributes-position" count={100} array={constellationPositions} itemSize={3} />
+            <bufferAttribute attach="attributes-position" args={[constellationPositions, 3]} />
           </bufferGeometry>
           <lineBasicMaterial ref={constMatRef} color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} linewidth={2} />
         </line>

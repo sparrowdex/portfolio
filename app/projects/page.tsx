@@ -350,6 +350,7 @@ export default function Projects() {
   const [isExpanding, setIsExpanding] = useState(false);
   const [activeExpandingIdx, setActiveExpandingIdx] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [focusedCardIdx, setFocusedCardIdx] = useState<number>(5);
 
   const totalDeckCount = 11;
   const titleLetters = ['P', 'r', 'o', 'j', 'e', 'c', 't', 's'];
@@ -384,6 +385,7 @@ export default function Projects() {
       if (hoveredCardIdx === idx) {
         handleCardSelect(proj, idx);
       } else {
+        setFocusedCardIdx(idx);
         setHoveredCardIdx(idx);
       }
     } else {
@@ -391,7 +393,7 @@ export default function Projects() {
     }
   };
 
-  // Swipe gesture handlers for mobile navigation
+  // Swipe gesture handlers for mobile navigation (swiping slides but does not highlight)
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientX;
   };
@@ -402,18 +404,13 @@ export default function Projects() {
     const diff = touchStartRef.current - touchEndX;
 
     if (Math.abs(diff) > 40) { // swipe threshold in px
+      setHoveredCardIdx(null); // Reset highlight when swiping
       if (diff > 0) {
-        // Swipe Left -> Next Card
-        setHoveredCardIdx((prev) => {
-          const current = prev !== null ? prev : 5;
-          return Math.min(current + 1, totalDeckCount - 1);
-        });
+        // Swipe Left -> Center next card
+        setFocusedCardIdx((prev) => Math.min(prev + 1, totalDeckCount - 1));
       } else {
-        // Swipe Right -> Prev Card
-        setHoveredCardIdx((prev) => {
-          const current = prev !== null ? prev : 5;
-          return Math.max(current - 1, 0);
-        });
+        // Swipe Right -> Center previous card
+        setFocusedCardIdx((prev) => Math.max(prev - 1, 0));
       }
     }
   };
@@ -473,20 +470,20 @@ export default function Projects() {
         <div 
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="absolute bottom-[-110px] w-full max-w-7xl h-[480px] flex justify-center items-end pointer-events-auto card-perspective translate-x-[-24px]"
+          className="absolute bottom-[-30px] md:bottom-[-110px] w-full max-w-7xl h-[480px] flex justify-center items-end pointer-events-auto card-perspective translate-x-[-24px]"
         >
           {deckAssignments.map((proj, idx) => {
             const isHovered = hoveredCardIdx === idx;
             const isSelected = activeExpandingIdx === idx;
 
-            const activeIdx = isMobile && hoveredCardIdx !== null ? hoveredCardIdx : 5;
-            const transX = fanned ? (idx - activeIdx) * (isMobile ? 68 : 82) : 1400;
-            const transY = fanned ? Math.pow(idx - activeIdx, 2) * (isMobile ? 2.5 : 5.0) : 900;
+            const activeIdx = isMobile ? focusedCardIdx : (hoveredCardIdx !== null ? hoveredCardIdx : 5);
+            const transX = fanned ? (idx - activeIdx) * (isMobile ? 65 : 82) : 1400;
+            const transY = fanned ? Math.pow(idx - activeIdx, 2) * (isMobile ? 8.0 : 5.0) : 900;
             let hoverShiftX = 0; if (!isMobile && hoveredCardIdx !== null && !isHovered && !isExpanding) hoverShiftX = idx < hoveredCardIdx ? -60 : 60;
 
             const cardTransform = isSelected
               ? (isMobile ? `scale(1.3) translateY(-10vh) translateX(0px)` : `scale(2.4) translateY(-24vh) translateX(0px) rotateY(0deg) rotateZ(0deg)`)
-              : `translateX(calc(${transX}px + ${hoverShiftX}px)) translateY(${isHovered ? transY - (isMobile ? 40 : 60) : transY}px) translateZ(${isHovered ? 150 : 0}px) rotateY(${isHovered ? 0 : -50}deg) rotateZ(${isHovered ? 0 : fanned ? (idx - activeIdx) * 5.2 : 90}deg) scale(${isHovered ? 1.15 : 1})`;
+              : `translateX(calc(${transX}px + ${hoverShiftX}px)) translateY(${isHovered ? transY - (isMobile ? 40 : 60) : transY}px) translateZ(${isHovered ? 150 : 0}px) rotateY(${isHovered ? 0 : -50}deg) rotateZ(${isHovered ? 0 : fanned ? (idx - activeIdx) * (isMobile ? 6.5 : 5.2) : 90}deg) scale(${isHovered ? 1.15 : 1})`;
 
             return (
               <div

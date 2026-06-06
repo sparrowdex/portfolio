@@ -247,8 +247,8 @@ function DynamicStarfieldEcosystem({ currentThemeColor, hoverTargetKey }: { curr
     return geo;
   }, []);
 
-  // Initial array for the morphing constellation line
-  const constellationPositions = useMemo(() => new Float32Array(NUM_STARS * 3), []);
+  // Initial array for the morphing constellation line (exactly 100 points for the symbol outline)
+  const constellationPositions = useMemo(() => new Float32Array(100 * 3), []);
 
   useFrame(() => {
     const time = performance.now() * 0.001;
@@ -271,11 +271,11 @@ function DynamicStarfieldEcosystem({ currentThemeColor, hoverTargetKey }: { curr
       constMatRef.current.opacity = THREE.MathUtils.lerp(constMatRef.current.opacity, hoverTargetKey === 'random' ? 0.0 : 0.7, 0.05);
     }
 
-    // Morph the constellation vertices toward the active target shape
+    // Morph the constellation vertices toward the active target shape (first 100 points only)
     if (constGeoRef.current) {
       const positions = constGeoRef.current.attributes.position.array as Float32Array;
       const targetShape = constellationShapes[hoverTargetKey];
-      for (let i = 0; i < NUM_STARS; i++) {
+      for (let i = 0; i < 100; i++) {
         // Fast, fluid sweeping motion like shooting stars organizing into a shape
         positions[i * 3] += (targetShape[i].x - positions[i * 3]) * 0.08;
         positions[i * 3 + 1] += (targetShape[i].y - positions[i * 3 + 1]) * 0.08;

@@ -6,7 +6,20 @@ import Link from 'next/link';
 export default function About() {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<number | null>(null);
+  const [panelTab, setPanelTab] = useState<number | null>(null);
   const [showAllSkills, setShowAllSkills] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (activeTab !== null) {
+      timeoutId = setTimeout(() => {
+        setPanelTab(activeTab);
+      }, 1200);
+    } else {
+      setPanelTab(null);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [activeTab]);
 
   const activeIdx = activeTab !== null ? activeTab : hoveredItem;
 
@@ -272,10 +285,16 @@ export default function About() {
 
       {/* ── Flower Accent & Mindmap ── */}
       <div 
-        className="absolute right-[-15%] md:right-[-5%] bottom-[0%] md:bottom-[-6%] w-[75vw] h-[75vw] md:w-[55vw] md:h-[55vw] max-w-[750px] max-h-[750px] opacity-80 md:opacity-95 pointer-events-none select-none z-0 transition-all duration-700 animate-flower"
+        className="absolute left-1/2 -translate-x-1/2 bottom-0 md:left-auto md:translate-x-0 md:top-auto md:translate-y-0 md:right-[5%] md:bottom-[-6%] w-[130vw] h-[130vw] md:w-[55vw] md:h-[55vw] max-w-[750px] max-h-[750px] opacity-80 md:opacity-95 pointer-events-none select-none z-0 transition-all duration-700 animate-flower origin-bottom"
         style={{ animationDelay: '0.8s' }}
       >
         <div className="relative w-full h-full">
+          {/* Mobile Clickable Tags */}
+          <div className="absolute inset-0 z-30 md:hidden pointer-events-auto flex flex-col justify-center items-center">
+             <button onClick={() => setActiveTab(0)} className={`absolute top-[20%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff3366]/50 text-[#ff3366] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>FRONTEND</button>
+             <button onClick={() => setActiveTab(1)} className={`absolute top-[45%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff7700]/50 text-[#ff7700] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>BACKEND</button>
+             <button onClick={() => setActiveTab(2)} className={`absolute top-[70%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#00d2ff]/50 text-[#00d2ff] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>EXPERIENCE</button>
+          </div>
           {/* SVG Canvas for Lines (Layered behind the flower images) */}
           {mindmapConfig && (
             <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" style={{ overflow: 'visible' }}>
@@ -421,7 +440,7 @@ export default function About() {
       </header>
 
       {/* ── Left Side: Core Interactive Menu ── */}
-      <div className="absolute inset-0 z-10 flex items-center p-12 md:p-24 pointer-events-none">
+      <div className="absolute inset-0 z-10 flex items-start md:items-center p-8 pt-28 md:p-24 pointer-events-none">
         <div className="max-w-md w-full flex flex-col pointer-events-auto">
 
           <h1 className="text-5xl md:text-7xl font-extralight tracking-tight text-white leading-[1.1] mb-6 flex items-baseline select-none">
@@ -433,12 +452,12 @@ export default function About() {
             </span>
           </h1>
 
-          <p className="text-[11px] font-mono text-white/40 tracking-wider mb-8 uppercase leading-relaxed">
+          <p className="text-[11px] font-mono text-white/40 tracking-wider mb-8 uppercase leading-relaxed hidden md:block">
             Select a pillar below to inspect credentials, or click the button below to view all technical skills.
           </p>
 
           {/* Interactive Menu Items */}
-          <div className="space-y-6">
+          <div className="space-y-6 hidden md:block">
             {resumeSections.map((sec, idx) => {
               const isActive = activeTab === idx;
               const accentColors = [
@@ -479,7 +498,7 @@ export default function About() {
               setShowAllSkills(!showAllSkills);
               setActiveTab(null);
             }}
-            className={`mt-8 self-start px-6 py-3 border font-mono text-[10px] tracking-wider uppercase transition-all duration-500 animate-pillar ${showAllSkills
+            className={`mt-8 self-start px-6 py-3 border font-mono text-[10px] tracking-wider uppercase transition-all duration-500 animate-pillar hidden md:block ${showAllSkills
               ? 'border-[#39ff14] text-[#39ff14] bg-[#39ff14]/5'
               : 'border-white/10 text-white/50 hover:border-white/40 hover:text-white'
               }`}
@@ -493,10 +512,13 @@ export default function About() {
 
       {/* ── Sliding Panel: Detailed Credentials ── */}
       <div
-        className={`absolute top-0 right-0 h-screen w-full md:w-[600px] bg-[#0c0c0c]/95 backdrop-blur-xl border-l border-white/[0.08] z-30 transition-transform duration-700 ease-in-out p-12 md:p-16 overflow-y-auto ${activeTab !== null ? 'translate-x-0' : 'translate-x-full'
-          }`}
+        className={`absolute bottom-0 md:top-0 right-0 h-screen w-full md:w-[600px] bg-[#0c0c0c]/95 backdrop-blur-xl border-t md:border-t-0 md:border-l border-white/[0.08] z-30 transition-all duration-700 ease-in-out p-8 pt-16 md:p-16 overflow-y-auto ${
+          panelTab !== null 
+            ? 'translate-y-0 md:translate-y-0 md:translate-x-0' 
+            : 'translate-y-full md:translate-y-0 md:translate-x-full'
+        }`}
       >
-        {activeTab !== null && (
+        {panelTab !== null && (
           <div className="relative h-full flex flex-col justify-between text-white font-sans">
 
             {/* Close Button */}
@@ -510,21 +532,21 @@ export default function About() {
             <div className="space-y-8 pr-2">
               {/* Category Title */}
               <div>
-                <span className={`font-mono text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 ${activeTab === 0 ? 'text-[#ff3366]' : activeTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'
+                <span className={`font-mono text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 ${panelTab === 0 ? 'text-[#ff3366]' : panelTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'
                   }`}>
-                  Pillar 0{activeTab + 1}
+                  Pillar 0{panelTab + 1}
                 </span>
                 <h2 className="text-3xl font-light tracking-tight mt-1 text-[#e2e8f0]">
-                  {resumeSections[activeTab].title}
+                  {resumeSections[panelTab].title}
                 </h2>
               </div>
 
               {/* SECTION: SKILLS */}
-              {resumeSections[activeTab].skills && (
+              {resumeSections[panelTab].skills && (
                 <div>
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">// Tech Stack & Skills</h4>
+                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">Tech Stack & Skills</h4>
                   <div className="flex flex-wrap gap-2.5">
-                    {resumeSections[activeTab].skills.map((skill) => (
+                    {resumeSections[panelTab].skills.map((skill) => (
                       <span
                         key={skill}
                         className="px-3.5 py-1.5 bg-white/5 border border-white/[0.08] hover:border-white/30 text-white/80 hover:text-white rounded-none font-mono text-[11px] transition-all duration-300"
@@ -537,10 +559,10 @@ export default function About() {
               )}
 
               {/* SECTION: PROJECTS */}
-              {resumeSections[activeTab].projects && (
+              {resumeSections[panelTab].projects && (
                 <div className="space-y-6">
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">// Featured Projects</h4>
-                  {resumeSections[activeTab].projects.map((proj) => (
+                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">Featured Projects</h4>
+                  {resumeSections[panelTab].projects.map((proj) => (
                     <div key={proj.name} className="border-t border-white/[0.06] pt-4">
                       <div className="flex justify-between items-baseline">
                         <h5 className="text-sm font-medium text-white/95">{proj.name}</h5>
@@ -555,22 +577,22 @@ export default function About() {
               )}
 
               {/* SECTION: EDUCATION (for Tab 2) */}
-              {activeTab === 2 && resumeSections[activeTab].education && (
+              {panelTab === 2 && resumeSections[panelTab].education && (
                 <div>
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">// Education</h4>
+                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">Education</h4>
                   <div className="border-t border-white/[0.06] pt-4">
-                    <h5 className="text-sm font-medium text-white/95">{resumeSections[activeTab].education.school}</h5>
-                    <p className="text-[12px] text-neutral-400 mt-1 font-mono text-[11px]">{resumeSections[activeTab].education.degree}</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">{resumeSections[activeTab].education.metrics}</p>
+                    <h5 className="text-sm font-medium text-white/95">{resumeSections[panelTab].education.school}</h5>
+                    <p className="text-[12px] text-neutral-400 mt-1 font-mono text-[11px]">{resumeSections[panelTab].education.degree}</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">{resumeSections[panelTab].education.metrics}</p>
                   </div>
                 </div>
               )}
 
               {/* SECTION: PROFESSIONAL EXPERIENCE (for Tab 2) */}
-              {activeTab === 2 && resumeSections[activeTab].experience && (
+              {panelTab === 2 && resumeSections[panelTab].experience && (
                 <div className="space-y-6">
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">// Experience</h4>
-                  {resumeSections[activeTab].experience.map((exp) => (
+                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">Experience</h4>
+                  {resumeSections[panelTab].experience.map((exp) => (
                     <div key={exp.company} className="border-t border-white/[0.06] pt-4">
                       <h5 className="text-sm font-medium text-white/95">{exp.role}</h5>
                       <span className="font-mono text-[10px] mt-0.5 block transition-colors duration-300 text-[#00d2ff]/80">
@@ -589,11 +611,11 @@ export default function About() {
               )}
 
               {/* SECTION: ACHIEVEMENTS & CERTIFICATIONS (for Tab 2) */}
-              {activeTab === 2 && resumeSections[activeTab].achievements && (
+              {panelTab === 2 && resumeSections[panelTab].achievements && (
                 <div className="space-y-4">
-                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">// Achievements & Certs</h4>
+                  <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-2">Achievements & Certs</h4>
                   <div className="border-t border-white/[0.06] pt-4 space-y-4">
-                    {resumeSections[activeTab].achievements.map((ach, achIdx) => (
+                    {resumeSections[panelTab].achievements.map((ach, achIdx) => (
                       <div key={achIdx}>
                         <h5 className="text-[13px] font-medium text-white/90">{ach.name}</h5>
                         <p className="text-[11px] text-neutral-400 mt-0.5">{ach.desc}</p>
@@ -635,7 +657,7 @@ export default function About() {
             <div key={cat.category} className="border border-white/5 bg-white/[0.02] p-8 flex flex-col justify-between hover:border-white/20 transition-all duration-500 group">
               <div>
                 <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest block mb-4">
-                  0{idx + 1} / {cat.category.split(' ')[0]}
+                  0{idx + 1} {cat.category.split(' ')[0]}
                 </span>
                 <h3 className="text-xl font-light text-white mb-6 group-hover:text-[#39ff14] transition-colors duration-500">
                   {cat.category}

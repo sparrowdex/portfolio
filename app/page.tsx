@@ -112,6 +112,7 @@ export default function Home() {
   const [hintHasBeenShown, setHintHasBeenShown] = useState(false);
   const [baseFrequency, setBaseFrequency] = useState(0.015);
   const [distortionScale, setDistortionScale] = useState(22);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
   const slides = ['SEE CREATIVITY', 'SEE PROJECTS', 'GET TO KNOW HER'];
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function Home() {
       // Decay scale back to 22 smoothly
       setDistortionScale((prev) => {
         if (prev > 22.1) {
-          return prev + (22 - prev) * 0.08;
+          return prev + (22 - prev) * 0.025; // Slower, more natural wave decay
         }
         return 22;
       });
@@ -142,10 +143,23 @@ export default function Home() {
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  const handleStructureClick = () => {
+  const handleStructureClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hasClicked) setHasClicked(true);
     setThemeIdx((prev) => (prev + 1) % APP_THEMES.length);
-    setDistortionScale(90); // Surge the distortion effect on click!
+    setDistortionScale(80); // Surge distortion for liquid splash feel
+
+    // Add new ripple
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    
+    setRipples((prev) => [...prev, { id, x, y }]);
+    
+    // Cleanup ripple after animation finishes (2000ms)
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== id));
+    }, 2000);
   };
 
   const handleCanvasMouseEnter = () => {
@@ -163,12 +177,58 @@ export default function Home() {
   return (
     <main className="relative w-screen h-screen bg-black overflow-hidden select-none">
 
+      {/* Ripple Animation CSS (Color-free, soft white liquid ring) */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes ripple-wave {
+          0% {
+            width: 0px;
+            height: 0px;
+            opacity: 0.5;
+            border-width: 4px;
+            filter: blur(1px);
+          }
+          50% {
+            opacity: 0.25;
+            filter: blur(2px);
+          }
+          100% {
+            width: 500px;
+            height: 500px;
+            opacity: 0;
+            border-width: 1px;
+            filter: blur(4px);
+          }
+        }
+        .ripple-effect {
+          position: absolute;
+          border-style: solid;
+          border-radius: 50%;
+          pointer-events: none;
+          transform: translate(-50%, -50%);
+          animation: ripple-wave 2.0s cubic-bezier(0.1, 0.4, 0.2, 1) forwards;
+          z-index: 5;
+        }
+      `}} />
+
       {/* 1. Background Interactive Area */}
       <div
         className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
         onClick={handleStructureClick}
         onMouseEnter={handleCanvasMouseEnter}
       >
+        {/* Render ripples (Mobile only, color-free soft white) */}
+        {ripples.map((ripple) => (
+          <div
+            key={ripple.id}
+            className="ripple-effect md:hidden"
+            style={{
+              left: ripple.x,
+              top: ripple.y,
+              borderColor: 'rgba(255, 255, 255, 0.25)'
+            }}
+          />
+        ))}
+
         {/* Desktop WebGL Canvas */}
         <div className="hidden md:block w-full h-full">
           <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
@@ -178,7 +238,7 @@ export default function Home() {
 
         {/* Mobile Flower Image with Dynamic Liquid Distortion */}
         <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none overflow-hidden">
-          <div className="relative w-72 h-72 opacity-35 select-none">
+          <div className="relative w-[75vw] h-[75vw] max-w-[380px] max-h-[380px] min-w-[280px] min-h-[280px] opacity-35 select-none">
             <img
               src="/images/flower.png"
               alt="Flower Shape"
@@ -286,7 +346,6 @@ export default function Home() {
         {/* Cleaned HUD Gutter Footer */}
         <footer className="w-full flex justify-between font-mono text-[10px] text-neutral-500 tracking-wider">
           <span>PORTFOLIO 2026</span>
-          <span>SUBTLE SYSTEM</span>
         </footer>
       </div>
 

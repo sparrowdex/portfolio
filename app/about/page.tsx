@@ -1,211 +1,71 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Canvas, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 
-/* ─────────────────── 3D PEDESTAL SCENE ─────────────────── */
-function PedestalScene({
-  hoveredItem,
-  setHoveredItem,
-  activeTab,
-  setActiveTab,
-  showAllSkills,
-  setShowAllSkills
-}: {
-  hoveredItem: number | null;
-  setHoveredItem: (val: number | null) => void;
-  activeTab: number | null;
-  setActiveTab: (val: number | null) => void;
-  showAllSkills: boolean;
-  setShowAllSkills: (val: boolean) => void;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const structureRef = useRef<THREE.Group>(null);
-  const cylinderRef = useRef<THREE.Mesh>(null);
-  const sphereRef = useRef<THREE.Mesh>(null);
-  const torusRef = useRef<THREE.Mesh>(null);
-
-  useFrame(() => {
-    const time = performance.now() * 0.001;
-    if (structureRef.current) {
-      // Rotate faster if hovered or active
-      const rotSpeed = hoveredItem !== null || activeTab !== null ? 0.6 : 0.25;
-      structureRef.current.rotation.y = time * rotSpeed;
-    }
-    if (groupRef.current) {
-      // Gentle floating animation
-      groupRef.current.position.y = -1.2 + Math.sin(time * 1.5) * 0.05;
-    }
-
-    const currentActive = activeTab !== null ? activeTab : hoveredItem;
-    
-    // Scale animations
-    const targetCylinder = currentActive === 1 ? 1.1 : 0.03;
-    const targetSphere = currentActive === 2 ? 1.1 : 0.03;
-    const targetTorus = currentActive === 0 || (currentActive === null && !showAllSkills) ? 1.0 : 0.03;
-
-    if (cylinderRef.current) {
-      cylinderRef.current.scale.setScalar(THREE.MathUtils.lerp(cylinderRef.current.scale.x, targetCylinder * 1.0, 0.15));
-      (cylinderRef.current.material as THREE.MeshBasicMaterial).opacity = THREE.MathUtils.lerp(
-        (cylinderRef.current.material as THREE.MeshBasicMaterial).opacity,
-        targetCylinder >= 1.0 ? 0.45 : 0.03,
-        0.15
-      );
-    }
-    if (sphereRef.current) {
-      sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(sphereRef.current.scale.x, targetSphere * 1.0, 0.15));
-      (sphereRef.current.material as THREE.MeshBasicMaterial).opacity = THREE.MathUtils.lerp(
-        (sphereRef.current.material as THREE.MeshBasicMaterial).opacity,
-        targetSphere >= 1.0 ? 0.48 : 0.03,
-        0.15
-      );
-      sphereRef.current.position.y = Math.sin(time * 2.0) * 0.15;
-    }
-    if (torusRef.current) {
-      torusRef.current.scale.setScalar(THREE.MathUtils.lerp(torusRef.current.scale.x, targetTorus * 0.9, 0.15));
-      (torusRef.current.material as THREE.MeshBasicMaterial).opacity = THREE.MathUtils.lerp(
-        (torusRef.current.material as THREE.MeshBasicMaterial).opacity,
-        targetTorus >= 1.0 ? 0.45 : 0.03,
-        0.15
-      );
-      torusRef.current.rotation.x = time * 0.5;
-    }
-  });
-
-  return (
-    <group ref={groupRef} position={[1.5, -1.2, 0]}>
-      {/* 3D Exhibition Plinth (Base Pedestal) */}
-      <mesh
-        position={[0, -0.6, 0]}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHoveredItem(-1); // special hover code for base
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={(e) => {
-          e.stopPropagation();
-          setHoveredItem(null);
-          document.body.style.cursor = 'auto';
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowAllSkills(!showAllSkills);
-          setActiveTab(null);
-        }}
-      >
-        <cylinderGeometry args={[1.2, 1.3, 0.6, 32]} />
-        <meshBasicMaterial
-          color={showAllSkills || hoveredItem === -1 ? "#39ff14" : "#ffffff"}
-          wireframe
-          transparent
-          opacity={showAllSkills ? 0.25 : hoveredItem === -1 ? 0.18 : 0.06}
-        />
-      </mesh>
-
-      {/* Interactive Value Sculptures Group */}
-      <group ref={structureRef} position={[0, 0.8, 0]}>
-        {/* Frontend -> Torus Knot */}
-        <mesh
-          ref={torusRef}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            setHoveredItem(0);
-            document.body.style.cursor = 'pointer';
-          }}
-          onPointerOut={(e) => {
-            e.stopPropagation();
-            setHoveredItem(null);
-            document.body.style.cursor = 'auto';
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveTab(activeTab === 0 ? null : 0);
-            setShowAllSkills(false);
-          }}
-        >
-          <torusGeometry args={[0.6, 0.2, 8, 32]} />
-          <meshBasicMaterial
-            color={activeTab === 0 || hoveredItem === 0 ? "#39ff14" : "#ffffff"}
-            wireframe
-            transparent
-            opacity={activeTab === 0 || hoveredItem === 0 ? 0.45 : 0.1}
-          />
-        </mesh>
-
-        {/* Backend -> Cylinder */}
-        <mesh
-          ref={cylinderRef}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            setHoveredItem(1);
-            document.body.style.cursor = 'pointer';
-          }}
-          onPointerOut={(e) => {
-            e.stopPropagation();
-            setHoveredItem(null);
-            document.body.style.cursor = 'auto';
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveTab(activeTab === 1 ? null : 1);
-            setShowAllSkills(false);
-          }}
-        >
-          <cylinderGeometry args={[0.7, 0.7, 1.2, 16, 4]} />
-          <meshBasicMaterial
-            color={activeTab === 1 || hoveredItem === 1 ? "#39ff14" : "#ffffff"}
-            wireframe
-            transparent
-            opacity={activeTab === 1 || hoveredItem === 1 ? 0.45 : 0.1}
-          />
-        </mesh>
-
-        {/* Experience -> Geodesic Sphere */}
-        <mesh
-          ref={sphereRef}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            setHoveredItem(2);
-            document.body.style.cursor = 'pointer';
-          }}
-          onPointerOut={(e) => {
-            e.stopPropagation();
-            setHoveredItem(null);
-            document.body.style.cursor = 'auto';
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveTab(activeTab === 2 ? null : 2);
-            setShowAllSkills(false);
-          }}
-        >
-          <icosahedronGeometry args={[0.9, 2]} />
-          <meshBasicMaterial
-            color={activeTab === 2 || hoveredItem === 2 ? "#39ff14" : "#ffffff"}
-            wireframe
-            transparent
-            opacity={activeTab === 2 || hoveredItem === 2 ? 0.48 : 0.1}
-          />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-/* ─────────────────── MAIN PAGE ─────────────────── */
 export default function About() {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<number | null>(null);
   const [showAllSkills, setShowAllSkills] = useState(false);
-  const [currentTime, setCurrentTime] = useState('');
+
+  const activeIdx = activeTab !== null ? activeTab : hoveredItem;
+
+  const mindmapConfig = useMemo(() => {
+    if (activeIdx === 0) {
+      return {
+        centerX: 55,
+        centerY: 30,
+        color: '#ff3366',
+        rotation: 100, // Set this value to rotate the entire pink mindmap structure (e.g. -15 or 15)
+        skills: [
+          { name: 'Next.js', dx: -5, dy: -20 },
+          { name: 'React.js', dx: -17, dy: -16 },
+          { name: 'Three.js', dx: -26, dy: -6 },
+          { name: 'R3F', dx: -24, dy: 4 },
+          { name: 'Framer Motion', dx: -18, dy: 14 },
+          { name: 'GSAP', dx: -8, dy: 20 }
+        ]
+      };
+    }
+    if (activeIdx === 1) {
+      return {
+        centerX: 48,
+        centerY: 52,
+        color: '#ff7700',
+        rotation: 0, // Set this value to rotate the entire orange mindmap structure
+        skills: [
+          { name: 'Node.js', dx: -16, dy: -15 },
+          { name: 'Express', dx: -24, dy: -6 },
+          { name: 'PostgreSQL', dx: -26, dy: 6 },
+          { name: 'Prisma', dx: -20, dy: 16 },
+          { name: 'Firebase', dx: -8, dy: -20 },
+          { name: 'Python', dx: 8, dy: -18 }
+        ]
+      };
+    }
+    if (activeIdx === 2) {
+      return {
+        centerX: 55,
+        centerY: 70,
+        color: '#00d2ff',
+        rotation: 0, // Set this value to rotate the entire blue mindmap structure
+        skills: [
+          { name: 'Data Science', dx: 12, dy: -12 },
+          { name: 'NLP', dx: 17, dy: -3 },
+          { name: 'Machine Learning', dx: 18, dy: 16 },
+          { name: 'UX Research', dx: -3, dy: -15 },
+          { name: 'Interaction Design', dx: -25, dy: -2 }
+        ]
+      };
+    }
+    return null;
+  }, [activeIdx]);
 
   /* Mapped resume data sections matching the resume image */
   const resumeSections = [
     {
       title: 'Frontend & Animation',
-      short: 'Next.js, React.js, Three.js, React Three Fiber, Framer Motion, GSAP, HTML/CSS.',
+      short: 'Crafting rich, interactive visual experiences using Next.js, WebGL (Three.js/R3F), and fluid kinetic physics with Framer Motion.',
       skills: ['Next.js', 'React.js', 'Three.js', 'React Three Fiber', 'Framer Motion', 'GSAP', 'HTML/CSS'],
       projects: [
         {
@@ -223,7 +83,7 @@ export default function About() {
     },
     {
       title: 'Backend & Cloud Systems',
-      short: 'Node.js, Express, PostgreSQL (Neon), Prisma ORM, Firebase, Python, SQL.',
+      short: 'Architecting performant APIs, relational database schemas, and scalable serverless backends powered by Node.js, Prisma, and PostgreSQL.',
       skills: ['Node.js', 'Express', 'PostgreSQL (Neon)', 'Prisma ORM', 'Firebase', 'Python', 'SQL', 'TypeScript', 'JavaScript (ES6+)'],
       projects: [
         {
@@ -235,7 +95,7 @@ export default function About() {
     },
     {
       title: 'Experience & Achievements',
-      short: 'SRM Institute of Science & Technology student, Founder, and NIC intern.',
+      short: 'Founder of Inner Voice, National Informatics Centre intern, and B.Tech honors student building human-centric software solutions.',
       education: {
         school: 'SRM Institute of Science & Technology',
         degree: 'Bachelor of Technology in Computer Science (Core) | Aug 2023 - May 2027',
@@ -298,29 +158,247 @@ export default function About() {
     }
   ];
 
-  /* Clock */
-  useEffect(() => {
-    const tick = () => setCurrentTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
-    tick();
-    const iv = setInterval(tick, 1000);
-    return () => clearInterval(iv);
-  }, []);
+
 
   return (
     <main className="relative w-screen h-screen bg-black overflow-hidden select-none">
-      
-      {/* ── WebGL 3D Interactive Canvas ── */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 5], fov: 45 }} className="pointer-events-auto">
-          <PedestalScene 
-            hoveredItem={hoveredItem} 
-            setHoveredItem={setHoveredItem}
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab}
-            showAllSkills={showAllSkills}
-            setShowAllSkills={setShowAllSkills}
+
+      {/* ── Custom Animations for the Mindmap ── */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes line-crawl {
+          to {
+            stroke-dashoffset: -20;
+          }
+        }
+        @keyframes pulse-glow {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.3;
+          }
+          50% {
+            transform: scale(1.4);
+            opacity: 0.8;
+          }
+        }
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -30%) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+        .mindmap-line {
+          stroke-dasharray: 4, 4;
+          animation: line-crawl 1.5s linear infinite;
+        }
+        .pulse-dot {
+          transform-origin: center;
+          animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .skill-node-tag {
+          animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
+        /* ── Page Entrance Animations ── */
+        @keyframes about-entrance {
+          from {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        @keyframes her-entrance {
+          0% {
+            opacity: 0;
+            transform: translateX(-120px) scale(0.7);
+          }
+          30% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        @keyframes pillar-entrance {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes flower-entrance {
+          from {
+            opacity: 0;
+            transform: scale(0.97) translate(1%, 1%);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translate(0, 0);
+          }
+        }
+        .animate-about {
+          animation: about-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-her {
+          animation: her-entrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-pillar {
+          opacity: 0;
+          animation: pillar-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-flower {
+          opacity: 0;
+          animation: flower-entrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}} />
+
+      {/* ── Flower Accent & Mindmap ── */}
+      <div 
+        className="absolute right-[-15%] md:right-[-5%] bottom-[0%] md:bottom-[-6%] w-[75vw] h-[75vw] md:w-[55vw] md:h-[55vw] max-w-[750px] max-h-[750px] opacity-80 md:opacity-95 pointer-events-none select-none z-0 transition-all duration-700 animate-flower"
+        style={{ animationDelay: '0.8s' }}
+      >
+        <div className="relative w-full h-full">
+          {/* SVG Canvas for Lines (Layered behind the flower images) */}
+          {mindmapConfig && (
+            <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" style={{ overflow: 'visible' }}>
+              {/* Center glowing circle */}
+              <circle
+                cx={`${mindmapConfig.centerX}%`}
+                cy={`${mindmapConfig.centerY}%`}
+                r="6"
+                fill={mindmapConfig.color}
+                className="opacity-60"
+              />
+              <circle
+                cx={`${mindmapConfig.centerX}%`}
+                cy={`${mindmapConfig.centerY}%`}
+                r="3"
+                fill="#ffffff"
+              />
+
+              {mindmapConfig.skills.map((skill) => {
+                const rad = ((mindmapConfig.rotation || 0) * Math.PI) / 180;
+                const rotatedDx = skill.dx * Math.cos(rad) - skill.dy * Math.sin(rad);
+                const rotatedDy = skill.dx * Math.sin(rad) + skill.dy * Math.cos(rad);
+                const targetX = mindmapConfig.centerX + rotatedDx;
+                const targetY = mindmapConfig.centerY + rotatedDy;
+                return (
+                  <g key={skill.name}>
+                    {/* Dashed Connector Line */}
+                    <line
+                      x1={`${mindmapConfig.centerX}%`}
+                      y1={`${mindmapConfig.centerY}%`}
+                      x2={`${targetX}%`}
+                      y2={`${targetY}%`}
+                      stroke={mindmapConfig.color}
+                      strokeWidth="1"
+                      className="mindmap-line opacity-40"
+                    />
+                    {/* Endpoint Dot */}
+                    <circle
+                      cx={`${targetX}%`}
+                      cy={`${targetY}%`}
+                      r="2.5"
+                      fill={mindmapConfig.color}
+                      className="opacity-80"
+                    />
+                  </g>
+                );
+              })}
+            </svg>
+          )}
+
+          {/* Base grayscale flower */}
+          <img
+            src="/images/flower.svg"
+            alt="Flower Base"
+            className="w-full h-full object-contain relative z-10"
           />
-        </Canvas>
+
+          {/* Top Flower Layer (Red) */}
+          <img
+            src="/images/flower_red.svg"
+            alt="Top Flower Colored"
+            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-10"
+            style={{
+              opacity: (activeTab === 0 || (activeTab === null && hoveredItem === 0)) ? 1 : 0
+            }}
+          />
+
+          {/* Middle Flower Layer (Orange) */}
+          <img
+            src="/images/flower_orange.svg"
+            alt="Middle Flower Colored"
+            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-10"
+            style={{
+              opacity: (activeTab === 1 || (activeTab === null && hoveredItem === 1)) ? 1 : 0
+            }}
+          />
+
+          {/* Bottom Flower Layer (Blue) */}
+          <img
+            src="/images/flower_blue.svg"
+            alt="Bottom Flower Colored"
+            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-10"
+            style={{
+              opacity: (activeTab === 2 || (activeTab === null && hoveredItem === 2)) ? 1 : 0
+            }}
+          />
+
+          {/* HTML Tags for Skill Labels (Layered on top of the flower images) */}
+          {mindmapConfig && (
+            <div className="absolute inset-0 w-full h-full z-20 pointer-events-none">
+              {mindmapConfig.skills.map((skill, sIdx) => {
+                const rad = ((mindmapConfig.rotation || 0) * Math.PI) / 180;
+                const rotatedDx = skill.dx * Math.cos(rad) - skill.dy * Math.sin(rad);
+                const rotatedDy = skill.dx * Math.sin(rad) + skill.dy * Math.cos(rad);
+                const targetX = mindmapConfig.centerX + rotatedDx;
+                const targetY = mindmapConfig.centerY + rotatedDy;
+                return (
+                  <div
+                    key={skill.name}
+                    className="absolute skill-node-tag"
+                    style={{
+                      left: `${targetX}%`,
+                      top: `${targetY}%`,
+                      animationDelay: `${sIdx * 0.08}s`,
+                      opacity: 0,
+                    }}
+                  >
+                    <div
+                      className="px-2 py-0.5 bg-black/90 border backdrop-blur-md text-[9px] font-mono whitespace-nowrap"
+                      style={{
+                        borderColor: `${mindmapConfig.color}33`,
+                        boxShadow: `0 0 10px ${mindmapConfig.color}11`,
+                        color: '#e2e8f0'
+                      }}
+                    >
+                      {skill.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Ultra-subtle CRT scan-line overlay ── */}
@@ -333,44 +411,42 @@ export default function About() {
       />
 
       {/* ── Header ── */}
-      <header className="absolute top-0 left-0 right-0 z-20 pt-10 px-6 pb-4 md:p-12 flex justify-end md:justify-between items-center pointer-events-none">
+      <header className="absolute top-0 left-0 right-0 z-20 pt-10 px-6 pb-4 md:p-12 flex justify-end items-center pointer-events-none">
         <Link
           href="/"
           className="px-5 py-2.5 bg-white/5 border border-white/15 hover:border-white/60 transition-all duration-500 text-xs tracking-widest text-white/70 hover:text-white backdrop-blur-md font-mono pointer-events-auto"
         >
           &larr; BACK
         </Link>
-        <span className="text-[10px] tracking-[0.25em] font-mono uppercase text-white/25 hidden md:inline">
-          {currentTime}&ensp;//&ensp;ABOUT SREEJA
-        </span>
       </header>
 
       {/* ── Left Side: Core Interactive Menu ── */}
       <div className="absolute inset-0 z-10 flex items-center p-12 md:p-24 pointer-events-none">
         <div className="max-w-md w-full flex flex-col pointer-events-auto">
-          
-          <div className="flex items-center gap-3 mb-6 select-none">
-            <span className="font-mono text-[9px] tracking-widest text-white/30 uppercase">
-              Interactive Plinth
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-white/20 animate-pulse" />
-          </div>
 
-          <h1 className="text-5xl md:text-7xl font-extralight tracking-tight text-white leading-[1.1] mb-6">
-            About{' '}
-            <span className="font-playfair italic text-[#e2e8f0] tracking-wide font-normal">
+          <h1 className="text-5xl md:text-7xl font-extralight tracking-tight text-white leading-[1.1] mb-6 flex items-baseline select-none">
+            <span className="inline-block animate-about">
+              About
+            </span>
+            <span className="inline-block animate-her font-playfair italic text-[#e2e8f0] tracking-wide font-normal ml-3 relative z-[-1]">
               Her
             </span>
           </h1>
 
           <p className="text-[11px] font-mono text-white/40 tracking-wider mb-8 uppercase leading-relaxed">
-            Click shapes to inspect pillars, or click the <span className="text-[#39ff14] font-semibold">Pedestal Base</span> to view all technical skills.
+            Select a pillar below to inspect credentials, or click the button below to view all technical skills.
           </p>
 
           {/* Interactive Menu Items */}
           <div className="space-y-6">
             {resumeSections.map((sec, idx) => {
               const isActive = activeTab === idx;
+              const accentColors = [
+                { border: 'border-[#ff3366]/80 bg-[#ff3366]/5', text: 'text-[#ff3366]' },
+                { border: 'border-[#ff7700]/80 bg-[#ff7700]/5', text: 'text-[#ff7700]' },
+                { border: 'border-[#00d2ff]/80 bg-[#00d2ff]/5', text: 'text-[#00d2ff]' },
+              ];
+              const curAccent = accentColors[idx];
               return (
                 <button
                   key={sec.title}
@@ -380,18 +456,17 @@ export default function About() {
                     setActiveTab(isActive ? null : idx);
                     setShowAllSkills(false);
                   }}
-                  className={`w-full text-left border-l pl-6 py-2 transition-all duration-500 group focus:outline-none ${
-                    isActive 
-                      ? 'border-[#39ff14]/80 bg-[#39ff14]/5' 
-                      : 'border-white/10 hover:border-white/50 hover:bg-white/[0.02]'
-                  }`}
+                  className={`w-full text-left border-l pl-6 py-3 transition-all duration-500 group focus:outline-none animate-pillar ${isActive
+                    ? curAccent.border
+                    : 'border-white/10 hover:border-white/40 hover:bg-white/[0.01]'
+                    }`}
+                  style={{ animationDelay: `${1.1 + idx * 0.2}s` }}
                 >
-                  <h3 className={`font-mono text-xs tracking-widest uppercase mb-2 ${
-                    isActive ? 'text-[#39ff14]' : 'text-white/40 group-hover:text-white/80'
-                  }`}>
+                  <h3 className={`font-mono text-xs tracking-widest uppercase mb-2 transition-all duration-300 transform group-hover:translate-x-1 ${isActive ? curAccent.text : 'text-white/40 group-hover:text-white/80'
+                    }`}>
                     {sec.title}
                   </h3>
-                  <p className="text-[11px] leading-relaxed text-neutral-500 group-hover:text-neutral-400 font-sans">
+                  <p className="text-[11px] leading-relaxed text-neutral-500 group-hover:text-neutral-300 font-sans transition-all duration-300 transform group-hover:translate-x-1">
                     {sec.short}
                   </p>
                 </button>
@@ -404,11 +479,11 @@ export default function About() {
               setShowAllSkills(!showAllSkills);
               setActiveTab(null);
             }}
-            className={`mt-8 self-start px-6 py-3 border font-mono text-[10px] tracking-wider uppercase transition-all duration-500 ${
-              showAllSkills
-                ? 'border-[#39ff14] text-[#39ff14] bg-[#39ff14]/5'
-                : 'border-white/10 text-white/50 hover:border-white/40 hover:text-white'
-            }`}
+            className={`mt-8 self-start px-6 py-3 border font-mono text-[10px] tracking-wider uppercase transition-all duration-500 animate-pillar ${showAllSkills
+              ? 'border-[#39ff14] text-[#39ff14] bg-[#39ff14]/5'
+              : 'border-white/10 text-white/50 hover:border-white/40 hover:text-white'
+              }`}
+            style={{ animationDelay: '1.7s' }}
           >
             {showAllSkills ? 'Hide All Skills' : 'View All Skills Dashboard'}
           </button>
@@ -417,16 +492,15 @@ export default function About() {
       </div>
 
       {/* ── Sliding Panel: Detailed Credentials ── */}
-      <div 
-        className={`absolute top-0 right-0 h-screen w-full md:w-[600px] bg-[#0c0c0c]/95 backdrop-blur-xl border-l border-white/[0.08] z-30 transition-transform duration-700 ease-in-out p-12 md:p-16 overflow-y-auto ${
-          activeTab !== null ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`absolute top-0 right-0 h-screen w-full md:w-[600px] bg-[#0c0c0c]/95 backdrop-blur-xl border-l border-white/[0.08] z-30 transition-transform duration-700 ease-in-out p-12 md:p-16 overflow-y-auto ${activeTab !== null ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {activeTab !== null && (
           <div className="relative h-full flex flex-col justify-between text-white font-sans">
-            
+
             {/* Close Button */}
-            <button 
+            <button
               onClick={() => setActiveTab(null)}
               className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-white/15 hover:border-white/50 rounded-full text-white/50 hover:text-white font-mono text-xs transition-colors cursor-pointer"
             >
@@ -436,7 +510,8 @@ export default function About() {
             <div className="space-y-8 pr-2">
               {/* Category Title */}
               <div>
-                <span className="font-mono text-[9px] tracking-[0.25em] text-[#39ff14] uppercase">
+                <span className={`font-mono text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 ${activeTab === 0 ? 'text-[#ff3366]' : activeTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'
+                  }`}>
                   Pillar 0{activeTab + 1}
                 </span>
                 <h2 className="text-3xl font-light tracking-tight mt-1 text-[#e2e8f0]">
@@ -450,8 +525,8 @@ export default function About() {
                   <h4 className="font-mono text-[10px] tracking-widest text-white/40 uppercase mb-3">// Tech Stack & Skills</h4>
                   <div className="flex flex-wrap gap-2.5">
                     {resumeSections[activeTab].skills.map((skill) => (
-                      <span 
-                        key={skill} 
+                      <span
+                        key={skill}
                         className="px-3.5 py-1.5 bg-white/5 border border-white/[0.08] hover:border-white/30 text-white/80 hover:text-white rounded-none font-mono text-[11px] transition-all duration-300"
                       >
                         {skill}
@@ -498,7 +573,8 @@ export default function About() {
                   {resumeSections[activeTab].experience.map((exp) => (
                     <div key={exp.company} className="border-t border-white/[0.06] pt-4">
                       <h5 className="text-sm font-medium text-white/95">{exp.role}</h5>
-                      <span className="font-mono text-[10px] text-[#39ff14]/70 mt-0.5 block">{exp.company}</span>
+                      <span className={`font-mono text-[10px] mt-0.5 block transition-colors duration-300 ${activeTab === 0 ? 'text-[#ff3366]/80' : activeTab === 1 ? 'text-[#ff7700]/80' : 'text-[#00d2ff]/80'
+                        }`}>{exp.company}</span>
                       <ul className="list-disc pl-4 mt-2.5 space-y-1.5">
                         {exp.bullets.map((b, bIdx) => (
                           <li key={bIdx} className="text-[12px] leading-relaxed text-neutral-400">
@@ -527,27 +603,20 @@ export default function About() {
               )}
             </div>
 
-            {/* Bottom Panel Prompt */}
-            <div className="border-t border-white/[0.06] pt-6 mt-12 font-mono text-[9px] text-white/25 uppercase tracking-widest">
-              // credentials loaded successfully
-            </div>
+
           </div>
         )}
       </div>
 
       {/* ── Consolidated Skills Dashboard Overlay ── */}
       <div
-        className={`absolute inset-0 bg-black/90 backdrop-blur-2xl z-40 transition-all duration-700 flex flex-col justify-between p-12 md:p-24 ${
-          showAllSkills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'
-        }`}
+        className={`absolute inset-0 bg-black/90 backdrop-blur-2xl z-40 transition-all duration-700 flex flex-col justify-between p-12 md:p-24 ${showAllSkills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'
+          }`}
       >
         {/* Dashboard Header */}
         <div className="flex justify-between items-center border-b border-white/10 pb-6">
           <div>
-            <span className="font-mono text-[9px] tracking-[0.25em] text-[#39ff14] uppercase">
-              Consolidated Skill Matrix
-            </span>
-            <h2 className="text-4xl font-extralight text-white mt-2">
+            <h2 className="text-4xl font-extralight text-white">
               Sreeja Das <span className="font-playfair italic text-white/60">Skills</span>
             </h2>
           </div>
@@ -560,7 +629,7 @@ export default function About() {
         </div>
 
         {/* Dashboard Grid Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 my-8 overflow-y-auto pr-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 my-8 overflow-y-auto pr-2 no-scrollbar">
           {allSkillsCategories.map((cat, idx) => (
             <div key={cat.category} className="border border-white/5 bg-white/[0.02] p-8 flex flex-col justify-between hover:border-white/20 transition-all duration-500 group">
               <div>
@@ -581,9 +650,6 @@ export default function About() {
                   ))}
                 </div>
               </div>
-              <div className="mt-8 pt-4 border-t border-white/5 font-mono text-[8px] text-white/15 uppercase tracking-widest">
-                // category active
-              </div>
             </div>
           ))}
         </div>
@@ -601,11 +667,7 @@ export default function About() {
         </div>
       </div>
 
-      {/* ── Fixed Bottom HUD Footer ── */}
-      <footer className="absolute bottom-0 left-0 right-0 z-20 p-12 flex justify-between items-center font-mono text-[10px] text-white/15 tracking-[0.25em] pointer-events-none">
-        <span>PORTFOLIO 2026</span>
-        <span>ABOUT EXHIBITION v3.0</span>
-      </footer>
+
 
     </main>
   );

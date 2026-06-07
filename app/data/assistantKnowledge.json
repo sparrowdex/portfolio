@@ -1,0 +1,134 @@
+[
+  {
+    "projectId": "general",
+    "question": "Vague Project Question Catcher (Internal)",
+    "tags": ["problems", "challenges", "issues", "bugs", "tech stack", "tools", "framework", "built with", "how did you build", "how to build", "what did you use", "features", "core features"],
+    "answer": "Which project are you curious about? 🤔\n\nSince I have multiple projects, please **include the project name** in your question! (e.g., *'What were the challenges in the **Photobooth** app?'* or *'What is the tech stack for **Armatrix**?'*)"
+  },
+  {
+    "projectId": "general",
+    "question": "What is your educational background?",
+    "tags": ["education", "degree", "college", "university", "studied", "btech", "bachelor"],
+    "answer": "I am currently pursuing my **Bachelor of Technology in Computer Science (Core)** at SRM Institute of Science & Technology (Aug 2023 - May 2027). I currently hold a CGPA of 8.95."
+  },
+  {
+    "projectId": "general",
+    "question": "What are your technical skills?",
+    "tags": ["skills", "technologies", "languages", "frameworks", "tools", "stack", "what do you know", "proficient"],
+    "answer": "My primary skills include:\n- **Frontend & Animation**: Next.js, React.js, Three.js, React Three Fiber, Framer Motion, GSAP\n- **Backend & Cloud**: Node.js, Express, PostgreSQL, Prisma, Firebase\n- **Languages**: JavaScript/TypeScript, Python, SQL\n- **Design & Tools**: Figma, Git/GitHub, Postman"
+  },
+  {
+    "projectId": "general",
+    "question": "Do you have any work experience?",
+    "tags": ["experience", "work", "job", "internship", "career", "inner voice", "nic"],
+    "answer": "Yes! I am currently the **Founder & Lead Developer** at **Inner Voice**, a mental health AI startup, where I architected a full-stack wellness platform using Next.js and Firebase.\n\nPreviously, I was a **Web Development Intern at the National Informatics Centre (NIC)**, where I contributed to the digitalization of government workflows."
+  },
+  {
+    "projectId": "general",
+    "question": "What is your development philosophy or ethos?",
+    "tags": ["ethos", "philosophy", "why do you code", "view", "mindset", "approach", "design philosophy", "what is your design philosophy", "what's your design philosophy"],
+    "answer": "My view of computer science was quite narrow until I discovered creative coding. I love embedding hidden interactions that reward the user's curiosity. Software shouldn't be boring; it should broaden horizons. My goal is always to deliver an 'eye-candy' experience that makes people feel good, while keeping the hidden architecture rigorous and minimal."
+  },
+  {
+    "projectId": "general",
+    "question": "What all projects have you done so far?",
+    "tags": ["all projects", "what projects", "list projects", "portfolio", "done so far", "what have you built", "show me your work", "projects"],
+    "answer": "So far, my portfolio includes:\n1. **The Web Photobooth**: A creative browser-based retro photobooth.\n2. **Armatrix**\n3. **Diecast**\n4. **Flowers for Beloved**\n5. **Inner Voice**\n\nI'm still adding detailed information for some of these, but you can ask me deep-dive questions about the **Photobooth** project right now!"
+  },
+  {
+    "projectId": "general",
+    "question": "Who are you?",
+    "tags": ["who are you", "about you", "name", "creator", "developer", "who made this"],
+    "answer": "I'm **Sreeja Das**, the developer and designer behind this portfolio! I specialize in building creative, interactive web experiences."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "Summary of Photobooth",
+    "tags": ["photobooth", "summary", "about photobooth", "tell me about photobooth", "what is photobooth", "what is it"],
+    "answer": "The **Photobooth Web App** is a creative browser-based retro photobooth. It allows users to take single or multiple shots, create animated GIFs, apply layered filters, and design custom photo strips. It was built using React, Vite, Tailwind CSS, p5.js, and Capacitor!"
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What is the project name and its primary URL/Repo?",
+    "tags": ["name", "url", "repo", "github", "link", "demo", "website", "photobooth"],
+    "answer": "**Name**: Photobooth Web App\n**Repo**: [GitHub](https://github.com/sparrowdex/photobooth-web.git)\n**Live Demo**: [Visit Site](https://pinkphotobooth.vercel.app/)"
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What is the one-sentence elevator pitch for this project?",
+    "tags": ["pitch", "summary", "about", "what is it", "description", "explain"],
+    "answer": "A modern, feature-rich, and fully responsive web-based photobooth application that allows users to take single or multiple shots, create animated GIFs, apply layered filters, and design custom photo strips and letters."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What was your role?",
+    "tags": ["role", "who built", "team", "part", "contribution"],
+    "answer": "I was the Solo Developer & UI Designer."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What is the complete Tech Stack?",
+    "tags": ["tech stack", "tools", "framework", "technologies", "libraries", "used", "built with", "react", "tailwind", "what did you use", "photobooth"],
+    "answer": "**Framework**: React 18 & Vite\n**Styling**: Tailwind CSS\n**Animation & Canvas**: p5.js, GSAP, html2canvas\n**Camera**: react-camera-pro, react-webcam\n**GIF**: gifshot, gifuct-js\n**Mobile**: Capacitor\n**Deployment**: Vercel"
+  },
+  {
+    "projectId": "photobooth",
+    "question": "How did you build this?",
+    "tags": ["how did you build", "how to build", "how was it made", "process", "architecture", "journey", "step by step", "development process", "photobooth"],
+    "answer": "I started by mapping out the UI and user flow. Once the design was clear, I set up a React environment using Vite for fast bundling and Tailwind CSS for rapid styling. For the core camera functionality, I integrated `react-webcam` to capture the raw feed. The heaviest part of the build was the image processing—I used `html2canvas` to render the DOM elements into downloadable images, and `gifshot` to compile those images into animated GIFs. Finally, to make it accessible to everyone, I used Capacitor to wrap the entire React web app into a native Android application."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "Why did you build this?",
+    "tags": ["why did you build", "why", "reason", "motivation", "goal", "purpose", "learning", "photobooth"],
+    "answer": "This was built as my very first project to explore frontend development and UI design. The primary goal was to learn React and get comfortable working with modern web frameworks."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "Who is the target audience or user base?",
+    "tags": ["audience", "users", "who uses", "target"],
+    "answer": "Casual users and anyone who enjoys taking photos and creating fun, personalized memories."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What are the top 3 core features of the application?",
+    "tags": ["features", "capabilities", "what can it do", "highlights", "core"],
+    "answer": "1. **Multiple Photo Layouts**: Select from 1, 3, 4, or 6 shot layouts with design overlays.\n2. **GIF Creation & Stackable Filters**: Automatic animated GIFs with layerable image filters (e.g., Noir, Vintage).\n3. **Interactive Letter**: Draggable, resizable, and rotatable letter card overlay to type custom messages."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What was the most difficult technical challenge you faced?",
+    "tags": ["challenge", "difficult", "hardest part", "problem", "bug", "issue", "timing", "async"],
+    "answer": "1. **Camera Timing & Animations**: Handling recursive asynchronous logic (`setTimeout` loops) for sequential camera clicks without blocking the UI thread.\n2. **Layout Alignment**: Managing coordinate bounds dynamically for different layouts.\n3. **Downloads & Permissions**: Handling cross-device aspect ratios and web-camera permissions gracefully."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "How exactly did you solve that challenge?",
+    "tags": ["solution", "solve", "how", "fix", "resolution", "architecture", "state management", "mobile-first"],
+    "answer": "I meticulously structured the `frameMappings` object to explicitly track coordinate bounds per layout. For mobile UX, I decoupled complex UI controls (like the filter carousel) from the main canvas view, converting them into touch-friendly swipeable modal pop-ups driven by React state. This shift to prioritizing robust responsive state management resolved cross-platform rendering issues."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "Are there any unique architectural decisions or design patterns you are proud of?",
+    "tags": ["architecture", "design pattern", "proud", "unique", "decisions", "filter", "capacitor", "mobile", "state"],
+    "answer": "1. **Filter Layering System**: Engineered a multi-dimensional state management system allowing users to stack multiple CSS filters, combined sequentially upon export (`ctx.filter = cssFilters[i]`).\n2. **Mobile-First UX Abstraction**: Decoupled UI controls into swipeable pop-ups driven by React state, paired with Capacitor to deliver a native mobile app feel from a single web codebase."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What was the final impact or result?",
+    "tags": ["impact", "result", "outcome", "success", "milestone"],
+    "answer": "It served as a major personal milestone. I successfully designed, developed, and deployed a full-fledged, creative web application from scratch."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "If you could go back and rebuild it from scratch, what would you do differently?",
+    "tags": ["rebuild", "differently", "hindsight", "improve", "change", "planning"],
+    "answer": "I would start by mapping out the exact features and architecture beforehand. I'd also adopt a strictly mobile-first approach from the beginning, and focus on perfecting simple core functionalities before adding excessive 'wow' factors."
+  },
+  {
+    "projectId": "photobooth",
+    "question": "What was the biggest lesson you learned from this project?",
+    "tags": ["lesson", "learned", "takeaway", "advice"],
+    "answer": "The biggest lesson was the importance of planning. Mapping out requirements saves a tremendous amount of time. Also, while beautiful design is important, robust functionality and a seamless mobile UX are what truly make an application usable."
+  }
+]

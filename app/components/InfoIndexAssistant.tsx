@@ -5,10 +5,11 @@ import Fuse from 'fuse.js';
 import assistantData from '../data/assistantKnowledge.json';
 
 const SYNONYMS: Record<string, string> = {
-  "difficulties": "challenges",
-  "hardest part": "challenges",
-  "hurdles": "challenges",
-  "bugs": "challenges",
+  "difficulties": "challenge",
+  "hardest part": "challenge",
+  "hurdles": "challenge",
+  "bugs": "challenge",
+  "challenges": "challenge",
   "stack": "tech stack",
   "frameworks": "tech stack",
   "technologies": "tech stack",
@@ -117,11 +118,18 @@ export const InfoIndexAssistant = () => {
     setIsTyping(true);
 
     let processedMsg = userMsg.toLowerCase();
+    
+    // Direct intercepts for the suggestion buttons to guarantee a 100% exact match
+    if (processedMsg === "what was the tech stack?") processedMsg = "tech stack";
+    if (processedMsg === "what were the challenges?") processedMsg = "challenge";
+    if (processedMsg === "how did you build it?") processedMsg = "process";
+    if (processedMsg === "what is the pitch?") processedMsg = "summary";
+
     Object.entries(SYNONYMS).forEach(([synonym, replacement]) => {
       processedMsg = processedMsg.replace(new RegExp(`\\b${synonym}\\b`, 'gi'), replacement);
     });
 
-    const projectKeywords = ['photobooth', 'inner voice', 'innervoice', 'diecast', 'armatrix', 'flowers for beloved', 'flowers'];
+    const projectKeywords = ['photobooth', 'inner voice', 'innervoice', 'diecast', 'diecast store', 'diecaststore', 'armatrix', 'flowers for beloved', 'flowers', 'flowersforbeloved', 'spice vault', 'spicevault', 'timeless', 'snow globe', 'snowglobe'];
     let detectedProject = projectKeywords.find(p => processedMsg.includes(p));
 
     let newActiveProject = activeProject;
@@ -143,9 +151,21 @@ export const InfoIndexAssistant = () => {
     let filteredData = assistantData;
     if (newActiveProject) {
       const mappedId = newActiveProject.replace(/\s+/g, '');
-      filteredData = assistantData.filter((item: any) => item.projectId === 'general' || item.projectId === mappedId);
+      
+      // Filter data to only include the active project and general items (but exclude the vague catcher since we already know the project context!)
+      filteredData = assistantData.filter((item: any) => {
+        if (item.projectId === mappedId) return true;
+        if (item.projectId === 'general' && !item.question.includes('Vague Project Question Catcher')) return true;
+        return false;
+      });
+      
       // Remove the project keyword from the query so it doesn't skew results
       searchQuery = searchQuery.replace(new RegExp(newActiveProject, 'gi'), '').trim();
+      
+      // If the user just typed the project name, default to searching for its summary
+      if (searchQuery === '') {
+        searchQuery = 'summary';
+      }
     }
 
     // Create a dynamic Fuse instance with the filtered data

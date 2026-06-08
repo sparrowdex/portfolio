@@ -12,6 +12,7 @@ import { DiecastModal } from '../components/ProjectModals/DiecastModal';
 import { ArmatrixModal } from '../components/ProjectModals/ArmatrixModal';
 import { FlowersModal } from '../components/ProjectModals/FlowersModal';
 import { SpiceVaultModal } from '../components/ProjectModals/SpiceVaultModal';
+import { TimelessModal } from '../components/ProjectModals/TimelessModal';
 
 const PROJECTS_DATA: Project[] = [
   {
@@ -62,7 +63,7 @@ const PROJECTS_DATA: Project[] = [
     id: 4,
     title: 'Armatrix',
     subtitle: 'Special Interactive Startup Page',
-    desc: 'An award-winning replication of the Armatrix startup team page with highly interactive, cybernetic grids.',
+    desc: 'A highly interactive replication of the Armatrix startup team page featuring custom cybernetic grids.',
     longDesc: 'Armatrix was a special project designed to replicate a futuristic, interactive team directory page for the Armatrix startup company.',
     colors: ['#39ff14', '#6b7280', '#000000'],
     colorLabels: ['Neon Green', 'Tech Grey', 'Pure Black'],
@@ -99,6 +100,21 @@ const PROJECTS_DATA: Project[] = [
     featuredHighlight: 'Custom hybrid recommendation engine (Collaborative + Content-Based) that learns from views, likes, saves, and ratings.',
     imageFallback: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=600&auto=format&fit=crop',
     logo: '/images/spicevault/logo.svg'
+  },
+  {
+    id: 7,
+    title: 'Timeless: The Digital Snow Globe',
+    subtitle: 'Hackathon Top 10 Winner',
+    desc: 'An interactive 3D winter memory box that responds to your breath through the microphone.',
+    longDesc: '"Timeless" is an interactive 3D web experience built with React and Three.js. It takes users on a nostalgic journey through three distinct holiday eras—Past, Present, and Future. Built for a 4-hour hackathon where it placed Top 10.',
+    colors: ['#ffffff', '#4ade80', '#ef4444'],
+    colorLabels: ['Snow White', 'Grinch Green', 'Santa Red'],
+    tech: ['React Three Fiber', 'Web Audio API', 'ElevenLabs AI', 'Vite'],
+    features: ['Microphone breath-controlled snow physics', 'Dynamic era-shifting 3D shaders', 'AI-generated contextual voice narration'],
+    featuredHighlight: 'Custom Web Audio API abstraction hook seamlessly controlling 3D particle wind physics.',
+    imageFallback: '/images/christmas-spirit/globe.png',
+    logo: '/images/christmas-spirit/globe.png',
+    specialBadge: 'Top 10 Winner'
   }
 ];
 
@@ -106,7 +122,7 @@ const PROJECTS_DATA: Project[] = [
 // Generates parametric shapes to morph the stars into when hovered
 const NUM_STARS = 150;
 function getConstellationShapes() {
-  const shapes: Record<string, THREE.Vector3[]> = { random: [], camera: [], heart: [], car: [], am_logo: [], flower: [], pot: [] };
+  const shapes: Record<string, THREE.Vector3[]> = { random: [], camera: [], heart: [], car: [], am_logo: [], flower: [], pot: [], snowflake: [] };
 
   for (let i = 0; i < NUM_STARS; i++) {
     const t = (i / NUM_STARS) * Math.PI * 2;
@@ -215,6 +231,16 @@ function getConstellationShapes() {
         const p = (i - 80) / 20;
         shapes.pot.push(new THREE.Vector3(1, 0.5 + p * 2, 0.5 * Math.sin(p * Math.PI * 4 + Math.PI)));
       }
+      // 7. SNOWFLAKE (Timeless)
+      if (i < 90) {
+        const branchIdx = Math.floor(i / 15);
+        const branchProg = (i % 15) / 15;
+        const angle = (branchIdx / 6) * Math.PI * 2;
+        shapes.snowflake.push(new THREE.Vector3(branchProg * 3.5 * Math.cos(angle), branchProg * 3.5 * Math.sin(angle), 0));
+      } else {
+        shapes.snowflake.push(new THREE.Vector3(0, 0, 0));
+      }
+
     } else {
       // Unused stars for shapes just use their random drift position
       shapes.camera.push(shapes.random[i].clone());
@@ -223,6 +249,7 @@ function getConstellationShapes() {
       shapes.am_logo.push(shapes.random[i].clone());
       shapes.flower.push(shapes.random[i].clone());
       shapes.pot.push(shapes.random[i].clone());
+      shapes.snowflake.push(shapes.random[i].clone());
     }
   }
   return shapes;
@@ -453,8 +480,8 @@ export default function Projects() {
   const activeColorTheme = activeHoveredProj ? activeHoveredProj.colors[0] : '#d5dbe3';
 
   // Maps the hovered card to the respective geometric constellation shape
-  const targetShapesMap = ['camera', 'heart', 'car', 'am_logo', 'flower', 'pot'];
-  const hoverTargetKey = hoveredCardIdx === null ? 'random' : targetShapesMap[hoveredCardIdx % 6];
+  const targetShapesMap = ['camera', 'heart', 'car', 'am_logo', 'flower', 'pot', 'snowflake'];
+  const hoverTargetKey = hoveredCardIdx === null ? 'random' : targetShapesMap[hoveredCardIdx % 7];
 
   return (
     <main
@@ -572,12 +599,18 @@ export default function Projects() {
               <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">{selectedProject.title}</h2>
               <p className="text-xs md:text-sm tracking-wider uppercase font-bold" style={{ color: selectedProject.colors[0] }}>{selectedProject.subtitle}</p>
             </div>
-            {selectedProject.id === 1 && <PhotoboothModal selectedProject={selectedProject} />}
-            {selectedProject.id === 2 && <InnerVoiceModal selectedProject={selectedProject} />}
-            {selectedProject.id === 3 && <DiecastModal selectedProject={selectedProject} />}
-            {selectedProject.id === 4 && <ArmatrixModal selectedProject={selectedProject} />}
-            {selectedProject.id === 5 && <FlowersModal selectedProject={selectedProject} />}
-            {selectedProject.id === 6 && <SpiceVaultModal selectedProject={selectedProject} />}
+            {(() => {
+              switch (selectedProject.id) {
+                case 1: return <PhotoboothModal selectedProject={selectedProject} />;
+                case 2: return <InnerVoiceModal selectedProject={selectedProject} />;
+                case 3: return <DiecastModal selectedProject={selectedProject} />;
+                case 4: return <ArmatrixModal selectedProject={selectedProject} />;
+                case 5: return <FlowersModal selectedProject={selectedProject} />;
+                case 6: return <SpiceVaultModal selectedProject={selectedProject} />;
+                case 7: return <TimelessModal selectedProject={selectedProject} />;
+                default: return null;
+              }
+            })()}
           </div>
         </div>
       )}

@@ -24,18 +24,20 @@ Because Fuse.js doesn't understand context, asking a generic question like *"Wha
 - **Solution:** A specific "Vague Project Question Catcher" entry was added to the top of the JSON. It listens for generic keywords (`"problems"`, `"tech stack"`).
 - When triggered, the bot replies: *"Which project are you curious about? Please include the project name..."*
 
-### Conversational Memory (Contextual Concatenation)
-Simulated bots usually have zero memory of previous messages. We faked memory using React state:
-- If the bot just triggered the "Vague Trap" (asking the user to specify a project), and the user replies with a single word (e.g., *"Photobooth"*)...
-- The code secretly grabs the user's *previous* question (*"What were the challenges?"*) and concatenates it with their new input (*"Photobooth"*). 
-- The search engine quietly searches for *"What were the challenges? Photobooth"*, flawlessly delivering the correct project-specific answer.
+### Persistent Conversational Memory (Project Context Tracking)
+Simulated bots usually have zero memory of previous messages. We created true context awareness using React state:
+- When a user types a project name (e.g., "SpiceVault" or "Photobooth"), the code detects it via a `projectKeywords` list and saves it to an `activeProject` state variable.
+- For all subsequent follow-up questions (like "What were the challenges?"), the assistant pre-filters its entire brain, permanently isolating the search to *only* that specific project's data.
+- If a project context is known, the "Vague Question Trap" is automatically disabled, allowing users to ask natural, generic follow-up questions seamlessly.
 
-### Tag Isolation & Collision Prevention
-When user inputs are long, tags can cross-contaminate (e.g., *"Why did you build this?"* accidentally matching the word "build" in the "Tech Stack" tags). 
-- **Solution:** Tags are strictly isolated. Process questions use `["how did you build", "architecture"]`, while Tech Stack questions use `["stack", "framework"]`. 
+### Exact Match Interceptors & Suggestion Buttons
+To guarantee that the UI suggestion buttons (like "Challenges", "Tech Stack") work with 100% reliability, hardcoded exact-match interceptors are used.
+- Because `Fuse.js` fuzzy-scoring can sometimes penalize pluralization or extra words (causing them to fall below the 0.6 threshold), the interceptor catches the exact string sent by the button.
+- It forcibly overwrites the user's string into the perfect, raw tag (`"challenge"` or `"process"`) before searching, entirely bypassing the fuzzy-scoring fuzziness for a guaranteed 100% match score.
 
-### Pure Keyword Summaries
-If a user just types a project name (e.g., *"Photobooth"*) out of the blue, the bot has a dedicated summary entry whose tags are strictly the project name. This ensures it doesn't randomly pick a feature or challenge to display, but rather a curated elevator pitch.
+### Pure Keyword Summaries & Blank Queries
+If a user just types a project name (e.g., *"Photobooth"*) out of the blue, the project name is detected and stripped from the search query to prevent search-weight skewing. This leaves an empty `""` query.
+- **Solution:** The code detects the empty query and automatically forces the search string to `"summary"`. This guarantees that typing a project name instantly serves up its curated elevator pitch instead of throwing a blank error.
 
 ## 5. UI/UX Design
 - **The Button:** A floating pill button styled using hyper-realistic CSS linear gradients and inner bevels to mimic Y2K physical chrome metal, complete with a recessed dark lens for the icon.

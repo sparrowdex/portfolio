@@ -83,8 +83,9 @@ export default function Contact() {
   const [formValues, setFormValues] = useState({ name: '', email: '', message: '' });
   const [activeField, setActiveField] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [currentTime, setCurrentTime] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   /* OS Detection */
   useEffect(() => {
@@ -118,8 +119,7 @@ export default function Contact() {
   const typewriters = [t0, t1, t2, t3];
 
   /* Dynamic symbols for form input lines */
-  const promptSymbol = isApple ? '$' : 'C:\\Users\\hp>';
-  const promptWidth = isApple ? 'w-12' : 'w-36';
+  const promptSymbol = isApple ? '$' : '>';
   const arrowSymbol = isApple ? '→' : '=';
   const labelName = isApple ? 'name' : 'set name';
   const labelEmail = isApple ? 'email' : 'set email';
@@ -136,17 +136,30 @@ export default function Contact() {
     }
   }, [t3.done, bootPhase]);
 
-  /* Clock */
-  useEffect(() => {
-    const tick = () => setCurrentTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
-    tick();
-    const iv = setInterval(tick, 1000);
-    return () => clearInterval(iv);
-  }, []);
+  const handleSubmit = useCallback(async () => {
+    if (!formValues.name || !formValues.email || !formValues.message) return;
+    
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-  const handleSubmit = useCallback(() => {
-    if (formValues.name && formValues.email && formValues.message) {
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formValues),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
       setSubmitted(true);
+    } catch (error: any) {
+      setSubmitError(error.message || 'An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
     }
   }, [formValues]);
 
@@ -183,9 +196,7 @@ export default function Contact() {
         >
           &larr; BACK
         </Link>
-        <span className="text-[10px] tracking-[0.25em] font-mono uppercase text-white/25 hidden md:inline">
-          {currentTime}&ensp;//&ensp;CONTACT
-        </span>
+
       </header>
 
       {/* ── Main Content Container ── */}
@@ -211,9 +222,9 @@ export default function Contact() {
             {/* Dynamic Window Title Bar */}
             {isApple ? (
               <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.06] bg-white/[0.015]">
-                <div className="w-2 h-2 rounded-full bg-white/15" />
-                <div className="w-2 h-2 rounded-full bg-white/10" />
-                <div className="w-2 h-2 rounded-full bg-white/10" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
                 <span className="ml-4 text-[9px] font-mono text-white/20 tracking-[0.3em] uppercase">
                   contact.sh
                 </span>
@@ -244,11 +255,11 @@ export default function Contact() {
             )}
 
             {/* Terminal body */}
-            <div className="p-6 md:p-8 font-mono text-[13px] leading-relaxed space-y-2.5 min-h-[280px]">
+            <div className="p-4 sm:p-6 md:p-8 font-mono text-[13px] leading-relaxed space-y-2.5 min-h-[280px] overflow-x-hidden overflow-y-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
 
               {/* Windows CMD Header */}
               {!isApple && detected && (
-                <div className="text-white/30 mb-4 text-[12px] leading-relaxed">
+                <div className="text-white/40 mb-4 text-[11px] sm:text-[12px] leading-relaxed">
                   Microsoft Windows [Version 10.0.26200.8457]<br />
                   (c) Microsoft Corporation. All rights reserved.
                 </div>
@@ -259,11 +270,11 @@ export default function Contact() {
                 if (bootPhase < idx) return null;
                 const tw = typewriters[idx];
                 return (
-                  <div key={idx} className="flex gap-3 items-center">
-                    <span className="text-white/20 shrink-0">{line.prefix}</span>
-                    <span className={line.prefix === '▸' ? 'text-white/50' : 'text-white/30'}>
+                  <div key={idx} className="flex gap-2 sm:gap-3 items-center flex-wrap">
+                    <span className="text-white/35 shrink-0 text-[11px] sm:text-[13px]">{line.prefix}</span>
+                    <span className={line.prefix === '▸' ? 'text-white/70' : 'text-white/50'}>
                       {tw.displayed}
-                      {!tw.done && <span className="animate-pulse ml-0.5 text-white/40">▎</span>}
+                      {!tw.done && <span className="animate-pulse ml-0.5 text-white/50">▎</span>}
                     </span>
                   </div>
                 );
@@ -277,69 +288,81 @@ export default function Contact() {
               {/* ── Form Fields ── */}
               {showForm && !submitted && (
                 <div
-                  className="space-y-4 transition-opacity duration-700"
+                  className="space-y-5 transition-opacity duration-700"
                   style={{ animation: 'fade-in 0.6s ease-out forwards' }}
                 >
                   {/* Name */}
-                  <div className="flex gap-3 items-center">
-                    <span className="text-white/20 shrink-0">{promptSymbol}</span>
-                    <span className={`text-white/40 shrink-0 ${promptWidth}`}>{labelName}</span>
-                    <span className="text-white/15 shrink-0">{arrowSymbol}</span>
-                    <input
-                      id="contact-name"
-                      type="text"
-                      value={formValues.name}
-                      onChange={(e) => setFormValues(p => ({ ...p, name: e.target.value }))}
-                      onFocus={() => setActiveField('name')}
-                      onBlur={() => setActiveField(null)}
-                      className="bg-transparent border-none outline-none text-white/80 flex-1 caret-white/50 placeholder:text-white/10 font-mono text-[13px]"
-                      placeholder="your name"
-                      autoComplete="off"
-                    />
-                    {activeField === 'name' && (
-                      <span className="animate-pulse text-white/30 text-xs">▎</span>
-                    )}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex gap-2 items-center">
+                      <span className="text-white/35 shrink-0">{promptSymbol}</span>
+                      <span className="text-white/60 shrink-0">{labelName}</span>
+                      <span className="text-white/25 shrink-0">{arrowSymbol}</span>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4 sm:ml-6">
+                      <input
+                        id="contact-name"
+                        type="text"
+                        value={formValues.name}
+                        onChange={(e) => setFormValues(p => ({ ...p, name: e.target.value }))}
+                        onFocus={() => setActiveField('name')}
+                        onBlur={() => setActiveField(null)}
+                        className="bg-transparent border-none outline-none text-white/90 flex-1 min-w-0 caret-white/60 placeholder:text-white/20 font-mono text-[13px] border-b border-white/10 focus:border-white/30 pb-1 transition-colors"
+                        placeholder="your name"
+                        autoComplete="off"
+                      />
+                      {activeField === 'name' && (
+                        <span className="animate-pulse text-white/40 text-xs">▎</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Email */}
-                  <div className="flex gap-3 items-center">
-                    <span className="text-white/20 shrink-0">{promptSymbol}</span>
-                    <span className={`text-white/40 shrink-0 ${promptWidth}`}>{labelEmail}</span>
-                    <span className="text-white/15 shrink-0">{arrowSymbol}</span>
-                    <input
-                      id="contact-email"
-                      type="email"
-                      value={formValues.email}
-                      onChange={(e) => setFormValues(p => ({ ...p, email: e.target.value }))}
-                      onFocus={() => setActiveField('email')}
-                      onBlur={() => setActiveField(null)}
-                      className="bg-transparent border-none outline-none text-white/80 flex-1 caret-white/50 placeholder:text-white/10 font-mono text-[13px]"
-                      placeholder="you@domain.com"
-                      autoComplete="off"
-                    />
-                    {activeField === 'email' && (
-                      <span className="animate-pulse text-white/30 text-xs">▎</span>
-                    )}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex gap-2 items-center">
+                      <span className="text-white/35 shrink-0">{promptSymbol}</span>
+                      <span className="text-white/60 shrink-0">{labelEmail}</span>
+                      <span className="text-white/25 shrink-0">{arrowSymbol}</span>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4 sm:ml-6">
+                      <input
+                        id="contact-email"
+                        type="email"
+                        value={formValues.email}
+                        onChange={(e) => setFormValues(p => ({ ...p, email: e.target.value }))}
+                        onFocus={() => setActiveField('email')}
+                        onBlur={() => setActiveField(null)}
+                        className="bg-transparent border-none outline-none text-white/90 flex-1 min-w-0 caret-white/60 placeholder:text-white/20 font-mono text-[13px] border-b border-white/10 focus:border-white/30 pb-1 transition-colors"
+                        placeholder="you@domain.com"
+                        autoComplete="off"
+                      />
+                      {activeField === 'email' && (
+                        <span className="animate-pulse text-white/40 text-xs">▎</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Message */}
-                  <div className="flex gap-3 items-start">
-                    <span className="text-white/20 shrink-0 mt-0.5">{promptSymbol}</span>
-                    <span className={`text-white/40 shrink-0 ${promptWidth} mt-0.5`}>{labelMsg}</span>
-                    <span className="text-white/15 shrink-0 mt-0.5">{arrowSymbol}</span>
-                    <textarea
-                      id="contact-message"
-                      value={formValues.message}
-                      onChange={(e) => setFormValues(p => ({ ...p, message: e.target.value }))}
-                      onFocus={() => setActiveField('message')}
-                      onBlur={() => setActiveField(null)}
-                      rows={3}
-                      className="bg-transparent border-none outline-none text-white/80 flex-1 caret-white/50 resize-none placeholder:text-white/10 font-mono text-[13px] leading-relaxed"
-                      placeholder="what's on your mind?"
-                    />
-                    {activeField === 'message' && (
-                      <span className="animate-pulse text-white/30 text-xs mt-0.5">▎</span>
-                    )}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex gap-2 items-center">
+                      <span className="text-white/35 shrink-0">{promptSymbol}</span>
+                      <span className="text-white/60 shrink-0">{labelMsg}</span>
+                      <span className="text-white/25 shrink-0">{arrowSymbol}</span>
+                    </div>
+                    <div className="flex items-start gap-2 ml-4 sm:ml-6">
+                      <textarea
+                        id="contact-message"
+                        value={formValues.message}
+                        onChange={(e) => setFormValues(p => ({ ...p, message: e.target.value }))}
+                        onFocus={() => setActiveField('message')}
+                        onBlur={() => setActiveField(null)}
+                        rows={3}
+                        className="bg-transparent border-none outline-none text-white/90 flex-1 min-w-0 caret-white/60 resize-none placeholder:text-white/20 font-mono text-[13px] leading-relaxed border-b border-white/10 focus:border-white/30 pb-1 transition-colors"
+                        placeholder="what's on your mind?"
+                      />
+                      {activeField === 'message' && (
+                        <span className="animate-pulse text-white/40 text-xs mt-0.5">▎</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Submit */}
@@ -347,15 +370,20 @@ export default function Contact() {
                     <button
                       id="contact-submit"
                       onClick={handleSubmit}
-                      disabled={!formValues.name || !formValues.email || !formValues.message}
-                      className="group flex gap-3 items-center cursor-pointer transition-all duration-500 disabled:opacity-20 disabled:cursor-default hover:opacity-100 opacity-60"
+                      disabled={!formValues.name || !formValues.email || !formValues.message || isSubmitting}
+                      className="group flex gap-3 items-center cursor-pointer transition-all duration-500 disabled:opacity-20 disabled:cursor-default hover:opacity-100 opacity-80 border border-white/10 hover:border-white/30 px-5 py-2.5 bg-white/[0.03] hover:bg-white/[0.06]"
                     >
-                      <span className="text-white/20 shrink-0">{promptSymbol}</span>
+                      <span className="text-white/35 shrink-0">{promptSymbol}</span>
                       <span className="text-white tracking-[0.15em] group-hover:tracking-[0.25em] transition-all duration-500">
-                        {isApple ? 'transmit' : 'transmit.exe'}
+                        {isSubmitting ? (isApple ? 'transmitting...' : 'transmitting.exe...') : (isApple ? 'transmit' : 'transmit.exe')}
                       </span>
-                      <span className="text-white/20 group-hover:text-white/50 transition-colors duration-500">↵</span>
+                      {!isSubmitting && <span className="text-white/30 group-hover:text-white/60 transition-colors duration-500">↵</span>}
                     </button>
+                    {submitError && (
+                      <div className="mt-4 text-red-400 text-[11px] font-mono">
+                        Error: {submitError}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -367,12 +395,12 @@ export default function Contact() {
                   style={{ animation: 'fade-in 0.8s ease-out forwards' }}
                 >
                   <div className="flex gap-3 items-center">
-                    <span className="text-white/20 shrink-0">{isApple ? '▸' : '>>'}</span>
-                    <span className="text-white/70">message transmitted successfully ✓</span>
+                    <span className="text-white/35 shrink-0">{isApple ? '▸' : '>>'}</span>
+                    <span className="text-white/80">message transmitted successfully ✓</span>
                   </div>
                   <div className="flex gap-3 items-center">
-                    <span className="text-white/20 shrink-0">{isApple ? '▸' : '>>'}</span>
-                    <span className="text-white/35">sreeja will get back to you soon.</span>
+                    <span className="text-white/35 shrink-0">{isApple ? '▸' : '>>'}</span>
+                    <span className="text-white/50">sreeja will get back to you soon.</span>
                   </div>
                 </div>
               )}

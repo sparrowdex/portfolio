@@ -11,6 +11,7 @@ import { InnerVoiceModal } from '../components/ProjectModals/InnerVoiceModal';
 import { DiecastModal } from '../components/ProjectModals/DiecastModal';
 import { ArmatrixModal } from '../components/ProjectModals/ArmatrixModal';
 import { FlowersModal } from '../components/ProjectModals/FlowersModal';
+import { SpiceVaultModal } from '../components/ProjectModals/SpiceVaultModal';
 
 const PROJECTS_DATA: Project[] = [
   {
@@ -24,7 +25,8 @@ const PROJECTS_DATA: Project[] = [
     tech: ['HTML5 Canvas', 'WebRTC Camera API', 'CSS Grid', 'JavaScript'],
     features: ['Real-time filters & effects', 'Custom overlay frame styles', 'High-quality instant downloads'],
     featuredHighlight: 'Custom asynchronous pipeline rendering that cleanly processes pixel filters instantly.',
-    imageFallback: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop'
+    imageFallback: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=600&auto=format&fit=crop',
+    logo: '/images/photobooth/logo.png'
   },
   {
     id: 2,
@@ -32,12 +34,14 @@ const PROJECTS_DATA: Project[] = [
     subtitle: 'Mental Health Platform',
     desc: 'A calming mental wellness workspace focusing on journaling, guided mindfulness, and emotional trackers.',
     longDesc: 'Inner Voice is a dedicated mental wellness platform built to provide a safe space for mindfulness, self-reflection, and guided emotional wellness exercises.',
-    colors: ['#87ceeb', '#4169e1', '#9370db'],
-    colorLabels: ['Light Blue', 'Royal Blue', 'Soft Purple'],
+    colors: ['hsl(200, 60%, 75%)', 'hsl(200, 68%, 50%)', 'rgb(139, 92, 246)'],
+    colorLabels: ['Pastel Blue', 'Ocean Blue', 'Ethereal Violet'],
     tech: ['React', 'Next.js', 'Chart.js', 'Web Audio API'],
     features: ['Mindful mood journal logging', 'Visual emotional tracking charts', 'Ambient soundscapes'],
     featuredHighlight: 'Dynamic browser layout engine utilizing customized modular local context nodes.',
-    imageFallback: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=600&auto=format&fit=crop'
+    imageFallback: 'https://images.unsplash.com/photo-1536152470836-b943b246224c?q=80&w=600&auto=format&fit=crop',
+    logo: '/images/innervoice/InnerVoice_dark.png',
+    specialBadge: 'Startup'
   },
   {
     id: 3,
@@ -45,12 +49,14 @@ const PROJECTS_DATA: Project[] = [
     subtitle: 'Premium E-Commerce Showcase',
     desc: 'A sleek e-commerce platform for collectibles featuring an interactive 3D product showcase.',
     longDesc: 'A high-fidelity e-commerce experience tailored specifically for diecast model car collectors. It features dynamic custom 3D model showcases where users can rotate, inspect, and configure vehicles.',
-    colors: ['#ff0000', '#ff8c00', '#aaaaaa', '#0a0a0a'],
-    colorLabels: ['Crimson Red', 'Blaze Orange', 'Metallic Grey', 'Obsidian Black'],
+    colors: ['#FAFAFA', '#0A0A0A', '#FF1E1E'],
+    colorLabels: ['Off-White', 'Soft Black', 'Racing Red'],
     tech: ['Three.js', 'React Three Fiber', 'Next.js', 'Stripe API'],
     features: ['Interactive 3D model inspector', 'Advanced multi-tier product filter', 'Sleek dark mode interfaces'],
     featuredHighlight: 'Procedural non-aliased glass shader configuration projecting realistic reflections.',
-    imageFallback: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=600&auto=format&fit=crop'
+    imageFallback: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=600&auto=format&fit=crop',
+    logo: '/images/diecaststore/logo.png',
+    specialBadge: 'Freelance'
   },
   {
     id: 4,
@@ -70,14 +76,29 @@ const PROJECTS_DATA: Project[] = [
     id: 5,
     title: 'Flowers for Beloved',
     subtitle: 'Experimental WebGL Systems & Gift Art',
-    desc: 'An interactive exploration of parametric mathematics, structural flower generation, and real-time canvas code.',
-    longDesc: 'Built strictly to practice deep WebGL mesh layout logic, math pipelines, and hardware-accelerated movement. This project builds intricate, multi-layered organic plant nodes.',
-    colors: ['#8A9A5B', '#ffb7c5', '#ffd700', '#4b0082'],
-    colorLabels: ['Sage Green Base', 'Blossom Pink', 'Golden Flora', 'Deep Violet'],
-    tech: ['Three.js', 'Custom GLSL Shaders', 'React Three Fiber', 'Web Audio API'],
-    features: ['Multi-layered Rose Curve procedural blooms', 'Dynamic screen color synchronization loops', 'Zero-overhead non-aliased gradient math'],
+    desc: 'A digital garden of procedurally generated, personalized 3D flowers built as unique, interactive birthday gifts for friends.',
+    longDesc: 'Hand-coded 3D botanicals using React Three Fiber, each tailored to a friend\'s personality. Features microphone-driven interactivity, real-time collaborative 3D spaces, and procedural generation.',
+    colors: ['#4ade80', '#ff2d75', '#ffb7c5'],
+    colorLabels: ['Garden Green', 'Valentine Pink', 'Blossom Pink'],
+    tech: ['Three.js', 'React Three Fiber', 'Web Audio API', 'Firebase'],
+    features: ['Procedurally generated 3D botanicals', 'Microphone-driven bloom animation', 'Persistent 3D collaborative messages'],
     featuredHighlight: 'Custom GPU-bound fragment shader architecture calculating realistic Fresnel reflection bands.',
-    imageFallback: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=600&auto=format&fit=crop'
+    imageFallback: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=600&auto=format&fit=crop',
+    logo: '/images/flowersforbeloved/logo.png'
+  },
+  {
+    id: 6,
+    title: 'SpiceVault',
+    subtitle: 'Machine Learning Culinary Network',
+    desc: 'A dynamic, ML-powered culinary social network that learns your tastes to serve up highly personalized recipes.',
+    longDesc: 'Spice Vault is a comprehensive full-stack web application designed as a centralized platform for recipe sharing and discovery. It combines traditional recipe browsing with an advanced machine learning-powered recommendation engine.',
+    colors: ['#ff6600', '#ff8533', '#bc8f8e'],
+    colorLabels: ['Primary Orange', 'Lighter Orange', 'Rosy Brown'],
+    tech: ['React 19', 'Node.js', 'MySQL', 'Machine Learning'],
+    features: ['Culinary Feed & Stories', 'ML Recommendations', 'Chef Insights Dashboard'],
+    featuredHighlight: 'Custom hybrid recommendation engine (Collaborative + Content-Based) that learns from views, likes, saves, and ratings.',
+    imageFallback: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=600&auto=format&fit=crop',
+    logo: '/images/spicevault/logo.svg'
   }
 ];
 
@@ -85,7 +106,7 @@ const PROJECTS_DATA: Project[] = [
 // Generates parametric shapes to morph the stars into when hovered
 const NUM_STARS = 150;
 function getConstellationShapes() {
-  const shapes: Record<string, THREE.Vector3[]> = { random: [], camera: [], heart: [], car: [], am_logo: [], flower: [] };
+  const shapes: Record<string, THREE.Vector3[]> = { random: [], camera: [], heart: [], car: [], am_logo: [], flower: [], pot: [] };
 
   for (let i = 0; i < NUM_STARS; i++) {
     const t = (i / NUM_STARS) * Math.PI * 2;
@@ -174,6 +195,26 @@ function getConstellationShapes() {
       // 5. FLOWER (Flowers for Beloved)
       const r = 4.5 * Math.sin(5 * st);
       shapes.flower.push(new THREE.Vector3(Math.cos(st) * r, Math.sin(st) * r, 0));
+
+      // 6. POT (SpiceVault) - Simple cooking pot
+      if (i < 40) {
+        // Bottom half circle
+        const p = i / 40;
+        const angle = Math.PI + p * Math.PI; // PI to 2PI (bottom half)
+        shapes.pot.push(new THREE.Vector3(2.5 * Math.cos(angle), 2.5 * Math.sin(angle), 0));
+      } else if (i < 60) {
+        // Flat top rim
+        const p = (i - 40) / 20;
+        shapes.pot.push(new THREE.Vector3(-2.5 + p * 5, 0, 0));
+      } else if (i < 80) {
+        // Steam 1
+        const p = (i - 60) / 20;
+        shapes.pot.push(new THREE.Vector3(-1, 0.5 + p * 2, 0.5 * Math.sin(p * Math.PI * 4)));
+      } else {
+        // Steam 2
+        const p = (i - 80) / 20;
+        shapes.pot.push(new THREE.Vector3(1, 0.5 + p * 2, 0.5 * Math.sin(p * Math.PI * 4 + Math.PI)));
+      }
     } else {
       // Unused stars for shapes just use their random drift position
       shapes.camera.push(shapes.random[i].clone());
@@ -181,6 +222,7 @@ function getConstellationShapes() {
       shapes.car.push(shapes.random[i].clone());
       shapes.am_logo.push(shapes.random[i].clone());
       shapes.flower.push(shapes.random[i].clone());
+      shapes.pot.push(shapes.random[i].clone());
     }
   }
   return shapes;
@@ -411,8 +453,8 @@ export default function Projects() {
   const activeColorTheme = activeHoveredProj ? activeHoveredProj.colors[0] : '#d5dbe3';
 
   // Maps the hovered card to the respective geometric constellation shape
-  const targetShapesMap = ['camera', 'heart', 'car', 'am_logo', 'flower'];
-  const hoverTargetKey = hoveredCardIdx === null ? 'random' : targetShapesMap[hoveredCardIdx % 5];
+  const targetShapesMap = ['camera', 'heart', 'car', 'am_logo', 'flower', 'pot'];
+  const hoverTargetKey = hoveredCardIdx === null ? 'random' : targetShapesMap[hoveredCardIdx % 6];
 
   return (
     <main
@@ -444,9 +486,9 @@ export default function Projects() {
 
       <div className="absolute inset-0 z-10 flex flex-col justify-center items-center p-12 pb-0 pointer-events-none">
 
-        <div className="absolute top-[30%] -translate-y-1/2 w-full flex justify-center items-center z-0 select-none mix-blend-difference text-white">
+        <div className="absolute top-[30%] -translate-y-1/2 w-full flex justify-center items-center z-0 select-none text-white transition-opacity duration-500">
           <h1
-            className="text-[16vw] tracking-tighter flex items-center justify-center relative leading-none mb-0 h-[15vw]"
+            className={`text-[16vw] tracking-tighter flex items-center justify-center relative leading-none mb-0 h-[15vw] transition-opacity duration-500 mix-blend-difference ${hoveredCardIdx !== null ? 'opacity-0' : 'opacity-100'}`}
             style={{ fontFamily: "'Dancing Script', 'Playfair Display', cursive", fontStyle: "italic" }}
           >
             {titleLetters.map((letter, i) => (
@@ -526,7 +568,7 @@ export default function Projects() {
               <span className="hover:text-white transition-colors cursor-pointer" onClick={handleClosePanel}>INDEX</span><span>/</span><span className="text-white">{selectedProject.title.toUpperCase()}</span>
             </div>
             <div className="flex flex-col gap-3">
-              {selectedProject.specialBadge && <div className="flex"><span className="text-[9px] px-3 py-1 bg-[#39ff14]/5 border border-[#39ff14]/30 font-bold tracking-widest text-[#39ff14]">★ {selectedProject.specialBadge.toUpperCase()}</span></div>}
+              {selectedProject.specialBadge && <div className="flex"><span className="text-[9px] px-3 py-1 font-bold tracking-widest" style={{ color: selectedProject.colors[0], borderColor: `${selectedProject.colors[0]}4D`, backgroundColor: `${selectedProject.colors[0]}0D`, border: `1px solid ${selectedProject.colors[0]}4D` }}>★ {selectedProject.specialBadge.toUpperCase()}</span></div>}
               <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">{selectedProject.title}</h2>
               <p className="text-xs md:text-sm tracking-wider uppercase font-bold" style={{ color: selectedProject.colors[0] }}>{selectedProject.subtitle}</p>
             </div>
@@ -535,6 +577,7 @@ export default function Projects() {
             {selectedProject.id === 3 && <DiecastModal selectedProject={selectedProject} />}
             {selectedProject.id === 4 && <ArmatrixModal selectedProject={selectedProject} />}
             {selectedProject.id === 5 && <FlowersModal selectedProject={selectedProject} />}
+            {selectedProject.id === 6 && <SpiceVaultModal selectedProject={selectedProject} />}
           </div>
         </div>
       )}

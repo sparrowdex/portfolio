@@ -80,17 +80,17 @@ export default function About() {
     {
       title: 'Frontend & Animation',
       altTitle: 'Reasons behind interaction:',
-      ethos: "My view of computer science was quite narrow until I discovered creative coding. I love embedding hidden interactions—whether it's a viewport shift or a delicate animation—that reward the user's curiosity. Software shouldn't be boring; it should broaden horizons. From struggling with basic Python loops three years ago to chasing the high of finally making a complex WebGL shader work, my goal is always to deliver an 'eye-candy' experience that makes people feel good."
+      ethos: "My view of computer science expanded the moment I discovered creative coding. I love building interfaces that reward a user's curiosity—whether it's a subtle hover state or a complex WebGL shader. Going from struggling with basic loops three years ago to engineering immersive 3D experiences taught me that software doesn't have to be rigid. My goal is to craft digital experiences that are just as fun to use as they are to build."
     },
     {
       title: 'Backend & Cloud Systems',
       altTitle: 'Bridging logic and emotion:',
-      ethos: "Bridging the gap between cold architecture and human emotion requires intense intentionality. Building the backend for Inner Voice wasn't just a technical exercise; I was forced into invention by a desire to give my peers a safe space to express themselves without feeling like a burden. Inspiration truly strikes when you love what you do, and I build robust systems so that the software can reliably touch the hearts of the communities I care about."
+      ethos: "Building the backend for Inner Voice wasn't just about managing databases—it was about creating a reliable foundation for human connection. I architected the system to give my peers a safe, anonymous space to express themselves without feeling like a burden. I genuinely believe the best code is written when you care deeply about the end user. I focus on building robust, secure architecture because the communities relying on the software deserve an experience that never fails them."
     },
     {
       title: 'Experience & Achievements',
       altTitle: 'The bigger picture:',
-      ethos: "True engineering lies in the hidden architecture. Studying a meticulous, decade-in-the-making system at the National Informatics Centre taught me that a seamless experience is built on rigorous planning. I am the person with 'plans for the plans'—level-headed under pressure, whether I'm refactoring a chaotic early codebase for my startup or designing for real people. My core philosophy is simple, minimal, and impactful: it may take immense effort to build a complex interaction, but the user should only ever feel its effortless magic."
+      ethos: "Working on massive systems at the National Informatics Centre taught me the true value of scalable, organized architecture. I'm naturally someone who loves planning and structuring workflows. Whether I'm refactoring an early startup codebase or architecting a new platform from scratch, I stay level-headed by breaking complex problems into manageable pieces. My philosophy is simple: we handle the intense technical complexity behind the scenes, so the user only ever experiences the effortless magic."
     }
   ];
 
@@ -534,14 +534,12 @@ export default function About() {
               {showAllSkills ? 'Hide All Skills' : 'View All Skills Dashboard'}
             </button>
 
-            <a 
-              href="/resume.pdf" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <Link 
+              href="/resume" 
               className="px-6 py-3 border border-white/10 text-white/50 font-mono text-[10px] tracking-wider uppercase transition-all duration-500 hover:border-white/40 hover:text-white"
             >
               View Full Resume
-            </a>
+            </Link>
           </div>
 
         </div>
@@ -575,9 +573,9 @@ export default function About() {
               </div>
 
               <div className="pt-4">
-                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className={`inline-block px-6 py-3 border font-mono text-[11px] tracking-widest uppercase transition-colors ${panelTab === 0 ? 'border-[#ff3366] text-[#ff3366]' : panelTab === 1 ? 'border-[#ff7700] text-[#ff7700]' : 'border-[#00d2ff] text-[#00d2ff]'}`}>
+                <Link href="/resume" className={`inline-block px-6 py-3 border font-mono text-[11px] tracking-widest uppercase transition-colors ${panelTab === 0 ? 'border-[#ff3366] text-[#ff3366]' : panelTab === 1 ? 'border-[#ff7700] text-[#ff7700]' : 'border-[#00d2ff] text-[#00d2ff]'}`}>
                   View Full Resume
-                </a>
+                </Link>
               </div>
             </div>
           </div>

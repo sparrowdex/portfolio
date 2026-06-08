@@ -53,9 +53,15 @@ function InteractiveEcosystem({ currentThemeColor, themeIdx }: { currentThemeCol
           
           float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0);
           float shine = max(dot(reflect(-viewDir, normal), vec3(0.5, 0.5, 1.0)), 0.0);
+          
+          // Chrome theme (high contrast grayscale)
           vec3 chromeGradient = mix(vec3(0.18, 0.2, 0.25), vec3(0.98, 0.99, 1.0), vec3(fresnel + pow(shine, 4.0)));
           
-          vec3 finalColor = mix(uColor, chromeGradient, uIsChrome);
+          // Colored themes (apply lighting, shadow, and specular shine to uColor)
+          vec3 colored3D = mix(uColor * 0.3, uColor * 1.5, vec3(fresnel)); 
+          colored3D += pow(shine, 4.0) * uColor * 0.8;
+          
+          vec3 finalColor = mix(colored3D, chromeGradient, uIsChrome);
           gl_FragColor = vec4(finalColor, 1.0);
         }
       `
@@ -244,6 +250,7 @@ export default function Home() {
               src="/images/flower.png"
               alt="Flower Shape"
               fill
+              sizes="(max-width: 768px) 75vw, 380px"
               priority
               className="object-contain"
               style={{ filter: 'url(#liquid-distortion)' }}
@@ -330,15 +337,15 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative h-4 w-full hidden md:block">
-            {showHoverHint && (
-              <span
-                className="absolute top-0 left-0 font-mono text-[10px] tracking-widest font-bold block transition-all duration-500 ease-out animate-pulse opacity-50"
-                style={{ color: themeIdx === 0 ? '#ffffff' : currentTheme }}
-              >
-                [ CLICK ON THE FLOWER TO INTERACT ]
-              </span>
-            )}
+          <div 
+            className={`relative w-full hidden md:block transition-all duration-500 ease-in-out ${showHoverHint ? 'h-4 opacity-100' : 'h-0 opacity-0 overflow-hidden'}`}
+          >
+            <span
+              className="absolute top-0 left-0 font-mono text-[10px] tracking-widest font-bold block transition-all duration-500 ease-out animate-pulse opacity-50 whitespace-nowrap"
+              style={{ color: themeIdx === 0 ? '#ffffff' : currentTheme }}
+            >
+              [ CLICK ON THE FLOWER TO INTERACT ]
+            </span>
           </div>
 
           <p className="text-gray-400 font-mono text-xs max-w-xs leading-relaxed opacity-70 mt-0">

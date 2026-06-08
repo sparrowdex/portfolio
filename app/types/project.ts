@@ -11,4 +11,5 @@ export interface Project {
   featuredHighlight?: string;
   specialBadge?: string;
   imageFallback: string;
+  logo?: string;
 }

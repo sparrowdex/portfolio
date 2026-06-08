@@ -4,9 +4,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import assistantData from '../data/assistantKnowledge.json';
 
+const SYNONYMS: Record<string, string> = {
+  "difficulties": "challenges",
+  "hardest part": "challenges",
+  "hurdles": "challenges",
+  "bugs": "challenges",
+  "stack": "tech stack",
+  "frameworks": "tech stack",
+  "technologies": "tech stack",
+  "pitch": "summary",
+  "about": "summary",
+};
+
 // Simple text parser to handle bold (**text**) and links ([text](url))
 const parseMarkdownText = (text: string) => {
-  // First handle links
   const parts = text.split(/(\[.*?\]\(.*?\))/g);
 
   return parts.map((part, i) => {
@@ -25,14 +36,12 @@ const parseMarkdownText = (text: string) => {
       );
     }
 
-    // Handle bold within text parts
     const boldParts = part.split(/(\*\*.*?\*\*)/g);
     return boldParts.map((bPart, j) => {
       const boldMatch = bPart.match(/\*\*(.*?)\*\*/);
       if (boldMatch) {
         return <strong key={`${i}-${j}`} className="font-bold text-white">{boldMatch[1]}</strong>;
       }
-      // Handle newlines
       return <span key={`${i}-${j}`}>{bPart.split('\n').map((line, k, arr) => (
         <React.Fragment key={k}>
           {line}
@@ -43,9 +52,37 @@ const parseMarkdownText = (text: string) => {
   });
 };
 
+const TypewriterMessage = ({ content, speed = 15, onComplete }: { content: string, speed?: number, onComplete?: () => void }) => {
+  const [displayed, setDisplayed] = useState('');
+
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    let i = 0;
+    setDisplayed('');
+    const interval = setInterval(() => {
+      setDisplayed(content.slice(0, i));
+      i++;
+      if (i > content.length) {
+        clearInterval(interval);
+        if (onCompleteRef.current) onCompleteRef.current();
+      }
+    }, speed);
+    return () => clearInterval(interval);
+  }, [content, speed]);
+
+  return <>{parseMarkdownText(displayed)}</>;
+};
+
 export const InfoIndexAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
+  const [activeProject, setActiveProject] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hi! What would you like to know about my projects?' }
   ]);
@@ -54,11 +91,12 @@ export const InfoIndexAssistant = () => {
   // Initialize Fuse.js
   const fuse = new Fuse(assistantData, {
     keys: [
+      { name: 'projectId', weight: 3 },
       { name: 'tags', weight: 2 },
       { name: 'question', weight: 1 }
     ],
-    threshold: 0.6, // More lenient matching for natural language sentences
-    ignoreLocation: true, // Don't penalize if the match is at the end
+    threshold: 0.6,
+    ignoreLocation: true,
     includeScore: true,
   });
 
@@ -67,52 +105,83 @@ export const InfoIndexAssistant = () => {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
-  }, [messages, isOpen]);
+    scrollToBottom();
+  }, [messages, isOpen, isTyping]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const sendQuery = (userText: string) => {
+    if (!userText.trim() || isTyping) return;
 
-    // Add user message
-    const userMsg = input.trim();
+    const userMsg = userText.trim();
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setInput('');
+    setIsTyping(true);
 
-    // Handle conversational context for vague questions
-    const lastAssistantMsg = messages.length > 0 ? messages[messages.length - 1] : null;
-    const wasAskedToClarify = lastAssistantMsg && lastAssistantMsg.content.includes("Which project are you curious about?");
-    
-    let searchQuery = userMsg;
-    if (wasAskedToClarify) {
-      const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content || '';
-      searchQuery = `${lastUserMsg} ${userMsg}`;
+    let processedMsg = userMsg.toLowerCase();
+    Object.entries(SYNONYMS).forEach(([synonym, replacement]) => {
+      processedMsg = processedMsg.replace(new RegExp(`\\b${synonym}\\b`, 'gi'), replacement);
+    });
+
+    const projectKeywords = ['photobooth', 'inner voice', 'innervoice', 'diecast', 'armatrix', 'flowers for beloved', 'flowers'];
+    let detectedProject = projectKeywords.find(p => processedMsg.includes(p));
+
+    let newActiveProject = activeProject;
+    if (detectedProject) {
+      newActiveProject = detectedProject;
+      setActiveProject(detectedProject);
     }
 
-    // Search for answer
-    const results = fuse.search(searchQuery);
+    const lastAssistantMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+    const wasAskedToClarify = lastAssistantMsg && lastAssistantMsg.content.includes("Which project are you curious about?");
+
+    let searchQuery = processedMsg;
+    if (wasAskedToClarify && !detectedProject) {
+      const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content || '';
+      searchQuery = `${lastUserMsg} ${processedMsg}`;
+    }
+
+    // Filter the knowledge base to only general questions + the active project's questions
+    let filteredData = assistantData;
+    if (newActiveProject) {
+      const mappedId = newActiveProject.replace(/\s+/g, '');
+      filteredData = assistantData.filter((item: any) => item.projectId === 'general' || item.projectId === mappedId);
+      // Remove the project keyword from the query so it doesn't skew results
+      searchQuery = searchQuery.replace(new RegExp(newActiveProject, 'gi'), '').trim();
+    }
+
+    // Create a dynamic Fuse instance with the filtered data
+    const dynamicFuse = new Fuse(filteredData, {
+      keys: [
+        { name: 'tags', weight: 2 },
+        { name: 'question', weight: 1 }
+      ],
+      threshold: 0.6,
+      ignoreLocation: true,
+      includeScore: true,
+    });
+
+    const results = dynamicFuse.search(searchQuery);
 
     setTimeout(() => {
-      // Changed threshold check to 0.6 to match the new leniency
       if (results.length > 0 && results[0].score && results[0].score < 0.6) {
-        // Found a good match
         setMessages(prev => [...prev, { role: 'assistant', content: results[0].item.answer }]);
       } else {
-        // Fallback
         setMessages(prev => [...prev, { 
           role: 'assistant', 
           content: "I haven't been programmed with an answer for that yet! Try asking me about my **experience**, my **design philosophy**, or dive into the **tech stack** and **challenges** behind my projects." 
         }]);
       }
-    }, 400); // Small delay to feel more natural
+    }, 400);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendQuery(input);
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans">
       {isOpen ? (
-        <div className="w-80 sm:w-96 h-[500px] max-h-[80vh] flex flex-col bg-neutral-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform scale-100 opacity-100">
+        <div className={`${isExpanded ? 'w-[90vw] h-[85vh] md:w-[70vw]' : 'w-80 sm:w-96 h-[500px] max-h-[80vh]'} flex flex-col bg-neutral-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform scale-100 opacity-100`}>
 
           {/* Header */}
           <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
@@ -120,16 +189,29 @@ export const InfoIndexAssistant = () => {
               <h3 className="text-white font-bold tracking-wide uppercase text-sm">Information Index</h3>
               <p className="text-[10px] text-neutral-400 font-mono">Ask about my projects</p>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-neutral-400 hover:text-white transition-colors"
-              aria-label="Close"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-neutral-400 hover:text-white transition-colors"
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+              >
+                {isExpanded ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+                )}
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-neutral-400 hover:text-white transition-colors"
+                aria-label="Close"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -137,7 +219,7 @@ export const InfoIndexAssistant = () => {
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'self-end items-end' : 'self-start items-start'}`}
+                className={`flex flex-col ${isExpanded ? 'max-w-[70%]' : 'max-w-[85%]'} ${msg.role === 'user' ? 'self-end items-end' : 'self-start items-start'}`}
               >
                 <span className="text-[10px] text-neutral-500 font-mono uppercase mb-1 px-1">
                   {msg.role === 'user' ? 'You' : 'Index'}
@@ -148,10 +230,34 @@ export const InfoIndexAssistant = () => {
                     : 'bg-transparent text-neutral-300 rounded-tl-sm border border-white/10'
                     }`}
                 >
-                  {msg.role === 'user' ? msg.content : parseMarkdownText(msg.content)}
+                  {msg.role === 'assistant' && idx > 0 ? (
+                    idx === messages.length - 1 && isTyping ? (
+                      <TypewriterMessage 
+                        content={msg.content} 
+                        onComplete={() => setIsTyping(false)} 
+                      />
+                    ) : (
+                      parseMarkdownText(msg.content)
+                    )
+                  ) : (
+                    msg.role === 'user' ? msg.content : parseMarkdownText(msg.content)
+                  )}
                 </div>
+                
+                {msg.role === 'assistant' && idx === messages.length - 1 && !isTyping && activeProject && (
+                  <div className="flex gap-2 mt-3 flex-wrap">
+                    <button onClick={() => sendQuery("What was the tech stack?")} className="text-[10px] bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full border border-white/5 transition-colors font-mono">Tech Stack</button>
+                    <button onClick={() => sendQuery("What were the challenges?")} className="text-[10px] bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full border border-white/5 transition-colors font-mono">Challenges</button>
+                    <button onClick={() => sendQuery("How did you build it?")} className="text-[10px] bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full border border-white/5 transition-colors font-mono">Process</button>
+                  </div>
+                )}
               </div>
             ))}
+            {isTyping && messages[messages.length - 1].role === 'user' && (
+               <div className="self-start px-4 py-3 bg-transparent text-neutral-500 rounded-2xl border border-white/5 text-sm flex gap-1">
+                 <span className="animate-pulse">.</span><span className="animate-pulse delay-75">.</span><span className="animate-pulse delay-150">.</span>
+               </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -162,12 +268,13 @@ export const InfoIndexAssistant = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your question..."
-                className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-colors font-mono"
+                placeholder={activeProject ? `Ask about ${activeProject}...` : "Type your question..."}
+                disabled={isTyping}
+                className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-colors font-mono disabled:opacity-50"
               />
               <button
                 type="submit"
-                disabled={!input.trim()}
+                disabled={!input.trim() || isTyping}
                 className="bg-white text-black px-4 py-3 rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

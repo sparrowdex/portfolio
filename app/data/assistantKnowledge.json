@@ -1,6 +1,12 @@
 [
   {
     "projectId": "general",
+    "question": "Hello / Greetings",
+    "tags": ["hello", "hi", "hey", "greetings", "good morning", "good evening", "howdy", "wassup", "whats up"],
+    "answer": "Hello! 👋 I'm Sreeja's AI Assistant. You can ask me anything about her projects, tech stack, or background. Where would you like to start?"
+  },
+  {
+    "projectId": "general",
     "question": "Vague Project Question Catcher (Internal)",
     "tags": ["problems", "challenges", "issues", "bugs", "tech stack", "tools", "framework", "built with", "how did you build", "how to build", "what did you use", "features", "core features"],
     "answer": "Which project are you curious about? 🤔\n\nSince I have multiple projects, please **include the project name** in your question! (e.g., *'What were the challenges in the **Photobooth** app?'* or *'What is the tech stack for **Armatrix**?'*)"
@@ -38,7 +44,7 @@
   {
     "projectId": "general",
     "question": "Who are you?",
-    "tags": ["who are you", "about you", "name", "creator", "developer", "who made this"],
+    "tags": ["who are you", "about you", "name", "creator", "developer", "who made this", "sreeja", "sreeja das"],
     "answer": "I'm **Sreeja Das**, the developer and designer behind this portfolio! I specialize in building creative, interactive web experiences."
   },
   {
@@ -130,5 +136,479 @@
     "question": "What was the biggest lesson you learned from this project?",
     "tags": ["lesson", "learned", "takeaway", "advice"],
     "answer": "The biggest lesson was the importance of planning. Mapping out requirements saves a tremendous amount of time. Also, while beautiful design is important, robust functionality and a seamless mobile UX are what truly make an application usable."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "Summary of InnerVoice",
+    "tags": ["innervoice", "inner voice", "summary", "about", "tell me about", "what is innervoice", "what is it"],
+    "answer": "InnerVoice is a comprehensive emotional support platform that bridges the gap between AI companionship and real human connection. It provides a safe, boundary-respecting space for users to express their feelings, supported by a network of trusted friends and a structured community system."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What is the project name and its primary URL/Repo?",
+    "tags": ["name", "url", "repo", "github", "link", "demo", "website", "innervoice"],
+    "answer": "**Name**: InnerVoice\n**Repo**: *Private Repository*\n**Live Demo**: [Visit Site](https://theinnervoice.vercel.app)"
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What is the one-sentence elevator pitch for this project?",
+    "tags": ["pitch", "summary", "about", "what is it", "description", "explain"],
+    "answer": "A safe, boundary-respecting emotional support network that gives everyone a voice without the fear of being a burden."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What was your role?",
+    "tags": ["role", "who built", "team", "part", "contribution"],
+    "answer": "**Solo Full-Stack Developer & Product Architect.** I managed everything from UI/UX and system architecture to business logic, including pricing structures and community management systems."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What is the complete Tech Stack?",
+    "tags": ["tech stack", "tools", "framework", "technologies", "libraries", "used", "built with", "react", "nextjs", "what did you use", "innervoice"],
+    "answer": "**Framework**: Next.js (App Router), React\n**Backend & DB**: Firebase (Firestore), Firebase Admin\n**Authentication**: Clerk\n**AI Integration**: Google Gemini API via Genkit\n**Styling & UI**: Tailwind CSS, Shadcn UI\n**Deployment**: Vercel"
+  },
+  {
+    "projectId": "innervoice",
+    "question": "How did you build this?",
+    "tags": ["how did you build", "how to build", "how was it made", "process", "architecture", "journey", "step by step", "development process", "innervoice"],
+    "answer": "I built InnerVoice as a full-stack Next.js application, undergoing a massive architectural shift during 'The Great Refactor'. Because this was only my 3rd ever project, early iterations had messy folder structures and systems that weren't quite working. I essentially grew alongside the codebase. Eventually, I implemented Clerk for secure authentication, utilized Firebase Firestore to manage complex relational data, and integrated Google's Genkit for the AI companion. The platform now cleanly balances technical performance with a delicate, accessible user experience using Tailwind and Shadcn UI."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "Why did you build this?",
+    "tags": ["why did you build", "why", "reason", "motivation", "goal", "purpose", "learning", "innervoice"],
+    "answer": "I built this for my friends and community. I saw firsthand how much Indian youth struggle to share their true 'voice,' constantly battling the fear of being a burden. Even when someone is comfortable opening up, their friends might not have the emotional bandwidth to listen due to their own problems. I wanted to build an app that acts as a comfortable barrier and boundary—ensuring no one feels unsafe, friends aren't overwhelmed, and everyone gets a fair chance to be heard."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "Who is the target audience or user base?",
+    "tags": ["audience", "users", "who uses", "target"],
+    "answer": "The core audience is young adults, particularly within the Indian community, who struggle with emotional expression. But more importantly, the app is an entire ecosystem designed to 'help and be helped.' Users can curate their own community of 'Trusted Friends' to reach out to. Alternatively, individuals can volunteer generally as 'Supporters.' A Supporter can be added as a Trusted Friend, and a User can eventually heal and become a Supporter themselves. Fun fact: the entire concept for this massive app actually originated from this core 'Trusted Friends' idea!"
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What are the top 3 core features of the application?",
+    "tags": ["features", "capabilities", "what can it do", "highlights", "core"],
+    "answer": "1. **The Supporter Network**: A boundary-respecting system where users can share their struggles with a curated list of 'Trusted Friends' only when those friends have the emotional bandwidth to engage.\n2. **AI Emotional Companion**: An AI proxy that acts as an immediate, safe sounding board for users to vent and process emotions before bringing them to human peers.\n3. **Anonymous Community Forum**: A safe, judgment-free space where users can connect with others, share experiences, and receive mutual support anonymously."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What was the most difficult technical challenge you faced?",
+    "tags": ["challenge", "difficult", "hardest part", "problem", "bug", "issue", "refactor"],
+    "answer": "'The Great Refactor'—transitioning the app from legacy code and early architectural mistakes into a scalable, production-ready system. This meant completely overhauling how data was structured in Firestore, migrating fully to the Next.js App Router, and seamlessly integrating complex business logic (like pricing and access controls) alongside sensitive AI and community features without breaking the existing user experience."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "How exactly did you solve that challenge?",
+    "tags": ["solution", "solve", "how", "fix", "resolution", "architecture", "state management", "server actions"],
+    "answer": "I took a systematic approach to resolving technical debt. I centralized the business logic and AI interactions into Next.js Server Actions to ensure security and reduce client-side bloat. I redesigned the Firestore data models to properly support scalable analytics and complex community relationships. Throughout the refactor, I implemented robust error handling and strict typing to ensure that the platform remained stable and performant as the architecture shifted."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "Are there any unique architectural decisions or design patterns you are proud of?",
+    "tags": ["architecture", "design pattern", "proud", "unique", "decisions", "choice-based", "boundaries"],
+    "answer": "Beyond the technical implementation of Server Actions and Firestore analytics, I am incredibly proud of the overarching 'choice-based' system design. I ensured the site is not completely AI-reliant, but heavily community-reliant. The architecture reflects strict boundaries: users can explicitly opt-in or opt-out of being a supporter; they can toggle their availability as a trusted friend to protect their own peace. Every technical decision was made to ensure the user feels comfortable and in control at every step of the way."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What was the final impact or result?",
+    "tags": ["impact", "result", "outcome", "success", "milestone"],
+    "answer": "Because the vision and scope of the project are quite large, InnerVoice is still an ongoing, active project. I am taking the time to scale it carefully, ensuring the codebase and community ecosystem are robust before a full MVP release. The priority is getting the delicate balance of safety and complex features exactly right, rather than rushing a launch."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "If you could go back and rebuild it from scratch, what would you do differently?",
+    "tags": ["rebuild", "differently", "hindsight", "improve", "change", "planning"],
+    "answer": "I would have mapped out the business requirements and pricing structures from day one, rather than retrofitting them into the app later. I would also have started with a much stricter database schema and the Next.js App Router immediately to avoid the heavy lifting required during the codebase refactor."
+  },
+  {
+    "projectId": "innervoice",
+    "question": "What was the biggest lesson you learned from this project?",
+    "tags": ["lesson", "learned", "takeaway", "advice"],
+    "answer": "I learned that while technical innovation matters, *how* you go about it matters just as much. Every architectural and design decision you make has a direct impact on the person using your software. Building InnerVoice taught me that balancing empathy, user psychology, and strict boundaries is just as critical as writing clean code."
+  },
+  {
+    "projectId": "diecast",
+    "question": "Summary of The Diecast Store",
+    "tags": ["summary", "about", "tell me about", "what is it", "description"],
+    "answer": "A high-performance e-commerce platform built specifically for diecast collectors. Designed with F1 telemetry and automotive precision aesthetics, it manages the entire lifecycle of high-value exhibits—from a stock-aware 'Vault' (cart) to real-time logistics tracking and automated PDF manifesto generation."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What is the project name and its primary URL/Repo?",
+    "tags": ["name", "url", "repo", "github", "link", "demo", "website"],
+    "answer": "**Name**: The Diecast Store\n**Repo**: *Private Repository (Freelance Client Project)*\n**Live Demo**: [Visit Site](https://www.thediecaststore.in)"
+  },
+  {
+    "projectId": "diecast",
+    "question": "What is the one-sentence elevator pitch for this project?",
+    "tags": ["pitch", "summary", "about", "what is it", "description", "explain"],
+    "answer": "A high-end, F1-inspired e-commerce platform that brings automotive precision to the diecast collecting experience through real-time logistics telemetry and cinematic digital ownership."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What was your role?",
+    "tags": ["role", "who built", "team", "part", "contribution"],
+    "answer": "**Solo Developer.** I handled the entire design and full-stack development lifecycle for the client."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What is the complete Tech Stack?",
+    "tags": ["tech stack", "tools", "framework", "technologies", "libraries", "used", "built with", "react", "nextjs", "what did you use"],
+    "answer": "**Framework**: Next.js 16 (App Router)\n**Database**: Prisma with Neon (PostgreSQL serverless)\n**Authentication**: Clerk (RBAC for Admin/Collector roles)\n**Payments**: Razorpay (Mock/Production hybrid system)\n**Logistics**: Shiprocket (Mocked Service Layer)\n**Styling & UI**: Tailwind CSS v4, Framer Motion, @react-three/fiber & drei (for 3D elements)\n**Documents/Email**: @react-pdf/renderer (for Technical Manifestos), Resend (for emails)"
+  },
+  {
+    "projectId": "diecast",
+    "question": "How did you build this?",
+    "tags": ["how did you build", "how to build", "how was it made", "process", "architecture", "journey", "step by step", "development process"],
+    "answer": "I approached this project with a design-first mindset since it was for an actual user base. I first mapped out the design theme—opting for a strict, high-contrast palette (Off-White `#FAFAFA` and Soft Black `#0A0A0A`) to prevent eye strain while maintaining a premium, brutalist aesthetic—and built an interactive prototype. Once the client was satisfied with this F1-inspired aesthetic, I iteratively added complex features like robust variant state management, a cinematic 'Journal' section, and gamified logistics telemetry."
+  },
+  {
+    "projectId": "diecast",
+    "question": "Why did you build this?",
+    "tags": ["why did you build", "why", "reason", "motivation", "goal", "purpose", "learning"],
+    "answer": "To create a premium, immersive digital experience for diecast collectors that matches the high value, precision, and aesthetic of the physical models they purchase, moving away from generic e-commerce templates."
+  },
+  {
+    "projectId": "diecast",
+    "question": "Who is the target audience or user base?",
+    "tags": ["audience", "users", "who uses", "target"],
+    "answer": "Diecast car collectors and automotive enthusiasts looking for a premium, reliable platform to acquire high-value scale models."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What are the top 3 core features of the application?",
+    "tags": ["features", "capabilities", "what can it do", "highlights", "core"],
+    "answer": "1. **The Vault & Checkout**: A stock-aware Collector Vault dashboard with real-time inventory locking, variant-level tracking, and a secure payment handshake.\n2. **Delivery Telemetry**: A visual 'Race Track' progress bar for real-time order tracking (GRID_POSITION → PIT_LANE → ON_TRACK → CHECKERED_FLAG) synced with Shiprocket logistics.\n3. **Digital Collector Identity & Gamification**: Personalized F1-inspired identity cards, unlocking gamified achievements, and automated PDF generation for acquisition documents."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What was the most difficult technical challenge you faced?",
+    "tags": ["challenge", "difficult", "hardest part", "problem", "bug", "issue", "refactor", "security", "payments"],
+    "answer": "Building a bulletproof, 'Zero-Trust' security system while simultaneously integrating third-party APIs (Razorpay and Shiprocket). Ensuring that no bad actor could find faults, bypass payment verification, manipulate order states, or exploit guest checkouts required extremely meticulous state management and strict server-side validation."
+  },
+  {
+    "projectId": "diecast",
+    "question": "How exactly did you solve that challenge?",
+    "tags": ["solution", "solve", "how", "fix", "resolution", "architecture", "state management", "server actions", "security"],
+    "answer": "I implemented a strict 'Lock-and-Verify' checkout pattern that validates stock server-side before initiating the Razorpay handshake. I also audited and patched several edge cases—like enforcing strict user ID validation on Server Actions to prevent Insecure Direct Object Reference (IDOR) attacks, and completely locking down guest checkout flows to prevent unauthorized order cancellations or takeovers."
+  },
+  {
+    "projectId": "diecast",
+    "question": "Are there any unique architectural decisions or design patterns you are proud of?",
+    "tags": ["architecture", "design pattern", "proud", "unique", "decisions", "features", "cool"],
+    "answer": "1. **Custom Journal Text Editor**: Engineered a custom text writer tailored for the cinematic 'Journal', giving admins fine-grained control over storytelling aesthetics.\n2. **The 'Pit Wall' Store Toggle**: A master checkout toggle button in the admin system that instantly disables all checkouts when the client is unavailable.\n3. **The Auto-Heal Webhook Strategy**: A fallback search mechanism that magically converts manually entered AWB numbers into fully integrated tracking updates once a carrier scans the package.\n4. **Defensive UI Design**: Enforcing the 'Longest String Rule' and maintaining 'The Hover Trap' awareness for seamless mobile/desktop parity."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What was the final impact or result?",
+    "tags": ["impact", "result", "outcome", "success", "milestone", "launch"],
+    "answer": "The platform is currently in a successful beta testing phase and is scheduled to officially launch in mid-June. It has already received highly positive feedback from the client regarding its visual fidelity and administrative ease."
+  },
+  {
+    "projectId": "diecast",
+    "question": "If you could go back and rebuild it from scratch, what would you do differently?",
+    "tags": ["rebuild", "differently", "hindsight", "improve", "change", "planning"],
+    "answer": "Honestly, I am incredibly proud of the current architecture, particularly our Razorpay integration and the overall security posture. If I had to rebuild it, I might modularize the payment gateway interface even further so that adding an international provider alongside Razorpay would be completely plug-and-play. I would also have designed the initial database schema with multi-variant support from day one rather than migrating to it as requirements grew."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What was the biggest lesson you learned from this project?",
+    "tags": ["lesson", "learned", "takeaway", "advice"],
+    "answer": "I learned that just designing a beautiful website is not enough—security and state awareness are absolutely paramount. You need to be hyper-aware of every source of state and every action your site takes. Patching vulnerabilities like guest order takeovers and IDOR taught me how to make a full-stack application truly bulletproof."
+  },
+  {
+    "projectId": "diecast",
+    "question": "What is the application's color palette?",
+    "tags": ["colors", "palette", "theme", "design", "ui", "styling"],
+    "answer": "To achieve the premium, F1-inspired brutalist aesthetic and prevent halation (eye strain), a highly specific color palette was engineered:\n- **Off-White (Background Base)**: `#FAFAFA`\n- **Soft Black (Foreground/Text Base)**: `#0A0A0A`\n- **Racing Red (Accents & Telemetry Kerbs)**: `#FF1E1E` and `#EF4444`\n- **Premium Metallic Gradients**: A crafted spectrum of silvers and deep grays (`#E2E2E2`, `#A6A6A6`, `#4A4A4A`, `#1C1C1C`) used to render 'mechanical steel' text and metallic mobile UI boxes."
+  },
+  {
+    "projectId": "flowers",
+    "question": "Summary of Flowers for the Beloved",
+    "tags": ["summary", "about", "tell me about", "what is it", "description"],
+    "answer": "A collection of digital, procedurally generated 3D flowers, hand-coded using React Three Fiber as deeply personal and unique birthday gifts for friends. The project features a digital garden where each flower represents a specific friend's personality, complete with interactive 3D scenes, personalized messages, and an immersive atmosphere."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What is the project name and its primary URL/Repo?",
+    "tags": ["name", "url", "repo", "github", "link", "demo", "website"],
+    "answer": "**Name**: Flowers for the Beloved\n**Repo**: [GitHub](https://github.com/sparrowdex/flowers)\n**Live Demo**: [Visit Site](https://flowers-two-pi.vercel.app/)"
+  },
+  {
+    "projectId": "flowers",
+    "question": "What is the one-sentence elevator pitch for this project?",
+    "tags": ["pitch", "summary", "about", "what is it", "description", "explain"],
+    "answer": "A digital garden of procedurally generated, personalized 3D flowers built as unique, interactive birthday gifts for friends, exploring the intersection of creative coding and heartfelt connection."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What was your role?",
+    "tags": ["role", "who built", "team", "part", "contribution"],
+    "answer": "**Solo Developer & Creative Coder.** I designed and coded every 3D flower model, the interactive scenes, and the entire application architecture."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What is the complete Tech Stack?",
+    "tags": ["tech stack", "tools", "framework", "technologies", "libraries", "used", "built with", "react", "what did you use"],
+    "answer": "**Frontend Framework**: React 19, Vite\n**3D Graphics & Animation**: React Three Fiber, Three.js, Drei, GSAP, Postprocessing\n**Styling**: Tailwind CSS, Vanilla CSS (for custom animations/gradients)\n**Backend/Database**: Firebase Realtime Database (specifically for the Valentine project's persistent 3D messages)"
+  },
+  {
+    "projectId": "flowers",
+    "question": "How did you build this?",
+    "tags": ["how did you build", "how to build", "how was it made", "process", "architecture", "journey", "step by step", "development process"],
+    "answer": "I started with a React + Vite setup. The core architecture relies on a centralized `plantData.jsx` file that maps friends' names to specific 3D flower components, descriptions, and color themes. I built each 3D scene (Peace Lily, Gladiolus, Pink Carnation, Blue Orchid, Sweet Pea, Lotus, and The Heart Bloom) from scratch using Three.js mathematical functions, extrusions, and curves. For the Valentine scene, I integrated the Web Audio API to capture microphone input, allowing users to physically 'blow' to make the flower bloom, and connected Firebase Realtime Database for persistent 3D messages."
+  },
+  {
+    "projectId": "flowers",
+    "question": "Why did you build this?",
+    "tags": ["why did you build", "why", "reason", "motivation", "goal", "purpose", "learning"],
+    "answer": "This project was born from a desire to create something deeply personal for my friends on their birthdays. While learning creative coding and Three.js, I wanted to go beyond store-bought items and give gifts that represented a part of my coding journey while reflecting the unique personality of each friend. It was also a way to practice making 3D models through code — with each flower, I got better and gained deep understanding of how the GPU handles web models, memory leaks, and performance optimization."
+  },
+  {
+    "projectId": "flowers",
+    "question": "Who is the target audience or user base?",
+    "tags": ["audience", "users", "who uses", "target"],
+    "answer": "The primary audience is my close circle of friends, as this is an ongoing project where I keep making flowers for each friend. The interactive 'Heart Bloom' scene, however, is for a broader audience — kind of like a digital art exhibition on the web."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What are the top 3 core features of the application?",
+    "tags": ["features", "capabilities", "what can it do", "highlights", "core"],
+    "answer": "1. **Procedurally Generated 3D Botanicals**: Hand-coded, unique 3D flower models built with React Three Fiber, each tailored to a friend's personality.\n2. **Microphone-Driven Interactivity**: A special 'Heart Bloom' scene that utilizes the Web Audio API to detect blowing/wind noise, animating the flower's blooming process based on user breath.\n3. **Real-Time Collaborative 3D Space**: Persistent, floating 3D text messages synced instantly across sessions using Firebase Realtime Database."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What was the most difficult technical challenge you faced?",
+    "tags": ["challenge", "difficult", "hardest part", "problem", "bug", "issue"],
+    "answer": "Building the interactive 'Heart Bloom' scene presented two major challenges: First, detecting a user's breath to trigger an animation without the background music interfering. Second, managing a scene with dozens of floating 3D hearts where users could type messages that needed to persist and attach to the *exact same* physical heart across different user sessions."
+  },
+  {
+    "projectId": "flowers",
+    "question": "How exactly did you solve that challenge?",
+    "tags": ["solution", "solve", "how", "fix", "resolution"],
+    "answer": "For the microphone input, I used `AudioContext` and an `AnalyserNode` to read frequency data. Instead of looking at overall volume, I isolated the lowest frequency bins (0-25) to specifically detect the rumbling/wind noise of someone blowing into the mic, effectively filtering out the higher frequencies of the background music. For the persistent 3D messages, I used a seeded random number generator based on each heart's index, ensuring deterministic positions across page loads so I could reliably map Firebase entries to specific heart indices."
+  },
+  {
+    "projectId": "flowers",
+    "question": "Are there any unique architectural decisions or design patterns you are proud of?",
+    "tags": ["architecture", "design pattern", "proud", "unique", "decisions", "features", "cool"],
+    "answer": "The routing and state management system in `App.jsx` is quite elegant. Instead of using a traditional router, the entire experience acts as a state machine (`input` → `message` → `animation`), dynamically determining the theme color, audio source, and which 3D component to mount based on the user's text input cross-referenced against the `plantData` dictionary."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What was the final impact or result?",
+    "tags": ["impact", "result", "outcome", "success", "milestone", "launch"],
+    "answer": "I successfully gifted these to my friends who were amazed by the personalized experience. It also served as a major milestone in my journey with WebGL and React Three Fiber."
+  },
+  {
+    "projectId": "flowers",
+    "question": "If you could go back and rebuild it from scratch, what would you do differently?",
+    "tags": ["rebuild", "differently", "hindsight", "improve", "change", "planning"],
+    "answer": "I might abstract the petal and stem generation logic into reusable helper functions. Currently, each flower component is highly custom, which is great for uniqueness but led to some code duplication. I would also explore using instances for performance optimization on mobile devices."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What was the biggest lesson you learned from this project?",
+    "tags": ["lesson", "learned", "takeaway", "advice"],
+    "answer": "I learned how powerful it is to combine mathematical, procedural generation with deeply emotional, human-centric design. It taught me that code isn't just for building utilities; it's a medium for expressing gratitude and creating art. Technically, this project was a huge learning curve for 3D web development — I gained a deep understanding of how the GPU handles models, how to identify memory leaks and performance lagging, and the techniques required to prevent them in complex Three.js scenes."
+  },
+  {
+    "projectId": "flowers",
+    "question": "What is the application's color palette?",
+    "tags": ["colors", "palette", "theme", "design", "ui", "styling"],
+    "answer": "The app uses dynamic UI theme colors based on each flower:\n- **Valentine**: `#ff2d75`\n- **Peace Lily**: `#ffffff`\n- **Gladiolus**: `#ff8c00`\n- **Pink Carnation**: `#ffb7c5`\n- **Blue Orchid**: `#3b82f6`\n- **Sweet Pea**: `#ff69b4`\n- **Lotus**: `#ffb6c1`\n- **Default (Garden)**: `#4ade80`\n\nBackground gradients range from `slate-900` to `green-900` for the standard theme, and deep crimson (`#4d0026` → `#a62051`) for the Valentine scene."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What is SpiceVault?",
+    "tags": ["summary", "overview", "what", "describe", "about"],
+    "answer": "Spice Vault, built during my 2nd year of university and recently revamped, is a comprehensive full-stack web application designed as a centralized platform for recipe sharing and discovery. It combines traditional recipe browsing with an advanced machine learning-powered recommendation engine to create a highly personalized cooking experience."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What is the project name and its primary URL/Repo?",
+    "tags": ["name", "url", "link", "repo", "github", "live", "demo"],
+    "answer": "- **Project Name:** SpiceVault\n- **GitHub:** [https://github.com/sparrowdex/SpiceVault](https://github.com/sparrowdex/SpiceVault.git)\n- **Live Demo:** [https://spice-vault.vercel.app/](https://spice-vault.vercel.app/)"
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What is the one-sentence elevator pitch for this project?",
+    "tags": ["pitch", "elevator", "short", "sentence"],
+    "answer": "Spice Vault is a dynamic, ML-powered culinary social network that learns your tastes to serve up highly personalized recipes, bringing chefs and food lovers together."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What was your role?",
+    "tags": ["role", "responsibility", "did you do"],
+    "answer": "I was the Lead UI Designer & Frontend Developer."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What is the complete Tech Stack?",
+    "tags": ["tech", "stack", "technologies", "frameworks", "libraries", "tools", "built with"],
+    "answer": "- **Frontend:** React 19, Vite, Tailwind CSS, Lucide React\n- **Backend:** Node.js, Express.js, node-cron\n- **Database:** MySQL with Prisma ORM\n- **ML Engine:** Custom algorithms using `ml-matrix` and `natural`\n- **File Uploads:** UploadThing\n- **Deployment:** Vercel (Frontend), HuggingFace (Backend)"
+  },
+  {
+    "projectId": "spicevault",
+    "question": "How did you build this?",
+    "tags": ["how", "build", "development", "process", "architecture"],
+    "answer": "I focused heavily on the frontend architecture and user experience. I developed the application mobile-first using React 19 and Vite, styled it meticulously with Tailwind CSS for a modern glass-morphism aesthetic, and seamlessly integrated UploadThing for drag-and-drop cloud media uploads. I also worked on integrating the frontend with our custom-built Node.js Machine Learning backend, ensuring real-time UI updates for the recommendation engine."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "Why did you build this?",
+    "tags": ["why", "purpose", "reason", "motivation", "goal"],
+    "answer": "I wanted to create a more engaging, personalized cooking experience that goes beyond static recipe sites, offering intelligent recommendations and a community-driven platform for chefs and food enthusiasts."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "Who is the target audience or user base?",
+    "tags": ["audience", "users", "target", "who", "for whom"],
+    "answer": "The platform targets both novice cooks looking for inspiration and tailored recommendations, as well as experienced chefs seeking global culinary inspiration, analytics, and a platform to share their creations."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What are the top 3 core features of the application?",
+    "tags": ["features", "core", "main", "top", "functionality"],
+    "answer": "1. **The Culinary Feed & Instagram-Style Stories:** A social timeline with rich-media updates and tap-to-navigate 24-hour temporary stories with auto-cleanup background cron jobs.\n2. **Machine Learning Recommendations:** A custom hybrid recommendation engine (Collaborative + Content-Based Filtering) that learns from views, likes, saves, and ratings to provide highly personalized recipe suggestions.\n3. **Chef Insights Dashboard:** Advanced analytics for content creators featuring 6-month rating trend charts and AI-generated personalized profile tips."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What was the most difficult technical challenge you faced?",
+    "tags": ["challenge", "difficult", "hardest", "problem", "obstacle", "issue"],
+    "answer": "Bridging the gap between a complex, math-heavy Machine Learning backend and a snappy, responsive frontend. Specifically, handling the UI states for the recommendation engine (which could sometimes take time to process sparse matrices) and designing an intuitive 'Instagram-Style Stories' feature that felt native on the web."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "How exactly did you solve that challenge?",
+    "tags": ["solve", "solution", "overcome", "fix", "resolution", "how did you solve"],
+    "answer": "To keep the UX snappy during ML recommendation fetching, I implemented optimistic UI updates, robust loading skeleton states, and clean error handling with retry mechanisms. For the Stories feature, I built a custom full-screen, tap-to-navigate modal system with auto-progressing progress bars that perfectly mimics native mobile experiences."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "Are there any unique architectural decisions or design patterns you are proud of?",
+    "tags": ["architecture", "design pattern", "proud", "unique", "decision", "pattern"],
+    "answer": "I am particularly proud of the **Frontend Component Architecture**. I designed a highly modular system for the interactive filtering carousels and the dynamic Chef Insights Dashboard, which allowed us to cleanly manage complex state (like 6-month rating trend charts) without prop drilling or sacrificing performance."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What was the final impact or result?",
+    "tags": ["impact", "result", "outcome", "success", "final"],
+    "answer": "Launched successfully on Vercel and HuggingFace, resulting in a robust, scalable platform that significantly enhances user engagement through personalized recipe discovery."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "If you could go back and rebuild it from scratch, what would you do differently?",
+    "tags": ["rebuild", "differently", "hindsight", "improve", "change", "planning"],
+    "answer": "I might look into integrating deep learning models for better embeddings or implement streaming real-time recommendations rather than relying on batch 24-hour matrix updates."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What was the biggest lesson you learned from this project?",
+    "tags": ["lesson", "learned", "takeaway", "advice"],
+    "answer": "I learned the crucial balance between complex data processing and delivering a snappy user experience. Building the UI for a machine learning application taught me how important loading states, error boundaries, and optimistic updates are to keeping users engaged while heavy backend calculations occur."
+  },
+  {
+    "projectId": "spicevault",
+    "question": "What is the application's color palette?",
+    "tags": ["colors", "palette", "theme", "design", "ui", "styling"],
+    "answer": "The application uses a warm, culinary-inspired theme:\n- **Primary Brand (Orange):** `#ff6600`\n- **Secondary Brand (Lighter Orange):** `#ff8533`\n- **Accent (Rosy Brown for Headings):** `#bc8f8e`\n- **Highlight (Golden Yellow for Stars):** `#f5a623`\n- **Success/Easy Level:** `#28a745` (Text) / `#e4f8e9` (Bg)\n- **Warning/Medium Level:** `#f57c00` (Text) / `#fff8e1` (Bg)\n- **Danger/Hard Level:** `#d90429` (Text) / `#fde2e4` (Bg)\n- **Light Backgrounds:** `#f9f9f9`, `#f0f0f0`\n- **Text Defaults:** `#444444`, `#555555`"
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What is Armatrix?",
+    "tags": ["summary", "overview", "what", "describe", "about"],
+    "answer": "Armatrix is a dynamic, cinematic personnel directory and management interface. It merges full-stack engineering with procedural 3D graphics and fluid motion design to create a highly immersive, sci-fi-inspired user experience."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What is the project name and its primary URL/Repo?",
+    "tags": ["name", "url", "link", "repo", "github", "live", "demo"],
+    "answer": "- **Name:** Armatrix\n- **Frontend Live:** [https://armatrix-team-page-delta.vercel.app](https://armatrix-team-page-delta.vercel.app)\n- **Backend API:** [https://huggingface.co/spaces/sparrowdex/armatrix-backend](https://huggingface.co/spaces/sparrowdex/armatrix-backend)"
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What is the one-sentence elevator pitch for this project?",
+    "tags": ["pitch", "elevator", "short", "sentence"],
+    "answer": "\"Experience the intersection of high-fidelity 3D interaction and robust backend architecture with Armatrix's cinematic personnel directory.\""
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What was your role?",
+    "tags": ["role", "responsibility", "did you do"],
+    "answer": "I was the Architect and Solo Developer (Creative Developer)."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What is the complete Tech Stack?",
+    "tags": ["tech", "stack", "technologies", "frameworks", "libraries", "tools", "built with"],
+    "answer": "- **Frontend:** Next.js 16, React 19, Tailwind CSS\n- **Animation:** Framer Motion, GSAP\n- **3D Graphics:** Three.js, React Three Fiber, `@react-three/drei`\n- **Backend:** Python 3.12, FastAPI, Pydantic\n- **Deployment:** Vercel (Frontend), Hugging Face Spaces (Backend API)"
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What is the Aesthetics & Color Palette?",
+    "tags": ["colors", "palette", "theme", "design", "ui", "styling", "aesthetics"],
+    "answer": "- **Primary Accent (Neon Matrix/Cyberpunk):** `#d4ff32` (A vibrant, neon yellow-green used for selections, active states, glowing terminal text, and primary buttons).\n- **Deep Backgrounds (Void/Space):** `#030303`, `#0a0a0a`, and `black` (Used for the vast, empty background emphasizing the 3D depth).\n- **Neutral Text & Borders (Muted Tech):** `zinc-400`, `zinc-500`, and varying opacities of white (e.g., `white/5`, `white/20`) for subtle glassmorphism, borders, and secondary text.\n- **Vibe:** High-contrast, futuristic, and heavily terminal-inspired with a cinematic gloss."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "How did you build this?",
+    "tags": ["how", "build", "development", "process", "architecture"],
+    "answer": "I developed the frontend using Next.js, integrating complex 3D components via React Three Fiber to build a procedural, slithering robotic arm that scales dynamically based on viewport dimensions. For the UI, I crafted mechanical shutter cards and kinetic layout transitions using Framer Motion. Simultaneously, I built a lightweight, containerized FastAPI backend to handle real-time CRUD operations, ensuring the frontend's 3D state syncs seamlessly with the underlying data."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "Why did you build this?",
+    "tags": ["why", "purpose", "reason", "motivation", "goal"],
+    "answer": "This project was originally built as a technical qualification assignment for an internship at Armatrix, where the specific task was to design and build a new 'Team Page' for their existing website. My goal was to push the boundaries of standard web interfaces by exploring the intersection of art and engineering. The resulting prototype was cited by the Armatrix team as one of the most creative submissions they had received."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "Who is the target audience or user base?",
+    "tags": ["audience", "users", "target", "who", "for whom"],
+    "answer": "Organizations seeking an ultra-premium, gamified, and highly immersive directory to showcase their elite teams, or agencies looking for state-of-the-art interactive web experiences."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What are the top 3 core features of the application?",
+    "tags": ["features", "core", "main", "top", "functionality"],
+    "answer": "1. **Cinematic 3D Interaction Engine:** A procedural, endlessly slithering robotic arm built with React Three Fiber that adapts to screen sizes and maintains a persistent background orbit.\n2. **Kinetic Interface & Mechanical Shutter Cards:** Framer Motion-driven mechanical iris reveals that seamlessly morph personnel cards from a fanned carousel into detailed \"Decryption View\" overlays.\n3. **Live Admin Uplink:** A secure CRUD admin panel connected to a FastAPI backend that instantly synchronizes personnel record changes to the 3D frontend interface."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What was the most difficult technical challenge you faced?",
+    "tags": ["challenge", "difficult", "hardest", "problem", "obstacle", "issue"],
+    "answer": "Synchronizing complex 2D DOM animations with 3D WebGL rendering without breaking visual continuity. Specifically, calculating the exact span of a user's viewport to procedurally rig a perfectly arched 3D ring, and maintaining layout morphing persistence as cards fly out of a carousel while the heavy 3D arm continues its orbit behind them."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "How exactly did you solve that challenge?",
+    "tags": ["solve", "solution", "overcome", "fix", "resolution", "how did you solve"],
+    "answer": "Instead of using static 3D models, I implemented mathematical 3D rigging and recursive scaling logic so the geometry responds perfectly to any screen width. For the UI, I meticulously utilized Framer Motion’s `layoutId` across the varied React states, ensuring that as a card transitions from the dynamic carousel into the expanded decryption view, the browser interpolates the position smoothly, keeping the multi-depth cinematic experience intact."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "Are there any unique architectural decisions or design patterns you are proud of?",
+    "tags": ["architecture", "design pattern", "proud", "unique", "decision", "pattern"],
+    "answer": "I am particularly proud of the recursive kinematics used for the robotic arm. The arm dynamically \"shoots out\" onto the screen upon load using recursive, segment-by-segment scaling, which creates a physical, hierarchical growth effect rather than a cheap fade-in. Additionally, decoupling the FastAPI backend and deploying it via Docker on Hugging Face Spaces provided an interesting, isolated microservice architecture for the Next.js client."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What was the final impact or result?",
+    "tags": ["impact", "result", "outcome", "success", "final"],
+    "answer": "The prototype successfully demonstrated advanced capabilities in React Three Fiber and Framer Motion orchestration, turning a standard directory into a sci-fi video game interface. More importantly, while I was ultimately unable to join the team due to availability constraints, the impact of my submission was undeniable: shortly after I presented this concept, the Armatrix team pivoted their own official site to incorporate 3D elements. This validated that my initial architectural and design intuition was highly effective and industry-leading."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "If you could go back and rebuild it from scratch, what would you do differently?",
+    "tags": ["rebuild", "differently", "hindsight", "improve", "change", "planning"],
+    "answer": "While the in-memory database on FastAPI allowed for rapid iteration, I would implement a persistent database layer (like PostgreSQL via Supabase) to ensure data durability across server restarts. I might also explore offloading some of the heavier 3D calculations to Web Workers to further optimize performance on lower-end devices."
+  },
+  {
+    "projectId": "armatrix",
+    "question": "What was the biggest lesson you learned from this project?",
+    "tags": ["lesson", "learned", "takeaway", "advice"],
+    "answer": "Mastering the precise orchestration required to blend complex 3D WebGL canvases with heavy 2D DOM animations, proving that high-fidelity, cinematic web experiences can be performant and fully responsive if engineered with strict mathematical logic and layout persistence."
   }
 ]

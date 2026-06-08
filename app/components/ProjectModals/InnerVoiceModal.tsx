@@ -10,7 +10,7 @@ export const InnerVoiceModal = ({ selectedProject }: { selectedProject: Project 
           {/* Large emotional quote as the hook — sets the tone immediately */}
           <div className="flex flex-col gap-6">
             <blockquote className="text-2xl md:text-4xl leading-snug text-white/90 font-serif italic max-w-3xl">
-              "I built this because I saw my friends drowning in silence — too afraid of being a burden to ask for help."
+              "I built this to create a gentle space for friends who hesitate to reach out, afraid of overwhelming the people they care about."
             </blockquote>
             <div className="w-8 h-[2px] bg-[#99cce6]" />
           </div>

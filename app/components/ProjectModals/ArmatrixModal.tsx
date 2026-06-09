@@ -1,5 +1,6 @@
 import { Project } from '../../types/project';
 import { ScrollReveal } from '../ScrollReveal';
+import { DemoVideo } from './DemoVideo';
 
 export const ArmatrixModal = ({ selectedProject }: { selectedProject: Project }) => {
   return (
@@ -108,10 +109,17 @@ export const ArmatrixModal = ({ selectedProject }: { selectedProject: Project })
           <h3 className="text-3xl md:text-4xl tracking-wide font-mono uppercase mb-[-1rem]" style={{ color: selectedProject.colors[0] }}>Core Systems</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-            <div className="relative w-full aspect-square bg-[#0a0a0a] border hover:border-opacity-60 border-opacity-20 rounded-2xl overflow-hidden flex flex-col justify-center items-center group transition-colors duration-500 shadow-2xl" style={{ borderColor: selectedProject.colors[0] }}>
-              <img src={selectedProject.imageFallback} alt="Armatrix Background" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-screen" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none" />
-              <div className="z-10 text-center flex flex-col items-center gap-4 p-8">
+            <div className="flex flex-col gap-6 w-full">
+              <div className="w-full aspect-video rounded-2xl overflow-hidden border shadow-2xl bg-[#0a0a0a] relative" style={{ borderColor: `${selectedProject.colors[0]}33` }}>
+                <DemoVideo 
+                  src="/images/armatrix/Armatrix_team_page.mp4"
+                  skipStartTime={84}
+                  skipEndTime={110}
+                  className="w-full h-full [&>video]:object-cover"
+                />
+              </div>
+
+              <div className="flex flex-col items-center text-center gap-4 p-8 bg-[#0a0a0a]/80 border hover:border-opacity-60 border-opacity-20 rounded-2xl shadow-2xl transition-colors duration-500" style={{ borderColor: selectedProject.colors[0] }}>
                   <div className="w-16 h-16 rounded-full flex items-center justify-center border bg-black" style={{ borderColor: `${selectedProject.colors[0]}4D` }}>
                     <svg className="w-8 h-8" style={{ color: selectedProject.colors[0] }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
                   </div>

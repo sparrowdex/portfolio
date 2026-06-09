@@ -129,7 +129,25 @@ export const InfoIndexAssistant = () => {
       processedMsg = processedMsg.replace(new RegExp(`\\b${synonym}\\b`, 'gi'), replacement);
     });
 
-    const projectKeywords = ['photobooth', 'inner voice', 'innervoice', 'diecast', 'diecast store', 'diecaststore', 'armatrix', 'flowers for beloved', 'flowers', 'flowersforbeloved', 'spice vault', 'spicevault', 'timeless', 'snow globe', 'snowglobe'];
+    const PROJECT_ID_MAP: Record<string, string> = {
+      'photobooth': 'photobooth',
+      'inner voice': 'innervoice',
+      'innervoice': 'innervoice',
+      'diecast': 'diecast',
+      'diecast store': 'diecast',
+      'diecaststore': 'diecast',
+      'armatrix': 'armatrix',
+      'flowers for beloved': 'flowers',
+      'flowers': 'flowers',
+      'flowersforbeloved': 'flowers',
+      'spice vault': 'spicevault',
+      'spicevault': 'spicevault',
+      'timeless': 'timeless',
+      'snow globe': 'timeless',
+      'snowglobe': 'timeless'
+    };
+
+    const projectKeywords = Object.keys(PROJECT_ID_MAP);
     let detectedProject = projectKeywords.find(p => processedMsg.includes(p));
 
     let newActiveProject = activeProject;
@@ -150,7 +168,7 @@ export const InfoIndexAssistant = () => {
     // Filter the knowledge base to only general questions + the active project's questions
     let filteredData = assistantData;
     if (newActiveProject) {
-      const mappedId = newActiveProject.replace(/\s+/g, '');
+      const mappedId = PROJECT_ID_MAP[newActiveProject];
       
       // Filter data to only include the active project and general items (but exclude the vague catcher since we already know the project context!)
       filteredData = assistantData.filter((item: any) => {

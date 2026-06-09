@@ -1,9 +1,40 @@
+import { useState, useEffect } from 'react';
 import { Project } from '../../types/project';
 import { ScrollReveal } from '../ScrollReveal';
 
 export const TimelessModal = ({ selectedProject }: { selectedProject: Project }) => {
+  const images = [
+    "/images/christmas-spirit/past.png",
+    "/images/christmas-spirit/present.png",
+    "/images/christmas-spirit/future.png",
+    "/images/christmas-spirit/future_blow.png"
+  ];
+  
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIdx((prev) => (prev + 1) % images.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [images.length]);
   return (
     <div className="flex flex-col gap-16 md:gap-32 pb-20 md:pb-32">
+      {/* Hero Video */}
+      <ScrollReveal>
+        <div className="w-full aspect-video md:aspect-[21/9] rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 relative mt-4 md:mt-8 shadow-2xl">
+          <video 
+            src="/images/christmas-spirit/christmas_demo.mp4" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent pointer-events-none" />
+        </div>
+      </ScrollReveal>
+
       {/* Slide 1: Emotional Opening + Overview */}
       <ScrollReveal>
         <div className="md:min-h-[60vh] flex flex-col justify-center gap-12 border-t border-white/10 pt-10">
@@ -114,14 +145,23 @@ export const TimelessModal = ({ selectedProject }: { selectedProject: Project })
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
             <div className="relative w-full aspect-square bg-neutral-950/80 border hover:border-opacity-60 rounded-2xl overflow-hidden flex flex-col justify-center items-center group transition-colors duration-500 shadow-2xl" style={{ borderColor: `${selectedProject.colors[1]}33` }}>
-              <img src="/images/christmas-spirit/globe.png" alt="Timeless Background" className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale mix-blend-screen" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-              <div className="z-10 text-center flex flex-col items-center gap-4 p-8">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center border" style={{ backgroundColor: `${selectedProject.colors[1]}1A`, borderColor: `${selectedProject.colors[1]}4D` }}>
+              {images.map((img, idx) => (
+                <img 
+                  key={img}
+                  src={img} 
+                  alt={`Era ${idx}`} 
+                  className={`absolute inset-0 w-full h-full object-cover mix-blend-screen transition-opacity duration-1000 ${
+                    currentImageIdx === idx ? 'opacity-50 group-hover:opacity-80' : 'opacity-0'
+                  }`}
+                />
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+              <div className="z-10 text-center flex flex-col items-center gap-4 p-8 mt-auto mb-4">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center border backdrop-blur-md transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: `${selectedProject.colors[1]}1A`, borderColor: `${selectedProject.colors[1]}4D` }}>
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: selectedProject.colors[1] }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                   </div>
-                  <h4 className="text-2xl font-serif italic text-white">Breath Control</h4>
-                  <p className="text-sm text-neutral-400 font-sans">Using the Web Audio API, blowing into the microphone creates a blizzard inside the 3D globe.</p>
+                  <h4 className="text-2xl font-serif italic text-white drop-shadow-md">Breath Control</h4>
+                  <p className="text-sm text-neutral-300 font-sans drop-shadow-md group-hover:text-white transition-colors duration-500">Using the Web Audio API, blowing into the microphone creates a blizzard inside the 3D globe.</p>
               </div>
             </div>
 

@@ -1,5 +1,9 @@
+'use client';
+import { useState, useRef } from 'react';
 import { Project } from '../../types/project';
 import { ScrollReveal } from '../ScrollReveal';
+
+import { DemoVideo } from './DemoVideo';
 
 export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) => {
   return (
@@ -60,6 +64,17 @@ export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) 
         </div>
       </ScrollReveal>
 
+      {/* Demo Video */}
+      <ScrollReveal>
+        <div className="w-full">
+          <DemoVideo 
+            src="/images/flowersforbeloved/flowers_demo.mp4" 
+            startTime={10} 
+            className="w-full aspect-video rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl" 
+          />
+        </div>
+      </ScrollReveal>
+
       {/* Slide 2: The Heart Bloom Challenge */}
       <ScrollReveal>
         <div className="md:min-h-[70vh] flex flex-col justify-center gap-12">
@@ -110,22 +125,26 @@ export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) 
       {/* Slide 3: Garden & Features */}
       <ScrollReveal>
         <div className="md:min-h-[70vh] flex flex-col justify-center gap-12">
-          <h3 className="text-3xl md:text-4xl tracking-wide text-[#4ade80] font-serif italic capitalize mb-[-1rem]">The Garden</h3>
+          <h3 className="text-3xl md:text-4xl tracking-wide text-[#4ade80] font-serif italic capitalize mb-4">The Garden</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-            <div className="relative w-full aspect-square bg-neutral-950/80 border border-[#4ade80]/20 hover:border-[#4ade80]/60 rounded-2xl overflow-hidden flex flex-col justify-center items-center group transition-colors duration-500 shadow-2xl">
-              <img src={selectedProject.imageFallback} alt="Flowers Background" className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale mix-blend-screen" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-              <div className="z-10 text-center flex flex-col items-center gap-4 p-8">
-                  <div className="w-16 h-16 bg-[#4ade80]/10 rounded-full flex items-center justify-center border border-[#4ade80]/30">
-                    <svg className="w-8 h-8 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div className="flex flex-col gap-8 w-full">
+              <div className="w-full aspect-video rounded-2xl overflow-hidden border border-[#ff2d75]/20 shadow-2xl bg-neutral-950 relative">
+                <DemoVideo 
+                  src="/images/flowersforbeloved/The_Heart_Bloom.mp4"
+                  className="w-full h-full [&>video]:object-cover"
+                />
+              </div>
+
+              <div className="flex flex-col items-center text-center gap-3 md:gap-4 p-5 md:p-8 bg-neutral-950/80 border border-[#ff2d75]/20 hover:border-[#ff2d75]/60 rounded-2xl shadow-2xl transition-colors duration-500">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-[#ff2d75]/10 rounded-full flex items-center justify-center border border-[#ff2d75]/30 backdrop-blur-md">
+                    <svg className="w-6 h-6 md:w-8 md:h-8 text-[#ff2d75]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                   </div>
-                  <h4 className="text-2xl font-serif italic text-white">Code as a Gift</h4>
-                  <p className="text-sm text-neutral-400 font-sans">Each flower is hand-coded from scratch using mathematical functions, extrusions, and curves — no 3D models imported. Every petal is a piece of code.</p>
+                  <h4 className="text-xl md:text-2xl font-serif italic text-white">The Heart Bloom</h4>
+                  <p className="text-xs md:text-sm text-neutral-300 font-sans leading-relaxed">A special breath-driven 3D experience where custom messages persist and attach to floating hearts.</p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-12">
               <div className="flex flex-col gap-6">
                 <ul className="flex flex-col gap-6 text-sm md:text-base font-sans text-neutral-400">
                   <li className="flex gap-4 items-start">
@@ -146,18 +165,15 @@ export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) 
                   </li>
                 </ul>
               </div>
+            </div>
 
-              <div className="flex flex-col gap-6">
-                <h4 className="text-3xl tracking-wide text-[#4ade80] font-serif italic capitalize">The Biggest Lesson</h4>
-                <div className="space-y-6 font-sans text-sm md:text-base text-neutral-400">
-                  <div>
-                    <p className="mt-2 leading-relaxed">I learned how powerful it is to combine mathematical, procedural generation with deeply emotional, human-centric design. It taught me that code isn't just for building utilities; it's a medium for expressing gratitude and creating art. Technically, this project gave me a deep understanding of GPU model handling, memory leak identification, and performance optimization in complex Three.js scenes.</p>
-                  </div>
-                </div>
+            <div className="flex flex-col gap-4 md:gap-6 mt-8 md:mt-12 p-6 md:p-0 md:pt-12 bg-[#4ade80]/5 md:bg-transparent border border-[#4ade80]/20 md:border-0 md:border-t md:border-white/10 rounded-2xl md:rounded-none shadow-xl md:shadow-none max-w-5xl">
+              <h4 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-[#4ade80] font-serif italic capitalize">The Biggest Lesson</h4>
+              <div className="font-sans text-sm md:text-base lg:text-lg text-neutral-300 leading-relaxed space-y-6">
+                <p>I learned how powerful it is to combine mathematical, procedural generation with deeply emotional, human-centric design. It taught me that code isn't just for building utilities; it's a medium for expressing gratitude and creating art. Technically, this project gave me a deep understanding of GPU model handling, memory leak identification, and performance optimization in complex Three.js scenes.</p>
               </div>
             </div>
           </div>
-        </div>
       </ScrollReveal>
     </div>
   );

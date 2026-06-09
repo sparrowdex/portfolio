@@ -35,6 +35,21 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              const originalWarn = console.warn;
+              console.warn = function(...args) {
+                if (typeof args[0] === "string" && args[0].includes("THREE.Clock: This module has been deprecated")) {
+                  return;
+                }
+                originalWarn.apply(console, args);
+              };
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <InfoIndexAssistant />

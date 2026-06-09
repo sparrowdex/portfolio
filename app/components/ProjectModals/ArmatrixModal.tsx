@@ -116,6 +116,7 @@ export const ArmatrixModal = ({ selectedProject }: { selectedProject: Project })
                   skipStartTime={84}
                   skipEndTime={110}
                   className="w-full h-full [&>video]:object-cover"
+                  spinnerColor={selectedProject.colors[0]}
                 />
               </div>
 

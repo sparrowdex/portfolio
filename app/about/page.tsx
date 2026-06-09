@@ -273,6 +273,18 @@ export default function About() {
           animation: roll-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           animation-delay: 1.7s;
         }
+        .mobile-roll-out {
+          animation: roll-out 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: 0.4s;
+        }
+        .mobile-roll-in {
+          position: absolute;
+          top: 0;
+          left: 0;
+          opacity: 0;
+          animation: roll-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: 0.6s;
+        }
       `}} />
 
       {/* ── Flower Accent & Mindmap ── */}
@@ -557,23 +569,45 @@ export default function About() {
           <div className="relative h-full flex flex-col font-sans text-white">
             <button
               onClick={() => setActiveTab(null)}
-              className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-white/15 rounded-full text-white/50 text-xs transition-colors"
+              className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-white/15 rounded-full text-white/50 hover:text-white text-xs transition-colors"
             >✕</button>
 
             <div className="space-y-8 pr-2 flex-1 pb-12">
               <div>
-                <span className={`font-mono text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 ${panelTab === 0 ? 'text-[#ff3366]' : panelTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'}`}>
-                  {resumeSections[panelTab].title}
-                </span>
+                <div className="relative h-6 flex items-center mb-6">
+                  <span className={`absolute font-mono text-[11px] tracking-[0.25em] uppercase transition-colors duration-300 mobile-roll-out ${panelTab === 0 ? 'text-[#ff3366]' : panelTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'}`}>
+                    {resumeSections[panelTab].title}
+                  </span>
+                  <span className={`absolute font-mono text-[11px] tracking-[0.25em] uppercase transition-colors duration-300 mobile-roll-in ${panelTab === 0 ? 'text-[#ff3366]' : panelTab === 1 ? 'text-[#ff7700]' : 'text-[#00d2ff]'}`}>
+                    {resumeSections[panelTab].altTitle}
+                  </span>
+                </div>
                 {resumeSections[panelTab].ethos && (
-                  <p className="mt-6 text-[15px] leading-relaxed text-neutral-300 font-serif">
+                  <p className="mt-2 text-[15px] leading-relaxed text-neutral-300 font-serif">
                     {resumeSections[panelTab].ethos}
                   </p>
                 )}
               </div>
 
-              <div className="pt-4">
-                <Link href="/resume" className={`inline-block px-6 py-3 border font-mono text-[11px] tracking-widest uppercase transition-colors ${panelTab === 0 ? 'border-[#ff3366] text-[#ff3366]' : panelTab === 1 ? 'border-[#ff7700] text-[#ff7700]' : 'border-[#00d2ff] text-[#00d2ff]'}`}>
+              {/* Skills Display for the empty space */}
+              <div className="pt-4 border-t border-white/10">
+                <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest block mb-4">
+                  CORE TECHNOLOGIES
+                </span>
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {allSkillsCategories[panelTab]?.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-3 py-1.5 bg-white/5 border border-white/[0.06] text-white/80 font-mono text-[10px] rounded-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link href="/resume" className={`inline-block w-full text-center px-6 py-4 border font-mono text-[11px] tracking-widest uppercase transition-colors ${panelTab === 0 ? 'border-[#ff3366] text-[#ff3366] hover:bg-[#ff3366]/10' : panelTab === 1 ? 'border-[#ff7700] text-[#ff7700] hover:bg-[#ff7700]/10' : 'border-[#00d2ff] text-[#00d2ff] hover:bg-[#00d2ff]/10'}`}>
                   View Full Resume
                 </Link>
               </div>

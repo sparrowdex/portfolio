@@ -133,6 +133,7 @@ export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) 
                 <DemoVideo 
                   src="/images/flowersforbeloved/The_Heart_Bloom.mp4"
                   className="w-full h-full [&>video]:object-cover"
+                  spinnerColor={selectedProject.colors[0]}
                 />
               </div>
 

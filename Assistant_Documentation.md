@@ -30,10 +30,10 @@ Simulated bots usually have zero memory of previous messages. We created true co
 - For all subsequent follow-up questions (like "What were the challenges?"), the assistant pre-filters its entire brain, permanently isolating the search to *only* that specific project's data.
 - If a project context is known, the "Vague Question Trap" is automatically disabled, allowing users to ask natural, generic follow-up questions seamlessly.
 
-### Exact Match Interceptors & Suggestion Buttons
-To guarantee that the UI suggestion buttons (like "Challenges", "Tech Stack") work with 100% reliability, hardcoded exact-match interceptors are used.
-- Because `Fuse.js` fuzzy-scoring can sometimes penalize pluralization or extra words (causing them to fall below the 0.6 threshold), the interceptor catches the exact string sent by the button.
-- It forcibly overwrites the user's string into the perfect, raw tag (`"challenge"` or `"process"`) before searching, entirely bypassing the fuzzy-scoring fuzziness for a guaranteed 100% match score.
+### Semantic Routing & 100% Accuracy Bypasses
+To guarantee that the core questions and UI suggestion buttons work with absolute reliability, the assistant utilizes a custom **Semantic Router** that sits in front of the fuzzy matcher.
+- **Meaning Extraction:** Rather than relying solely on lexical fuzzy matching, the router analyzes the user's string for intent. For example, if a user asks *"What was it made for?"* or *"What was the purpose?"*, the router explicitly overrides the search query to the semantic concept `"why"`.
+- **Absolute Bypasses:** If the router detects one of the core semantic concepts (`tech stack`, `challenge`, `process`, `why`, `role`) while a project is actively selected, it **completely bypasses Fuse.js**. Instead, it performs a strict equality check (`===`) to directly pull the exact programmed answer. This guarantees a 100% mathematical match score, entirely eliminating the risk of fuzzy-search hallucinations caused by long query strings comparing against short tag arrays.
 
 ### Pure Keyword Summaries & Blank Queries
 If a user just types a project name (e.g., *"Photobooth"*) out of the blue, the project name is detected and stripped from the search query to prevent search-weight skewing. This leaves an empty `""` query.

@@ -111,6 +111,135 @@ function InteractiveEcosystem({ currentThemeColor, themeIdx }: { currentThemeCol
   );
 }
 
+function MobileGlassBubbles() {
+  const [bubbles, setBubbles] = useState<any[]>([]);
+  const physicsRef = useRef<any[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const spawn = () => {
+      const newBubbles = Array.from({ length: 12 }).map((_, i) => {
+        const size = 40 + Math.random() * 50;
+        return {
+          id: Date.now() + i,
+          x: Math.random() * (window.innerWidth - size),
+          y: Math.random() * (window.innerHeight - size),
+          size,
+          vx: (Math.random() - 0.5) * 1.5, // Slower, more relaxing drift
+          vy: (Math.random() - 0.5) * 1.5,
+          popped: false
+        };
+      });
+      physicsRef.current = newBubbles;
+      setBubbles(newBubbles); // Render DOM nodes once
+    };
+
+    spawn();
+
+    let animationId: number;
+    const animate = () => {
+      if (!physicsRef.current || !containerRef.current) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+      
+      const nodes = containerRef.current.children;
+      let allPopped = true;
+
+      physicsRef.current.forEach((b, i) => {
+        if (!b.popped) {
+          allPopped = false;
+          b.x += b.vx;
+          b.y += b.vy;
+
+          if (b.x <= 0 || b.x >= window.innerWidth - b.size) b.vx *= -1;
+          if (b.y <= 0 || b.y >= window.innerHeight - b.size) b.vy *= -1;
+
+          const el = nodes[i] as HTMLDivElement;
+          if (el) {
+            // Hardware-accelerated movement via the GPU
+            el.style.transform = `translate3d(${b.x}px, ${b.y}px, 0) scale(1)`;
+          }
+        }
+      });
+
+      if (allPopped && physicsRef.current.length > 0) {
+        physicsRef.current = []; // clear to prevent multi-trigger
+        setTimeout(spawn, 1000);
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
+  const popBubble = (index: number) => {
+    if (physicsRef.current[index] && !physicsRef.current[index].popped) {
+      physicsRef.current[index].popped = true;
+      const el = containerRef.current?.children[index] as HTMLDivElement;
+      if (el) {
+        el.style.pointerEvents = 'none';
+        
+        const surface = el.querySelector('.bubble-surface') as HTMLDivElement;
+        const outline = el.querySelector('.bubble-outline') as HTMLDivElement;
+        
+        if (surface) {
+          surface.style.opacity = '0';
+          surface.style.transform = 'scale(0.8)';
+        }
+        if (outline) {
+          outline.style.opacity = '0';
+          outline.style.transform = 'scale(1.15)'; // Slight expansion for a satisfying pop ring
+        }
+      }
+    }
+  };
+
+  return (
+    <div ref={containerRef} className="fixed inset-0 z-[100] pointer-events-none md:hidden overflow-hidden">
+      {bubbles.map((b, i) => (
+        <div
+          key={b.id}
+          className="absolute pointer-events-auto cursor-pointer"
+          onTouchStart={() => popBubble(i)}
+          onMouseDown={() => popBubble(i)}
+          style={{
+            left: 0,
+            top: 0,
+            width: b.size,
+            height: b.size,
+            transform: `translate3d(${b.x}px, ${b.y}px, 0)`
+          }}
+        >
+          {/* The lingering outline ring (Fades slowly over 1s) */}
+          <div 
+            className="bubble-outline absolute inset-0 rounded-full"
+            style={{
+              border: '1px solid rgba(255,255,255,0.4)',
+              transition: 'opacity 1s ease-out, transform 1s ease-out',
+            }}
+          />
+
+          {/* The glossy surface of the bubble (Pops instantly) */}
+          <div 
+            className="bubble-surface absolute inset-0 rounded-full transition-all duration-150"
+            style={{
+              background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(255,255,255,0.0))',
+              boxShadow: 'inset 0 0 10px rgba(255,255,255,0.2), inset 4px 4px 10px rgba(255,255,255,0.4), inset -4px -4px 10px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.15)',
+            }}
+          >
+            <div className="absolute top-[15%] left-[20%] w-[35%] h-[15%] rounded-full bg-white opacity-60 blur-[1px] rotate-[-45deg]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   const [themeIdx, setThemeIdx] = useState(0);
   const [hasClicked, setHasClicked] = useState(false);
@@ -119,7 +248,6 @@ export default function Home() {
   const [hintHasBeenShown, setHintHasBeenShown] = useState(false);
   const [baseFrequency, setBaseFrequency] = useState(0.015);
   const [distortionScale, setDistortionScale] = useState(22);
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
   const slides = ['SEE CREATIVITY', 'SEE PROJECTS', 'GET TO KNOW HER'];
 
   useEffect(() => {
@@ -154,19 +282,6 @@ export default function Home() {
     if (!hasClicked) setHasClicked(true);
     setThemeIdx((prev) => (prev + 1) % APP_THEMES.length);
     setDistortionScale(80); // Surge distortion for liquid splash feel
-
-    // Add new ripple
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const id = Date.now();
-    
-    setRipples((prev) => [...prev, { id, x, y }]);
-    
-    // Cleanup ripple after animation finishes (2000ms)
-    setTimeout(() => {
-      setRipples((prev) => prev.filter((r) => r.id !== id));
-    }, 2000);
   };
 
   const handleCanvasMouseEnter = () => {
@@ -184,60 +299,19 @@ export default function Home() {
   return (
     <main className="relative w-screen h-screen bg-black overflow-hidden select-none">
 
-      {/* Ripple Animation CSS (Color-free, soft white liquid ring) */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes ripple-wave {
-          0% {
-            width: 0px;
-            height: 0px;
-            opacity: 0.5;
-            border-width: 4px;
-            filter: blur(1px);
-          }
-          50% {
-            opacity: 0.25;
-            filter: blur(2px);
-          }
-          100% {
-            width: 500px;
-            height: 500px;
-            opacity: 0;
-            border-width: 1px;
-            filter: blur(4px);
-          }
-        }
-        .ripple-effect {
-          position: absolute;
-          border-style: solid;
-          border-radius: 50%;
-          pointer-events: none;
-          transform: translate(-50%, -50%);
-          animation: ripple-wave 2.0s cubic-bezier(0.1, 0.4, 0.2, 1) forwards;
-          z-index: 5;
-        }
-      `}} />
 
       {/* 1. Background Interactive Area */}
       <div
-        className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
-        onClick={handleStructureClick}
+        className="absolute inset-0 z-0 pointer-events-auto"
         onMouseEnter={handleCanvasMouseEnter}
       >
-        {/* Render ripples (Mobile only, color-free soft white) */}
-        {ripples.map((ripple) => (
-          <div
-            key={ripple.id}
-            className="ripple-effect md:hidden"
-            style={{
-              left: ripple.x,
-              top: ripple.y,
-              borderColor: 'rgba(255, 255, 255, 0.25)'
-            }}
-          />
-        ))}
+        <MobileGlassBubbles />
 
         {/* Desktop WebGL Canvas */}
-        <div className="hidden md:block w-full h-full">
+        <div 
+          className="hidden md:block w-full h-full cursor-pointer"
+          onClick={handleStructureClick}
+        >
           <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
             <InteractiveEcosystem currentThemeColor={currentTheme} themeIdx={themeIdx} />
           </Canvas>

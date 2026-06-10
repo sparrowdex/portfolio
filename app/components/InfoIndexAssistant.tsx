@@ -119,15 +119,24 @@ export const InfoIndexAssistant = () => {
 
     let processedMsg = userMsg.toLowerCase();
     
-    // Direct intercepts for the suggestion buttons to guarantee a 100% exact match
-    if (processedMsg === "what was the tech stack?") processedMsg = "tech stack";
-    if (processedMsg === "what were the challenges?") processedMsg = "challenge";
-    if (processedMsg === "how did you build it?") processedMsg = "process";
-    if (processedMsg === "what is the pitch?") processedMsg = "summary";
-
     Object.entries(SYNONYMS).forEach(([synonym, replacement]) => {
       processedMsg = processedMsg.replace(new RegExp(`\\b${synonym}\\b`, 'gi'), replacement);
     });
+
+    // Intercept common phrases to act as a pseudo-semantic router
+    if (processedMsg.includes("tech stack") || processedMsg.includes("technologies") || processedMsg.includes("framework")) {
+      processedMsg = "tech stack";
+    } else if (processedMsg.includes("challenge") || processedMsg.includes("hardest") || processedMsg.includes("difficult")) {
+      processedMsg = "challenge";
+    } else if (processedMsg.includes("how did you build") || processedMsg.includes("process") || processedMsg.includes("how was it made")) {
+      processedMsg = "process";
+    } else if (processedMsg.includes("pitch") || processedMsg.includes("summary") || processedMsg.includes("what is")) {
+      processedMsg = "summary";
+    } else if (processedMsg.includes("why") || processedMsg.includes("reason") || processedMsg.includes("made for") || processedMsg.includes("purpose") || processedMsg.includes("motivation")) {
+      processedMsg = "why";
+    } else if (processedMsg.includes("role") || processedMsg.includes("contribution") || processedMsg.includes("part")) {
+      processedMsg = "role";
+    }
 
     const PROJECT_ID_MAP: Record<string, string> = {
       'photobooth': 'photobooth',
@@ -186,7 +195,6 @@ export const InfoIndexAssistant = () => {
       }
     }
 
-    // Create a dynamic Fuse instance with the filtered data
     const dynamicFuse = new Fuse(filteredData, {
       keys: [
         { name: 'tags', weight: 2 },
@@ -197,11 +205,35 @@ export const InfoIndexAssistant = () => {
       includeScore: true,
     });
 
-    const results = dynamicFuse.search(searchQuery);
+    // Explicit bypass for extremely common concepts to ensure 100% semantic accuracy
+    let explicitMatch = null;
+    if (newActiveProject) {
+      if (processedMsg === "tech stack") {
+        explicitMatch = filteredData.find((d: any) => d.question === "What is the complete Tech Stack?");
+      } else if (processedMsg === "challenge") {
+        explicitMatch = filteredData.find((d: any) => d.question === "What was the most difficult technical challenge you faced?");
+      } else if (processedMsg === "process") {
+        explicitMatch = filteredData.find((d: any) => d.question === "How did you build this?");
+      } else if (processedMsg === "why") {
+        explicitMatch = filteredData.find((d: any) => d.question === "Why did you build this?");
+      } else if (processedMsg === "role") {
+        explicitMatch = filteredData.find((d: any) => d.question === "What was your role?");
+      }
+    }
+
+    let searchResultItem = null;
+    if (explicitMatch) {
+      searchResultItem = explicitMatch;
+    } else {
+      const results = dynamicFuse.search(searchQuery);
+      if (results.length > 0 && results[0].score && results[0].score < 0.6) {
+        searchResultItem = results[0].item;
+      }
+    }
 
     setTimeout(() => {
-      if (results.length > 0 && results[0].score && results[0].score < 0.6) {
-        setMessages(prev => [...prev, { role: 'assistant', content: results[0].item.answer }]);
+      if (searchResultItem) {
+        setMessages(prev => [...prev, { role: 'assistant', content: searchResultItem.answer }]);
       } else {
         setMessages(prev => [...prev, { 
           role: 'assistant', 

@@ -29,7 +29,7 @@ export default function Resume() {
         </Link>
         <a
           href="/assets/resume-june-2026.pdf"
-          download="Sreeja_Das_Resume.pdf"
+          download="Sreeja_Resume_2026.pdf"
           className="px-5 py-2.5 bg-transparent border border-white/10 hover:border-[#4ade80]/50 hover:text-[#4ade80] transition-all duration-300 text-xs tracking-widest text-white/70 backdrop-blur-md font-mono flex items-center gap-2 group"
         >
           DOWNLOAD PDF <span className="group-hover:translate-y-0.5 transition-transform">↓</span>

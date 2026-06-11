@@ -111,131 +111,72 @@ function InteractiveEcosystem({ currentThemeColor, themeIdx }: { currentThemeCol
   );
 }
 
-function MobileGlassBubbles() {
-  const [bubbles, setBubbles] = useState<any[]>([]);
-  const physicsRef = useRef<any[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
+function MobileAccordionFlowers() {
+  const [mounted, setMounted] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const spawn = () => {
-      const newBubbles = Array.from({ length: 12 }).map((_, i) => {
-        const size = 40 + Math.random() * 50;
-        return {
-          id: Date.now() + i,
-          x: Math.random() * (window.innerWidth - size),
-          y: Math.random() * (window.innerHeight - size),
-          size,
-          vx: (Math.random() - 0.5) * 1.5, // Slower, more relaxing drift
-          vy: (Math.random() - 0.5) * 1.5,
-          popped: false
-        };
-      });
-      physicsRef.current = newBubbles;
-      setBubbles(newBubbles); // Render DOM nodes once
-    };
-
-    spawn();
-
-    let animationId: number;
-    const animate = () => {
-      if (!physicsRef.current || !containerRef.current) {
-        animationId = requestAnimationFrame(animate);
-        return;
-      }
-      
-      const nodes = containerRef.current.children;
-      let allPopped = true;
-
-      physicsRef.current.forEach((b, i) => {
-        if (!b.popped) {
-          allPopped = false;
-          b.x += b.vx;
-          b.y += b.vy;
-
-          if (b.x <= 0 || b.x >= window.innerWidth - b.size) b.vx *= -1;
-          if (b.y <= 0 || b.y >= window.innerHeight - b.size) b.vy *= -1;
-
-          const el = nodes[i] as HTMLDivElement;
-          if (el) {
-            // Hardware-accelerated movement via the GPU
-            el.style.transform = `translate3d(${b.x}px, ${b.y}px, 0) scale(1)`;
-          }
-        }
-      });
-
-      if (allPopped && physicsRef.current.length > 0) {
-        physicsRef.current = []; // clear to prevent multi-trigger
-        setTimeout(spawn, 1000);
-      }
-
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    const t = setTimeout(() => {
+      setMounted(true);
+      setExpanded(true);
+    }, 400); // Small delay for the dramatic accordion open
+    return () => clearTimeout(t);
   }, []);
 
-  const popBubble = (index: number) => {
-    if (physicsRef.current[index] && !physicsRef.current[index].popped) {
-      physicsRef.current[index].popped = true;
-      const el = containerRef.current?.children[index] as HTMLDivElement;
-      if (el) {
-        el.style.pointerEvents = 'none';
-        
-        const surface = el.querySelector('.bubble-surface') as HTMLDivElement;
-        const outline = el.querySelector('.bubble-outline') as HTMLDivElement;
-        
-        if (surface) {
-          surface.style.opacity = '0';
-          surface.style.transform = 'scale(0.8)';
-        }
-        if (outline) {
-          outline.style.opacity = '0';
-          outline.style.transform = 'scale(1.15)'; // Slight expansion for a satisfying pop ring
-        }
-      }
-    }
-  };
+  const images = [
+    { src: '/images/flower_red.svg', z: 10 },
+    { src: '/images/flower_orange.svg', z: 20 },
+    { src: '/images/flower_blue.svg', z: 30 },
+    { src: '/images/flower.png', z: 40 },
+  ];
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-[100] pointer-events-none md:hidden overflow-hidden">
-      {bubbles.map((b, i) => (
-        <div
-          key={b.id}
-          className="absolute pointer-events-auto cursor-pointer"
-          onTouchStart={() => popBubble(i)}
-          onMouseDown={() => popBubble(i)}
-          style={{
-            left: 0,
-            top: 0,
-            width: b.size,
-            height: b.size,
-            transform: `translate3d(${b.x}px, ${b.y}px, 0)`
-          }}
-        >
-          {/* The lingering outline ring (Fades slowly over 1s) */}
-          <div 
-            className="bubble-outline absolute inset-0 rounded-full"
-            style={{
-              border: '1px solid rgba(255,255,255,0.4)',
-              transition: 'opacity 1s ease-out, transform 1s ease-out',
-            }}
-          />
+    <div 
+      className="absolute inset-0 flex items-center justify-center pointer-events-auto md:hidden overflow-hidden z-0"
+      style={{ perspective: '1200px' }}
+    >
+      <div
+        className="relative w-[40vw] h-[60vw] max-w-[200px] max-h-[280px] min-w-[150px] min-h-[210px] select-none transition-transform duration-[1200ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: 'translateY(8vh) rotateX(55deg) rotateZ(-40deg)',
+        }}
+      >
+        {images.map((img, i) => {
+          // Accordion effect: Stacked closely when collapsed, fanned out widely on Z-axis when expanded
+          const offsetZ = expanded ? i * 55 : i * 12;
+          const offsetX = expanded ? i * -12 : 0;
+          const offsetY = expanded ? i * 12 : 0;
 
-          {/* The glossy surface of the bubble (Pops instantly) */}
-          <div 
-            className="bubble-surface absolute inset-0 rounded-full transition-all duration-150"
-            style={{
-              background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(255,255,255,0.0))',
-              boxShadow: 'inset 0 0 10px rgba(255,255,255,0.2), inset 4px 4px 10px rgba(255,255,255,0.4), inset -4px -4px 10px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.15)',
-            }}
-          >
-            <div className="absolute top-[15%] left-[20%] w-[35%] h-[15%] rounded-full bg-white opacity-60 blur-[1px] rotate-[-45deg]" />
-          </div>
-        </div>
-      ))}
+          return (
+            <div
+              key={i}
+              className="absolute inset-0 transition-all duration-[1200ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] rounded-3xl border border-white/20 bg-[#0d0d0d]/80 backdrop-blur-md flex items-center justify-center overflow-hidden"
+              style={{
+                transform: `translate3d(${offsetX}px, ${offsetY}px, ${offsetZ}px)`,
+                zIndex: img.z,
+                boxShadow: expanded
+                  ? '-30px 30px 40px rgba(0,0,0,0.9), inset 1px 1px 0px rgba(255,255,255,0.15)'
+                  : '-10px 10px 20px rgba(0,0,0,0.7), inset 1px 1px 0px rgba(255,255,255,0.1)',
+              }}
+            >
+              {/* Glass reflection highlight */}
+              <div className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+
+              <div className="relative w-[85%] h-[85%] opacity-90 drop-shadow-2xl">
+                <Image
+                  src={img.src}
+                  alt={`Flower Layer ${i}`}
+                  fill
+                  sizes="(max-width: 768px) 40vw, 200px"
+                  priority={true}
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -263,7 +204,7 @@ export default function Home() {
     const tick = () => {
       const time = performance.now() * 0.0008;
       setBaseFrequency(0.012 + Math.sin(time * 1.8) * 0.003);
-      
+
       // Decay scale back to 22 smoothly
       setDistortionScale((prev) => {
         if (prev > 22.1) {
@@ -305,31 +246,16 @@ export default function Home() {
         className="absolute inset-0 z-0 pointer-events-auto"
         onMouseEnter={handleCanvasMouseEnter}
       >
-        <MobileGlassBubbles />
+        <MobileAccordionFlowers />
 
         {/* Desktop WebGL Canvas */}
-        <div 
+        <div
           className="hidden md:block w-full h-full cursor-pointer"
           onClick={handleStructureClick}
         >
           <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
             <InteractiveEcosystem currentThemeColor={currentTheme} themeIdx={themeIdx} />
           </Canvas>
-        </div>
-
-        {/* Mobile Flower Image with Dynamic Liquid Distortion */}
-        <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none overflow-hidden">
-          <div className="relative w-[75vw] h-[75vw] max-w-[380px] max-h-[380px] min-w-[280px] min-h-[280px] opacity-35 select-none">
-            <Image
-              src="/images/flower.png"
-              alt="Flower Shape"
-              fill
-              sizes="(max-width: 768px) 75vw, 380px"
-              priority
-              className="object-contain"
-              style={{ filter: 'url(#liquid-distortion)' }}
-            />
-          </div>
         </div>
       </div>
 
@@ -411,7 +337,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div 
+          <div
             className={`relative w-full hidden md:block transition-all duration-500 ease-in-out ${showHoverHint ? 'h-4 opacity-100' : 'h-0 opacity-0 overflow-hidden'}`}
           >
             <span

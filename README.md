@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sreeja's Developer Portfolio ✧
 
-## Getting Started
+A highly interactive, design-engineered personal portfolio showcasing full-stack projects, 3D WebGL experiences, and a custom NLP-powered conversational assistant. Built to be fast, accessible, and visually striking.
 
-First, run the development server:
+## 🚀 Key Features
 
+- **Interactive 3D Ecosystem:** Features custom-built WebGL components using `React Three Fiber` and `Three.js` for immersive desktop interactions.
+- **NLP-Powered Project Assistant:** An intelligent, client-side NLP search engine (`Fuse.js` + custom semantic routing) that allows users to seamlessly query project technical details, architectures, and challenges.
+- **Glassmorphic Aesthetic:** A deeply polished dark-mode UI leveraging `Tailwind CSS` for frosted glass effects, bento grid layouts, and dynamic gradients.
+- **Fluid Micro-Animations:** Extensive use of `GSAP` and Framer Motion-inspired CSS animations for physics-based elements (like 3D isometric accordion stacks and liquid distortions).
+- **Fully Responsive:** Perfectly optimized experiences across mobile, tablet, and desktop viewports, with distinct interactive elements tailored for each.
+
+## 🛠️ Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **3D Graphics:** [React Three Fiber](https://docs.pmnd.rs/react-three-fiber), [Three.js](https://threejs.org/)
+- **Search & NLP:** [Fuse.js](https://fusejs.io/)
+- **Deployment:** [Vercel](https://vercel.com/)
+
+## 🏃‍♀️ Running Locally
+
+1. Clone the repository
+2. Install the dependencies:
+```bash
+npm install
+```
+3. Run the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the portfolio.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Design Philosophy
+The portfolio is designed not just to list projects, but to be a demonstration of engineering capability. Every interaction—from the hover states and custom cursors to the mobile 3D isometric accordion stacks—has been carefully crafted to merge technical complexity with an elegant, intuitive user experience.

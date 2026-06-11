@@ -10,6 +10,26 @@ export default function Resume() {
     setMounted(true);
   }, []);
 
+  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/assets/resume-june-2026.pdf');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Sreeja_Resume_2026.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback for browsers that block the programmatic download
+      window.open('/assets/resume-june-2026.pdf', '_blank');
+    }
+  };
+
   if (!mounted) return null;
 
   return (
@@ -29,7 +49,7 @@ export default function Resume() {
         </Link>
         <a
           href="/assets/resume-june-2026.pdf"
-          download="Sreeja_Resume_2026.pdf"
+          onClick={handleDownload}
           className="px-5 py-2.5 bg-transparent border border-white/10 hover:border-[#4ade80]/50 hover:text-[#4ade80] transition-all duration-300 text-xs tracking-widest text-white/70 backdrop-blur-md font-mono flex items-center gap-2 group"
         >
           DOWNLOAD PDF <span className="group-hover:translate-y-0.5 transition-transform">↓</span>

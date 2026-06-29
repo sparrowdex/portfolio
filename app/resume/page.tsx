@@ -13,12 +13,13 @@ export default function Resume() {
   const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch('/assets/resume-june-2026.pdf');
+      const response = await fetch('/assets/Sreeja-Resume.pdf');
+      if (!response.ok) throw new Error('Failed to fetch resume');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Sreeja_Resume_2026.pdf';
+      a.download = 'Sreeja-Resume.pdf';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -26,7 +27,7 @@ export default function Resume() {
     } catch (error) {
       console.error('Download failed:', error);
       // Fallback for browsers that block the programmatic download
-      window.open('/assets/resume-june-2026.pdf', '_blank');
+      window.open('/assets/Sreeja-Resume.pdf', '_blank');
     }
   };
 
@@ -48,7 +49,7 @@ export default function Resume() {
           <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> HOME
         </Link>
         <a
-          href="/assets/resume-june-2026.pdf"
+          href="/assets/Sreeja-Resume.pdf"
           onClick={handleDownload}
           className="px-5 py-2.5 bg-transparent border border-white/10 hover:border-[#4ade80]/50 hover:text-[#4ade80] transition-all duration-300 text-xs tracking-widest text-white/70 backdrop-blur-md font-mono flex items-center gap-2 group"
         >
@@ -88,7 +89,7 @@ export default function Resume() {
                 <span className="text-xs font-mono text-neutral-500 mt-1 md:mt-0">Aug 2023 — May 2027</span>
               </div>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-sm text-neutral-300 print:text-black/80">
-                <span>Bachelor of Technology in Computer Science (Core) | <strong className="text-white print:text-black">CGPA: 8.95</strong></span>
+                <span>Bachelor of Technology in Computer Science (Core) | <strong className="text-white print:text-black">CGPA: 9.05</strong></span>
                 <span className="text-xs text-neutral-500 mt-1 md:mt-0">Delhi-NCR, India</span>
               </div>
             </div>

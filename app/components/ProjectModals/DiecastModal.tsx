@@ -19,11 +19,11 @@ export const DiecastModal = ({ selectedProject }: { selectedProject: Project }) 
                 A high-performance e-commerce platform built specifically for diecast collectors. Designed with F1 telemetry and automotive precision aesthetics, it manages the entire lifecycle of high-value exhibits — from a stock-aware "Vault" (cart) to real-time logistics tracking and automated PDF manifesto generation.
               </p>
               <p className="text-sm md:text-base leading-relaxed text-neutral-300 font-sans opacity-90">
-                I approached this project with a design-first mindset since it was for an actual user base. I first mapped out the design theme — opting for a strict, high-contrast palette to prevent eye strain while maintaining a premium, brutalist aesthetic — and built an interactive prototype. Once the client was satisfied, I iteratively added complex features like robust variant state management, a cinematic "Journal" section, and gamified logistics telemetry.
+                Originally initiated as a technical build, this engagement evolved into a long-term equity partnership where I now serve as <strong>Technical Co-Founder & CTO</strong>. I architected the platform from the ground up — engineering an F1 telemetry aesthetic, a zero-trust stock-locked checkout with Razorpay, automated Shiprocket logistics tracking, and an automated technical manifesto PDF engine.
               </p>
               <div className="flex flex-wrap gap-4 mt-4">
                 <a href="https://www.thediecaststore.in" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 px-8 py-4 bg-[#FF1E1E] text-white font-bold text-xs tracking-widest hover:bg-white hover:text-[#0A0A0A] transition-all duration-300 w-max">
-                  VISIT THEDIECASTSTORE.IN
+                  ORDER YOUR BUILD ── VISIT STORE
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </a>
               </div>

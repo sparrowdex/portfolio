@@ -4,10 +4,10 @@ import { ScrollReveal } from '../ScrollReveal';
 
 export const TimelessModal = ({ selectedProject }: { selectedProject: Project }) => {
   const images = [
-    "/images/christmas-spirit/past.png",
-    "/images/christmas-spirit/present.png",
-    "/images/christmas-spirit/future.png",
-    "/images/christmas-spirit/future_blow.png"
+    "/images/christmas-spirit/past.webp",
+    "/images/christmas-spirit/present.webp",
+    "/images/christmas-spirit/future.webp",
+    "/images/christmas-spirit/future_blow.webp"
   ];
   
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
@@ -48,7 +48,7 @@ export const TimelessModal = ({ selectedProject }: { selectedProject: Project })
           <div className="flex flex-col md:flex-row gap-12 items-start">
             <div className="flex-1 flex flex-col gap-6">
               <div className="w-48 h-24 flex items-center justify-start overflow-hidden relative">
-                <img src="/images/christmas-spirit/globe.png" alt="Timeless Logo" className="w-full h-full object-contain object-left invert opacity-90" />
+                <img src="/images/christmas-spirit/globe.webp" alt="Timeless Logo" className="w-full h-full object-contain object-left invert opacity-90" />
               </div>
               <h3 className="text-4xl md:text-6xl tracking-wide font-serif italic capitalize" style={{ color: selectedProject.colors[1] }}>Overview</h3>
               <p className="text-sm md:text-base leading-relaxed text-neutral-300 font-sans opacity-90">

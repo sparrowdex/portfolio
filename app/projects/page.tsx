@@ -27,7 +27,7 @@ const PROJECTS_DATA: Project[] = [
     features: ['Real-time filters & effects', 'Custom overlay frame styles', 'High-quality instant downloads'],
     featuredHighlight: 'Custom asynchronous pipeline rendering that cleanly processes pixel filters instantly.',
     imageFallback: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=600&auto=format&fit=crop',
-    logo: '/images/photobooth/logo.png'
+    logo: '/images/photobooth/logo.webp'
   },
   {
     id: 2,
@@ -41,23 +41,23 @@ const PROJECTS_DATA: Project[] = [
     features: ['Mindful mood journal logging', 'Visual emotional tracking charts', 'Ambient soundscapes'],
     featuredHighlight: 'Dynamic browser layout engine utilizing customized modular local context nodes.',
     imageFallback: 'https://images.unsplash.com/photo-1536152470836-b943b246224c?q=80&w=600&auto=format&fit=crop',
-    logo: '/images/innervoice/InnerVoice_dark.png',
+    logo: '/images/innervoice/InnerVoice_dark.webp',
     specialBadge: 'Startup'
   },
   {
     id: 3,
-    title: 'Diecast Store',
-    subtitle: 'Premium E-Commerce Showcase',
-    desc: 'A sleek e-commerce platform for collectibles featuring an interactive 3D product showcase.',
-    longDesc: 'A high-fidelity e-commerce experience tailored specifically for diecast model car collectors. It features dynamic custom 3D model showcases where users can rotate, inspect, and configure vehicles.',
+    title: 'The Diecast Store',
+    subtitle: 'Co-Founder & CTO | F1 Precision E-Commerce',
+    desc: 'From trackside telemetry to production e-commerce — co-founded and architected as CTO. Ready to park a piece of motorsport history on your desk? Claim your build live at thediecaststore.in.',
+    longDesc: 'A high-octane e-commerce platform built for scale-model collectors and motorsport enthusiasts. Co-founded and engineered from zero to production as Technical Co-Founder & CTO, featuring a stock-locked "Vault", F1 race track delivery telemetry, and automated PDF technical manifestos.',
     colors: ['#FAFAFA', '#0A0A0A', '#FF1E1E'],
     colorLabels: ['Off-White', 'Soft Black', 'Racing Red'],
-    tech: ['Three.js', 'React Three Fiber', 'Next.js', 'Stripe API'],
-    features: ['Interactive 3D model inspector', 'Advanced multi-tier product filter', 'Sleek dark mode interfaces'],
-    featuredHighlight: 'Procedural non-aliased glass shader configuration projecting realistic reflections.',
+    tech: ['Next.js 16', 'TypeScript', 'Prisma', 'Razorpay', 'Shiprocket', 'Tailwind CSS'],
+    features: ['Stock-aware Collector Vault', 'F1 race track delivery telemetry', 'Automated PDF Technical Manifestos'],
+    featuredHighlight: 'Zero-trust server-side payment verification and stock locking with automated carrier AWB webhooks.',
     imageFallback: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=600&auto=format&fit=crop',
-    logo: '/images/diecaststore/logo.png',
-    specialBadge: 'Freelance'
+    logo: '/images/diecaststore/logo.webp',
+    specialBadge: 'Co-Founder & CTO'
   },
   {
     id: 4,
@@ -85,7 +85,7 @@ const PROJECTS_DATA: Project[] = [
     features: ['Procedurally generated 3D botanicals', 'Microphone-driven bloom animation', 'Persistent 3D collaborative messages'],
     featuredHighlight: 'Custom GPU-bound fragment shader architecture calculating realistic Fresnel reflection bands.',
     imageFallback: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=600&auto=format&fit=crop',
-    logo: '/images/flowersforbeloved/logo.png'
+    logo: '/images/flowersforbeloved/logo.webp'
   },
   {
     id: 6,
@@ -99,7 +99,7 @@ const PROJECTS_DATA: Project[] = [
     features: ['Culinary Feed & Stories', 'ML Recommendations', 'Chef Insights Dashboard'],
     featuredHighlight: 'Custom hybrid recommendation engine (Collaborative + Content-Based) that learns from views, likes, saves, and ratings.',
     imageFallback: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=600&auto=format&fit=crop',
-    logo: '/images/spicevault/logo.svg'
+    logo: '/images/spicevault/logo.webp'
   },
   {
     id: 7,
@@ -112,8 +112,8 @@ const PROJECTS_DATA: Project[] = [
     tech: ['React Three Fiber', 'Web Audio API', 'ElevenLabs AI', 'Vite'],
     features: ['Microphone breath-controlled snow physics', 'Dynamic era-shifting 3D shaders', 'AI-generated contextual voice narration'],
     featuredHighlight: 'Custom Web Audio API abstraction hook seamlessly controlling 3D particle wind physics.',
-    imageFallback: '/images/christmas-spirit/globe.png',
-    logo: '/images/christmas-spirit/globe.png',
+    imageFallback: '/images/christmas-spirit/globe.webp',
+    logo: '/images/christmas-spirit/globe.webp',
     specialBadge: 'Top 10 Winner'
   }
 ];

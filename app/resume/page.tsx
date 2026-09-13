@@ -159,20 +159,24 @@ export default function Resume() {
               <div>
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-1">
                   <h3 className="text-xl font-bold text-white print:text-black">The Diecast Store <span className="font-normal text-sm text-neutral-400 print:text-black/60">| <a href="https://www.thediecaststore.in" target="_blank" rel="noreferrer" className="hover:text-[#4ade80] transition-colors border-b border-transparent hover:border-[#4ade80]">www.thediecaststore.in</a></span></h3>
-                  <span className="text-xs font-mono text-neutral-500 mt-1 md:mt-0">Jan 2026 — May 2026</span>
+                  <span className="text-xs font-mono text-neutral-500 mt-1 md:mt-0">Jan 2026 — Present</span>
                 </div>
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-sm mb-4">
-                  <span className="italic text-[#4ade80] print:text-black font-semibold">Lead Developer</span>
+                  <span className="italic text-[#4ade80] print:text-black font-semibold">Partner & Technical Co-Founder / CTO</span>
                   <span className="text-xs text-neutral-500 mt-1 md:mt-0">Remote, India</span>
                 </div>
                 <ul className="flex flex-col gap-2 text-sm text-neutral-300 print:text-black/80">
                   <li className="flex items-start gap-3">
                     <span className="font-mono text-[#4ade80]/50 mt-1 text-[8px] print:text-black">▹</span>
-                    <span>Architected a fully functional, serverless full-stack e-commerce platform tailored for diecast hobbyists using Next.js, TypeScript, and Prisma.</span>
+                    <span>Co-founded and architected a production serverless full-stack e-commerce platform tailored for high-end diecast model collectors using Next.js 16, TypeScript, and Prisma.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="font-mono text-[#4ade80]/50 mt-1 text-[8px] print:text-black">▹</span>
-                    <span>Engineered a premium, responsive UI featuring Bento Grid layouts and fluid animations, successfully integrating production endpoints for payment and shipping gateways (Razorpay/Shiprocket).</span>
+                    <span>Engineered a zero-trust payment handshake with Razorpay, real-time race-track logistics telemetry with Shiprocket, and automated PDF technical manifestos.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="font-mono text-[#4ade80]/50 mt-1 text-[8px] print:text-black">▹</span>
+                    <span>Leading technology roadmap, security posture, and cloud infrastructure as Technical Co-Founder & CTO.</span>
                   </li>
                 </ul>
               </div>

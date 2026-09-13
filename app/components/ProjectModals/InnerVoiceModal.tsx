@@ -19,7 +19,7 @@ export const InnerVoiceModal = ({ selectedProject }: { selectedProject: Project 
           <div className="flex flex-col md:flex-row gap-12 items-start">
             <div className="flex-1 flex flex-col gap-6">
               <div className="w-48 h-16 flex items-center justify-start overflow-hidden relative">
-                <img src="/images/innervoice/InnerVoice_dark.png" alt="Inner Voice Logo" className="w-full h-full object-contain object-left" />
+                <img src="/images/innervoice/InnerVoice_dark.webp" alt="Inner Voice Logo" className="w-full h-full object-contain object-left" />
               </div>
               <h3 className="text-4xl md:text-6xl tracking-wide text-[#99cce6] font-serif italic capitalize">Overview</h3>
               <p className="text-sm md:text-base leading-relaxed text-neutral-300 font-sans opacity-90">

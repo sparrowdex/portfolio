@@ -1,8 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@600;700&family=Great+Vibes&family=Kaushan+Script&family=Mr+Dafoe&family=Rozha+One&family=Yatra+One&display=swap');
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+@font-face {
+  font-family: 'Rockybilly';
+  src: local('Rockybilly'),
+       local('Rockybilly Regular'),
+       local('Rockybilly-Regular'),
+       url('/fonts/Rockybilly.ttf') format('truetype'),
+       url('/fonts/rockybilly.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Eagle Horizon';
+  src: local('Eagle Horizon-Personal use'),
+       local('Eagle Horizon'),
+       local('EagleHorizonPersonaluse'),
+       local('EagleHorizonP'),
+       url('/fonts/EagleHorizonP.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VTKS Psychedelic';
+  src: local('VTKS Psychedelic'),
+       local('VTKS Psychedelic Regular'),
+       local('VTKSPsychedelic-Regular'),
+       url('/fonts/VTKS%20Psychedelic.ttf') format('truetype'),
+       url('/fonts/VTKS Psychedelic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme inline {
@@ -11,6 +48,26 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-playfair: var(--font-playfair-display);
+  --font-hindi: 'Rozha One', 'Yatra One', serif;
+  --font-signature: 'Rockybilly', 'Kaushan Script', 'Mr Dafoe', 'Caveat', 'Alex Brush', cursive;
+  --font-eagle: 'Eagle Horizon', 'Eagle Horizon-Personal use', 'Rockybilly', cursive;
+  --font-vtks: 'VTKS Psychedelic', cursive, sans-serif;
+}
+
+.font-signature {
+  font-family: 'Rockybilly', 'Kaushan Script', 'Mr Dafoe', 'Caveat', 'Alex Brush', cursive;
+}
+
+.font-rockybilly {
+  font-family: 'Rockybilly', 'Kaushan Script', 'Mr Dafoe', 'Caveat', cursive;
+}
+
+.font-eagle {
+  font-family: 'Eagle Horizon', 'Eagle Horizon-Personal use', 'Rockybilly', cursive;
+}
+
+.font-vtks {
+  font-family: 'VTKS Psychedelic', cursive, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -56,6 +113,30 @@ body {
   animation: slide-up-reveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
 
+@keyframes signature-write {
+  0% {
+    clip-path: polygon(-100% -200%, -60% -200%, -60% 300%, -100% 300%);
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  20% {
+    opacity: 1;
+  }
+  95% {
+    clip-path: polygon(-100% -200%, 220% -200%, 220% 300%, -100% 300%);
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    clip-path: none;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-signature {
+  animation: signature-write 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .metallic-chrome-text {
   background: linear-gradient(to bottom,
       #ffffff 0%,
@@ -90,4 +171,21 @@ body {
 .card-perspective {
   perspective: 1500px;
   transform-style: preserve-3d;
+}
+
+/* Height-adaptive mobile portrait scaling to eliminate excessive gap on tall devices */
+@media (min-height: 780px) and (max-width: 767px) {
+  .portrait-mobile-adaptive {
+    transform: scale(1.30) translateY(4px) !important;
+  }
+}
+@media (min-height: 850px) and (max-width: 767px) {
+  .portrait-mobile-adaptive {
+    transform: scale(1.38) translateY(6px) !important;
+  }
+}
+@media (min-height: 900px) and (max-width: 767px) {
+  .portrait-mobile-adaptive {
+    transform: scale(1.46) translateY(8px) !important;
+  }
 }

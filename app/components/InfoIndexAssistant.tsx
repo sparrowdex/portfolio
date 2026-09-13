@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Fuse from 'fuse.js';
 import assistantData from '../data/assistantKnowledge.json';
 
@@ -79,6 +80,8 @@ const TypewriterMessage = ({ content, speed = 15, onComplete }: { content: strin
 };
 
 export const InfoIndexAssistant = () => {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
@@ -88,6 +91,17 @@ export const InfoIndexAssistant = () => {
     { role: 'assistant', content: 'Hi! What would you like to know about my projects?' }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    const handleToggle = () => setIsOpen(prev => !prev);
+    window.addEventListener('open-info-assistant', handleOpen);
+    window.addEventListener('toggle-info-assistant', handleToggle);
+    return () => {
+      window.removeEventListener('open-info-assistant', handleOpen);
+      window.removeEventListener('toggle-info-assistant', handleToggle);
+    };
+  }, []);
 
   // Initialize Fuse.js
   const fuse = new Fuse(assistantData, {
@@ -249,9 +263,9 @@ export const InfoIndexAssistant = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className={`fixed ${isOpen ? 'top-5 left-5 md:top-auto md:left-auto md:bottom-6 md:right-6' : isHome ? 'hidden md:block md:bottom-6 md:right-6' : 'top-5 left-5 md:top-auto md:left-auto md:bottom-6 md:right-6'} z-50 font-sans`}>
       {isOpen ? (
-        <div className={`${isExpanded ? 'w-[90vw] h-[85vh] md:w-[70vw]' : 'w-80 sm:w-96 h-[500px] max-h-[80vh]'} flex flex-col bg-neutral-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform scale-100 opacity-100`}>
+        <div className={`${isExpanded ? 'w-[90vw] h-[85vh] md:w-[70vw]' : 'w-[calc(100vw-2.5rem)] max-w-sm sm:w-96 h-[500px] max-h-[80vh]'} flex flex-col bg-neutral-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform scale-100 opacity-100`}>
 
           {/* Header */}
           <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
@@ -358,12 +372,13 @@ export const InfoIndexAssistant = () => {
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white p-4 rounded-full shadow-2xl hover:border-white/30 transition-all duration-300 group"
+          className="flex items-center bg-neutral-900/90 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-white p-2.5 sm:p-3 md:p-3.5 rounded-full shadow-2xl hover:border-white/40 transition-all duration-300 group"
+          aria-label="Open Information Index Assistant"
         >
-          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/10 group-hover:bg-white text-neutral-400 group-hover:text-black transition-colors shrink-0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 group-hover:bg-white text-white group-hover:text-black transition-colors shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="7.5"></circle>
+              <line x1="21" y1="21" x2="16.5" y2="16.5"></line>
             </svg>
           </div>
           <div className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[300px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 ease-in-out flex items-center">

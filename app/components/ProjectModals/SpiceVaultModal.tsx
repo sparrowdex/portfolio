@@ -10,7 +10,7 @@ export const SpiceVaultModal = ({ selectedProject }: { selectedProject: Project 
           <div className="flex flex-col md:flex-row gap-12 items-start">
             <div className="flex-1 flex flex-col gap-6">
               <div className="w-48 h-16 flex items-center justify-start overflow-hidden relative">
-                <img src="/images/spicevault/logo.svg" alt="SpiceVault Logo" className="w-full h-full object-contain object-left" />
+                <img src="/images/spicevault/logo.webp" alt="SpiceVault Logo" className="w-full h-full object-contain object-left" />
               </div>
               <h3 className="text-4xl md:text-6xl tracking-wide font-serif italic capitalize" style={{ color: selectedProject.colors[2] }}>Overview</h3>
               <p className="text-sm md:text-base leading-relaxed text-neutral-300 font-sans opacity-90">

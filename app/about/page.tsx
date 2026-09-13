@@ -293,12 +293,93 @@ export default function About() {
         style={{ animationDelay: '0.8s' }}
       >
         <div className="relative w-full h-full">
-          {/* Mobile Clickable Tags */}
-          <div className="absolute inset-0 z-30 md:hidden pointer-events-auto flex flex-col justify-center items-center">
-             <button onClick={() => setActiveTab(0)} className={`absolute top-[22%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff3366]/50 text-[#ff3366] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>VISION</button>
-             <button onClick={() => setActiveTab(1)} className={`absolute top-[47%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#ff7700]/50 text-[#ff7700] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>SYSTEMS</button>
-             <button onClick={() => setActiveTab(2)} className={`absolute top-[72%] left-[50%] -translate-x-1/2 bg-black/60 border border-[#00d2ff]/50 text-[#00d2ff] px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest backdrop-blur-md transition-opacity ${activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>JOURNEY</button>
-          </div>
+          {/* Mobile Elegant Delicate White Cursive Flower Labels */}
+          <svg 
+            viewBox="0 0 100 100" 
+            className="absolute inset-0 w-full h-full z-30 md:hidden pointer-events-auto"
+            style={{ overflow: 'visible' }}
+          >
+            <defs>
+              {/* Vision (Top Flower): Following right half-side curvature with comfortable gap */}
+              <path id="flower-curve-vision" d="M 68.5 18 Q 74.5 26 68.5 34" fill="none" />
+              {/* Systems (Middle Flower): Preserved exact curvature and spacing */}
+              <path id="flower-curve-systems" d="M 28 43 Q 21 51 27 59" fill="none" />
+              {/* Journey (Bottom Flower): Following right half-side curvature with comfortable gap */}
+              <path id="flower-curve-journey" d="M 68.5 70 Q 74.5 78 68.5 86" fill="none" />
+            </defs>
+
+            {/* Top Flower - Vision (Touch target directly on the flower bloom) */}
+            <g
+              onClick={() => setActiveTab(0)}
+              className={`cursor-pointer transition-all duration-500 transform active:scale-95 ${
+                activeTab !== null && activeTab !== 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
+            >
+              {/* Touch target covering the top flower bloom */}
+              <circle cx="55" cy="24" r="18" fill="transparent" />
+              <path d="M 68.5 18 Q 74.5 26 68.5 34" fill="none" stroke="transparent" strokeWidth="16" />
+              <text
+                fill="#ffffff"
+                className="font-signature text-[3.1px] select-none"
+                style={{
+                  fontFamily: "'Alex Brush', 'Great Vibes', cursive",
+                  filter: 'drop-shadow(0 2px 5px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.5))',
+                }}
+              >
+                <textPath href="#flower-curve-vision" startOffset="50%" textAnchor="middle">
+                  Vision
+                </textPath>
+              </text>
+            </g>
+
+            {/* Middle Flower - Systems (Touch target directly on the flower bloom) */}
+            <g
+              onClick={() => setActiveTab(1)}
+              className={`cursor-pointer transition-all duration-500 transform active:scale-95 ${
+                activeTab !== null && activeTab !== 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
+            >
+              {/* Touch target covering the middle flower bloom */}
+              <circle cx="44" cy="50" r="20" fill="transparent" />
+              <path d="M 28 43 Q 21 51 27 59" fill="none" stroke="transparent" strokeWidth="16" />
+              <text
+                fill="#ffffff"
+                className="font-signature text-[3.1px] select-none"
+                style={{
+                  fontFamily: "'Alex Brush', 'Great Vibes', cursive",
+                  filter: 'drop-shadow(0 2px 5px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.5))',
+                }}
+              >
+                <textPath href="#flower-curve-systems" startOffset="50%" textAnchor="middle">
+                  Systems
+                </textPath>
+              </text>
+            </g>
+
+            {/* Bottom Flower - Journey (Touch target directly on the flower bloom) */}
+            <g
+              onClick={() => setActiveTab(2)}
+              className={`cursor-pointer transition-all duration-500 transform active:scale-95 ${
+                activeTab !== null && activeTab !== 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
+            >
+              {/* Touch target covering the bottom flower bloom */}
+              <circle cx="55" cy="74" r="18" fill="transparent" />
+              <path d="M 68.5 70 Q 74.5 78 68.5 86" fill="none" stroke="transparent" strokeWidth="16" />
+              <text
+                fill="#ffffff"
+                className="font-signature text-[3.1px] select-none"
+                style={{
+                  fontFamily: "'Alex Brush', 'Great Vibes', cursive",
+                  filter: 'drop-shadow(0 2px 5px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.5))',
+                }}
+              >
+                <textPath href="#flower-curve-journey" startOffset="50%" textAnchor="middle">
+                  Journey
+                </textPath>
+              </text>
+            </g>
+          </svg>
           {/* SVG Canvas for Lines (Layered behind the flower images) */}
           {mindmapConfig && (
             <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" style={{ overflow: 'visible' }}>
@@ -351,18 +432,20 @@ export default function About() {
 
           {/* Base grayscale flower */}
           <Image
-            src="/images/flower.svg"
+            src="/images/flower.webp"
             alt="Flower Base"
             fill
+            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 55vw, 750px"
             priority
             className="object-contain z-10"
           />
 
           {/* Top Flower Layer (Red) */}
           <Image
-            src="/images/flower_red.svg"
+            src="/images/flower_red.webp"
             alt="Top Flower Colored"
             fill
+            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 55vw, 750px"
             className="object-contain transition-opacity duration-700 z-10"
             style={{
               opacity: (activeTab === 0 || (activeTab === null && hoveredItem === 0)) ? 1 : 0
@@ -371,9 +454,10 @@ export default function About() {
 
           {/* Middle Flower Layer (Orange) */}
           <Image
-            src="/images/flower_orange.svg"
+            src="/images/flower_orange.webp"
             alt="Middle Flower Colored"
             fill
+            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 55vw, 750px"
             className="object-contain transition-opacity duration-700 z-10"
             style={{
               opacity: (activeTab === 1 || (activeTab === null && hoveredItem === 1)) ? 1 : 0
@@ -382,9 +466,10 @@ export default function About() {
 
           {/* Bottom Flower Layer (Blue) */}
           <Image
-            src="/images/flower_blue.svg"
+            src="/images/flower_blue.webp"
             alt="Bottom Flower Colored"
             fill
+            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 55vw, 750px"
             className="object-contain transition-opacity duration-700 z-10"
             style={{
               opacity: (activeTab === 2 || (activeTab === null && hoveredItem === 2)) ? 1 : 0

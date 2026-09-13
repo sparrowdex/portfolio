@@ -13,8 +13,8 @@ export const PhotoboothModal = ({ selectedProject }: { selectedProject: Project 
   }, []);
 
   const galleryCards = [
-    { id: 0, src: "/images/photobooth/mobile_interface.jpeg", alt: "Mobile Interface" },
-    { id: 1, src: "/images/photobooth/photo-strip.png", alt: "Photo Strip", objectFit: "object-contain" },
+    { id: 0, src: "/images/photobooth/mobile_interface.webp", alt: "Mobile Interface" },
+    { id: 1, src: "/images/photobooth/photo-strip.webp", alt: "Photo Strip", objectFit: "object-contain" },
     { id: 2, src: "/images/photobooth/photobooth-gif.gif", alt: "Demo GIF" }
   ];
   return (
@@ -25,7 +25,7 @@ export const PhotoboothModal = ({ selectedProject }: { selectedProject: Project 
           <div className="flex flex-col md:flex-row gap-12 items-start">
             <div className="flex-1 flex flex-col gap-6">
               <div className="w-24 h-24 flex items-center justify-center overflow-hidden relative">
-                <img src="/images/photobooth/logo.png" alt="Photobooth Logo" className="w-full h-full object-contain" />
+                <img src="/images/photobooth/logo.webp" alt="Photobooth Logo" className="w-full h-full object-contain" />
               </div>
               <h3 className="text-4xl md:text-6xl tracking-wide text-[#ff66b2] font-serif italic capitalize">Overview</h3>
               <p className="text-sm md:text-base leading-relaxed text-neutral-300 font-sans opacity-90">
@@ -39,7 +39,7 @@ export const PhotoboothModal = ({ selectedProject }: { selectedProject: Project 
                   VISIT PINKPHOTOBOOTH.APP
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </a>
-                <a href="/photobooth/photobooth.apk" download className="inline-flex items-center gap-3 px-8 py-4 bg-transparent border border-[#ff66b2] text-[#ff66b2] font-bold text-xs tracking-widest hover:bg-[#ff66b2]/10 transition-all duration-300 w-max">
+                <a href="https://github.com/sparrowdex/photobooth-web/releases/download/v1.0.3/photobooth-v3.apk" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 px-8 py-4 bg-transparent border border-[#ff66b2] text-[#ff66b2] font-bold text-xs tracking-widest hover:bg-[#ff66b2]/10 transition-all duration-300 w-max">
                   DOWNLOAD ANDROID APK
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 </a>

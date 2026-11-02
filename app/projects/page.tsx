@@ -47,7 +47,7 @@ const PROJECTS_DATA: Project[] = [
   {
     id: 3,
     title: 'The Diecast Store',
-    subtitle: 'Co-Founder & CTO | F1 Precision E-Commerce',
+    subtitle: 'Co-Founder & CTO | Diecast Car E-Commerce',
     desc: 'From trackside telemetry to production e-commerce — co-founded and architected as CTO. Ready to park a piece of motorsport history on your desk? Claim your build live at thediecaststore.in.',
     longDesc: 'A high-octane e-commerce platform built for scale-model collectors and motorsport enthusiasts. Co-founded and engineered from zero to production as Technical Co-Founder & CTO, featuring a stock-locked "Vault", F1 race track delivery telemetry, and automated PDF technical manifestos.',
     colors: ['#FAFAFA', '#0A0A0A', '#FF1E1E'],
@@ -56,7 +56,7 @@ const PROJECTS_DATA: Project[] = [
     features: ['Stock-aware Collector Vault', 'F1 race track delivery telemetry', 'Automated PDF Technical Manifestos'],
     featuredHighlight: 'Zero-trust server-side payment verification and stock locking with automated carrier AWB webhooks.',
     imageFallback: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=600&auto=format&fit=crop',
-    logo: '/images/diecaststore/logo.webp',
+    logo: '/images/diecaststore/emblem-white.png',
     specialBadge: 'Co-Founder & CTO'
   },
   {

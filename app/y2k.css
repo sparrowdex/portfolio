@@ -1,0 +1,278 @@
+/* ════════════════════════════════════════════════════════════
+   Y2K PINK SYSTEM — "Sreeja OS 2002"
+   Accent-driven: any element can set --accent to re-skin itself.
+   Imported from app/layout.tsx after globals.css.
+   ════════════════════════════════════════════════════════════ */
+
+/* Component classes sit in Tailwind's components layer so utilities (absolute, text-*, p-*) can override them. */
+@layer components {
+  :root {
+    --accent: #ff2e93;
+  }
+
+  .font-pixel { font-family: var(--font-vt323), 'Courier New', monospace; letter-spacing: 0.02em; }
+  .font-bubble { font-family: var(--font-bagel), 'Arial Black', sans-serif; }
+
+  /* Pink chrome bubble text */
+  .y2k-chrome-text {
+    background: linear-gradient(180deg,
+        #ffffff 0%, #ffe3f3 22%, #ff9fd6 44%, #c2006f 50%, #ff4fae 58%, #ffc4e6 80%, #ffffff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 1.5px #7a0044;
+    filter: drop-shadow(3px 4px 0 rgba(122, 0, 68, 0.25)) drop-shadow(0 0 18px rgba(255, 143, 216, 0.6));
+  }
+
+  /* Glossy Aqua / XP pill. Colour comes from --btn (falls back to accent). */
+  .y2k-gloss {
+    --btn: var(--accent);
+    position: relative;
+    isolation: isolate;
+    color: #fff;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--btn) 35%, #fff) 0%, var(--btn) 52%, color-mix(in srgb, var(--btn) 70%, #000) 100%);
+    border: 1.5px solid color-mix(in srgb, var(--btn) 55%, #000);
+    box-shadow:
+      inset 0 -3px 6px color-mix(in srgb, var(--btn) 60%, #000),
+      inset 0 2px 1px rgba(255, 255, 255, 0.7),
+      0 3px 0 color-mix(in srgb, var(--btn) 45%, #000),
+      0 6px 14px color-mix(in srgb, var(--btn) 45%, transparent);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  }
+  .y2k-gloss::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 8%;
+    right: 8%;
+    top: 6%;
+    height: 45%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.05));
+    pointer-events: none;
+  }
+  .y2k-gloss:hover { filter: brightness(1.08) saturate(1.1); }
+  .y2k-gloss:active {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 -2px 4px color-mix(in srgb, var(--btn) 60%, #000),
+      inset 0 2px 1px rgba(255, 255, 255, 0.6),
+      0 1px 0 color-mix(in srgb, var(--btn) 45%, #000);
+  }
+  .y2k-gloss-silver { --btn: #d9cfd8; color: #3a1530; text-shadow: 0 1px 0 #fff; }
+
+  /* Window chrome */
+  .y2k-window {
+    background: #fff7fc;
+    border: 2px solid color-mix(in srgb, var(--accent) 55%, #3a1530);
+    border-radius: 12px;
+    box-shadow:
+      0 0 0 1px #fff inset,
+      6px 6px 0 color-mix(in srgb, var(--accent) 30%, #3a1530),
+      0 18px 40px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .y2k-titlebar {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(0, 0, 0, 0) 51%),
+      linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 45%, #c9a7ff));
+    border-bottom: 2px solid color-mix(in srgb, var(--accent) 55%, #3a1530);
+  }
+  .y2k-dot {
+    background: radial-gradient(circle at 35% 30%, #fff 0 18%, var(--dot) 45%, color-mix(in srgb, var(--dot) 60%, #000) 100%);
+    border: 1px solid color-mix(in srgb, var(--dot) 50%, #000);
+  }
+
+  /* Dark LCD screen with scanlines, glowing in the accent colour */
+  .y2k-lcd {
+    position: relative;
+    background: radial-gradient(ellipse at 50% 40%, #2a1028 0%, #12060f 75%);
+    color: color-mix(in srgb, var(--accent) 70%, #fff);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 80%, transparent);
+    box-shadow: inset 0 0 0 2px #000, inset 0 0 24px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+  }
+  .y2k-lcd::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+  }
+
+  /* Holographic CD surface */
+  .y2k-holo {
+    background: conic-gradient(from 20deg, #ffd6f0, #c9f3ff, #fffbd1, #e3ccff, #ffd6f0, #bff7e3, #ffd6f0);
+  }
+
+  /* Checker / gingham paper */
+  .y2k-gingham {
+    background-color: #ffe1f1;
+    background-image:
+      linear-gradient(90deg, rgba(255, 46, 147, 0.16) 50%, transparent 50%),
+      linear-gradient(rgba(255, 46, 147, 0.16) 50%, transparent 50%);
+    background-size: 22px 22px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+}
+
+/* ── Y2K keyframes ── */
+@keyframes y2k-twinkle {
+  0%, 100% { transform: scale(0.4) rotate(0deg); opacity: 0.25; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; }
+}
+@keyframes y2k-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes y2k-spin { to { transform: rotate(360deg); } }
+@keyframes y2k-float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--r, 0deg)); }
+}
+@keyframes y2k-swing {
+  0%, 100% { transform: rotate(9deg); }
+  50% { transform: rotate(-9deg); }
+}
+@keyframes y2k-blink { 50% { opacity: 0; } }
+@keyframes y2k-pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes y2k-eq {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+
+.animate-twinkle { animation: y2k-twinkle 2.4s ease-in-out infinite; }
+.animate-marquee { animation: y2k-marquee 30s linear infinite; }
+.animate-disc-spin { animation: y2k-spin 2.2s linear infinite; }
+.animate-y2k-float { animation: y2k-float 5s ease-in-out infinite; }
+.animate-blink { animation: y2k-blink 1s steps(1) infinite; }
+.animate-pop-in { animation: y2k-pop-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.animate-swing { animation: y2k-swing 2.8s ease-in-out infinite; }
+.animate-eq { animation: y2k-eq 0.9s ease-in-out infinite; transform-origin: bottom; }
+
+/* ── Project intro keyframes (app/components/y2k/intros) ── */
+@keyframes intro-flash { 0% { opacity: 0; } 8% { opacity: 1; } 30%, 100% { opacity: 0; } }
+@keyframes intro-print { 0%, 25% { transform: translateY(-105%); } 100% { transform: translateY(0); } }
+@keyframes intro-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14%); } }
+@keyframes intro-heart {
+  0%, 40% { transform: translate(-50%, 0) scale(0); opacity: 0; }
+  55% { transform: translate(-50%, -20%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -140%) scale(1); opacity: 0; }
+}
+@keyframes intro-light-on {
+  from { background: #3b0a0a; box-shadow: none; }
+  to { background: #ff2a2a; box-shadow: 0 0 14px #ff2a2a; }
+}
+@keyframes intro-lights-out { to { background: #3b0a0a; box-shadow: none; } }
+@keyframes intro-car {
+  from { transform: translateX(-140%); }
+  to { transform: translateX(560%); }
+}
+@keyframes intro-rain { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+@keyframes intro-glitch-in {
+  0%, 55% { opacity: 0; transform: translateX(0); clip-path: inset(0 0 100% 0); }
+  60% { opacity: 1; transform: translateX(-4px); clip-path: inset(0 0 60% 0); }
+  66% { transform: translateX(4px); clip-path: inset(40% 0 0 0); }
+  72%, 100% { opacity: 1; transform: translateX(0); clip-path: inset(0 0 0 0); }
+}
+@keyframes intro-grow { 0%, 20% { transform: scaleY(0); } 60%, 100% { transform: scaleY(1); } }
+@keyframes intro-bloom { 0%, 50% { transform: scale(0) rotate(-90deg); } 85%, 100% { transform: scale(1) rotate(0deg); } }
+@keyframes intro-burst {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); opacity: 0; }
+}
+@keyframes intro-spin-y { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+@keyframes intro-steam {
+  0% { transform: translateY(0) scaleY(0.6); opacity: 0; }
+  30% { opacity: 0.9; }
+  100% { transform: translateY(-160%) translateX(3px) scaleY(1.2); opacity: 0; }
+}
+@keyframes intro-ding { 0%, 70% { transform: scale(0); opacity: 0; } 82% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes intro-shake {
+  0%, 45%, 100% { transform: rotate(0); }
+  8% { transform: rotate(-10deg); }
+  16% { transform: rotate(9deg); }
+  24% { transform: rotate(-8deg); }
+  32% { transform: rotate(6deg); }
+  40% { transform: rotate(-3deg); }
+}
+@keyframes intro-snow {
+  0% { transform: translateY(-10px); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(90px); opacity: 0.9; }
+}
+
+/* Reduced motion: every animation jumps straight to its final frame. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Pixel portrait frame swap: chunky top-to-bottom CRT refresh */
+@keyframes pixel-wipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes scan-bar { from { top: 0; opacity: 1; } 90% { opacity: 1; } to { top: 100%; opacity: 0; } }
+.animate-pixel-wipe { animation: pixel-wipe 0.5s steps(12) both; }
+.animate-scan-bar { animation: scan-bar 0.5s steps(12) both; }
+
+
+/* ── Butterflies (app/components/y2k/Ornaments.tsx) ── */
+/* flutter: a tiny bob + tilt, never squashing the sprite */
+@keyframes bfly-flap { from { transform: translateY(0) rotate(-4deg); } to { transform: translateY(-3px) rotate(4deg); } }
+.bfly-flap { animation: bfly-flap 0.32s ease-in-out infinite alternate; }
+/* flight: wander a loop, banking into each turn */
+@keyframes bfly-drift {
+  0%   { transform: translate(0, 0) rotate(-8deg); }
+  20%  { transform: translate(calc(var(--dx) * 0.8), calc(var(--dy) * -0.7)) rotate(12deg); }
+  45%  { transform: translate(calc(var(--dx) * 1.5), calc(var(--dy) * 0.3)) rotate(-6deg); }
+  70%  { transform: translate(calc(var(--dx) * 0.7), calc(var(--dy) * 1)) rotate(14deg); }
+  85%  { transform: translate(calc(var(--dx) * -0.3), calc(var(--dy) * 0.4)) rotate(-10deg); }
+  100% { transform: translate(0, 0) rotate(-8deg); }
+}
+.bfly-drift { animation: bfly-drift 16s ease-in-out infinite; }
+
+/* ── Butterfly cursor (fun mode, set by StarTrail on desktop pointers) ── */
+html.y2k-cursor, html.y2k-cursor body { cursor: url('/images/bg/butterfly-cursor.png') 16 16, auto; }
+html.y2k-cursor :is(a, button, summary, label, [role="button"], [role="slider"], [role="radio"], [role="tab"], .cursor-pointer) {
+  cursor: url('/images/bg/butterfly-cursor-pink.png') 16 16, pointer;
+}
+html.y2k-cursor :is(input, textarea, [contenteditable="true"]) { cursor: text; }
+
+/* Rest decorative animation nobody can see (app/components/y2k/visibility.ts):
+   sections scrolled away, and everything behind a full-screen window. */
+[data-offscreen='true'],
+[data-offscreen='true'] *,
+html[data-overlay='true'] .pause-on-overlay,
+html[data-overlay='true'] .pause-on-overlay * {
+  animation-play-state: paused !important;
+}
+
+/* Water-break easter egg: tumbler rises to the lips, sips, drops away (Portrait.tsx) */
+@keyframes water-sip {
+  0%   { transform: translateY(35%); opacity: 0; }
+  12%  { transform: translateY(0); opacity: 1; }
+  24%  { transform: translateY(-1.5%); }
+  32%  { transform: translateY(0); }
+  44%  { transform: translateY(-1.5%); }
+  52%  { transform: translateY(0); }
+  86%  { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(40%); opacity: 0; }
+}
+.animate-water-sip { animation: water-sip 6.5s ease-in-out both; }
+
+/* Disc player liner-notes pane: thin pink scrollbar when it scrolls on laptops */
+.y2k-scroll { scrollbar-width: thin; scrollbar-color: #ff8fd8 transparent; }
+.y2k-scroll::-webkit-scrollbar { width: 8px; }
+.y2k-scroll::-webkit-scrollbar-thumb { background: #ff8fd8; border-radius: 999px; }

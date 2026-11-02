@@ -11,7 +11,7 @@ export const DiecastModal = ({ selectedProject }: { selectedProject: Project }) 
             <div className="flex-1 flex flex-col gap-6">
               {selectedProject.logo && (
                 <div className="w-64 h-20 flex items-center justify-start overflow-hidden relative">
-                  <img src={selectedProject.logo} alt="Diecast Store Logo" className="w-full h-full object-contain object-left" />
+                  <img src="/images/diecaststore/stacked-white.png" alt="The Diecast Store logo" className="w-full h-full object-contain object-left" />
                 </div>
               )}
               <h3 className="text-4xl md:text-6xl tracking-tighter text-[#FF1E1E] font-sans font-black uppercase">Overview</h3>

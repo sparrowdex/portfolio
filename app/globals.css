@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@600;700&family=Great+Vibes&family=Kaushan+Script&family=Mr+Dafoe&family=Rozha+One&family=Yatra+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@600;700&family=Great+Vibes&family=Kaushan+Script&family=Mr+Dafoe&family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Rozha+One&family=Yatra+One&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -52,6 +52,21 @@
   --font-signature: 'Rockybilly', 'Kaushan Script', 'Mr Dafoe', 'Caveat', 'Alex Brush', cursive;
   --font-eagle: 'Eagle Horizon', 'Eagle Horizon-Personal use', 'Rockybilly', cursive;
   --font-vtks: 'VTKS Psychedelic', cursive, sans-serif;
+  --font-cytus: 'Orbitron', 'Rajdhani', sans-serif;
+  --font-pixel: var(--font-vt323), 'Courier New', monospace;
+  --font-bubble: var(--font-bagel), 'Arial Black', sans-serif;
+
+  /* ── Y2K palette ── */
+  --color-bubblegum: #ff8fd8;
+  --color-hotpink: #ff2e93;
+  --color-babypink: #ffe1f1;
+  --color-lilac: #c9a7ff;
+  --color-aqua: #7fe3ff;
+  --color-ink: #1a0f1f;
+}
+
+.font-cytus {
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
 }
 
 .font-signature {
@@ -68,6 +83,14 @@
 
 .font-vtks {
   font-family: 'VTKS Psychedelic', cursive, sans-serif;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair-display), Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -173,19 +196,68 @@ body {
   transform-style: preserve-3d;
 }
 
-/* Height-adaptive mobile portrait scaling to eliminate excessive gap on tall devices */
+/* Height-adaptive mobile scaling */
 @media (min-height: 780px) and (max-width: 767px) {
   .portrait-mobile-adaptive {
     transform: scale(1.30) translateY(4px) !important;
   }
 }
-@media (min-height: 850px) and (max-width: 767px) {
-  .portrait-mobile-adaptive {
-    transform: scale(1.38) translateY(6px) !important;
+
+/* ── CYTUS II RHYTHM SYSTEM ANIMATIONS ── */
+@keyframes cytus-scanline {
+  0% {
+    top: 5%;
+  }
+  50% {
+    top: 95%;
+  }
+  100% {
+    top: 5%;
   }
 }
-@media (min-height: 900px) and (max-width: 767px) {
-  .portrait-mobile-adaptive {
-    transform: scale(1.46) translateY(8px) !important;
+
+@keyframes cytus-ring-pulse {
+  0% {
+    transform: scale(1.75);
+    opacity: 0;
   }
+  45% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cytus-burst {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes cytus-glow-drift {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.8));
+  }
+}
+
+.animate-cytus-scanline {
+  animation: cytus-scanline 4.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.animate-cytus-burst {
+  animation: cytus-burst 0.75s ease-out forwards;
 }

@@ -35,6 +35,9 @@
     "wrangler": "^3.114.0"
   },
   "overrides": {
-    "postcss": "^8.4.49"
+    "postcss": "^8.4.49",
+    "@opennextjs/cloudflare": {
+      "next": "$next"
+    }
   }
 }

@@ -2,9 +2,6 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { buildEmail } from './emailTemplate';
 
-// Initialize Resend with the API key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // Visitor input goes into the email's HTML, so escape it.
 const escapeHtml = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -38,7 +35,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send the email using Resend
+    // Create the client per request: the key only exists at runtime, not during the build.
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const data = await resend.emails.send({
       from: 'Portfolio Contact <onboarding@resend.dev>', // Resend's default testing address. Upgrade to a custom domain for production.
       to: ['sreejadas0405@gmail.com'],

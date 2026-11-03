@@ -1,6 +1,7 @@
 /**
- * Verbatim copy of public/assets/Sreeja-Resume.pdf (text + links).
- * Recruiter mode renders this. When the PDF changes, update this file too.
+ * The résumé, as data. Recruiter mode and the /resume page render it, and
+ * `npm run resume:pdf` prints /resume to public/assets/Sreeja-Resume.pdf,
+ * so editing this file is all it takes to update every version.
  */
 
 export const RESUME = {
@@ -28,6 +29,20 @@ export const RESUME = {
   ],
   experience: [
     {
+      org: 'The Diecast Store',
+      link: 'https://www.thediecaststore.in/',
+      dates: 'Jan 2026 – Present',
+      role: 'Co-Founder & CTO (July 2026 – Present) · Lead Developer, Freelance (Jan – June 2026)',
+      place: 'Remote, India',
+      points: [
+        'Joined as **Co-Founder & CTO** in July 2026 after building the platform as its freelance lead developer; own the product, technology roadmap and infrastructure.',
+        'Architected a fully functional, serverless full-stack e-commerce platform tailored for diecast hobbyists using Next.js, TypeScript, and Prisma.',
+        'Engineered a premium, responsive UI featuring Bento Grid layouts and fluid animations, successfully integrating production endpoints for payment and shipping gateways (Razorpay/Shiprocket).',
+        'Shipped it as an installable PWA with push notifications; grown to **~70 users**, with a peak of **325 visitors in a single day**.',
+        "Wear many hats beyond engineering: support key client deals alongside our sales co-founder, and lead the brand's creative direction.",
+      ],
+    },
+    {
       org: 'Inner Voice',
       orgNote: '(Mental Health AI Startup)',
       dates: 'July 2025 – Present',
@@ -37,18 +52,6 @@ export const RESUME = {
         'Architected a full-stack wellness platform utilizing Next.js and Firebase, designing an anonymous interaction model to ensure secure emotional support and accessible UX.',
         'Engineered a custom "Trusted Friends" network with complex boundary-setting logic. This feature enables supporters to visually manage their emotional availability and mitigate burnout without explicit refusal.',
         'Guided the product roadmap with a strong emphasis on UX research, interaction design, and planning migrations to proprietary LLMs.',
-      ],
-    },
-    {
-      org: 'The Diecast Store',
-      orgNote: '(Freelance)',
-      link: 'https://www.thediecaststore.in/',
-      dates: 'Jan 2026 – June 2026',
-      role: 'Lead Developer',
-      place: 'Remote, India',
-      points: [
-        'Architected a fully functional, serverless full-stack e-commerce platform tailored for diecast hobbyists using Next.js, TypeScript, and Prisma.',
-        'Engineered a premium, responsive UI featuring Bento Grid layouts and fluid animations, successfully integrating production endpoints for payment and shipping gateways (Razorpay/Shiprocket).',
       ],
     },
     {
@@ -81,7 +84,7 @@ export const RESUME = {
       stack: 'JavaScript, Web Audio API, DeviceMotionEvent',
       points: [
         'Engineered an interactive web app featuring real-time microphone-triggered snowfall effects and cross-platform motion detection.',
-        'Secured a **Top 10 Finish** out of 90 individuals in the 4-hour Girls Leading Tech Hackathon through this creative technical implementation.',
+        'Secured a **Top 10 Finish** out of 107 individuals in the 4-hour Girls Leading Tech Hackathon through this creative technical implementation.',
       ],
     },
   ],

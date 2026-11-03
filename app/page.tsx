@@ -17,6 +17,7 @@ import { StarTrail } from './components/y2k/StarTrail';
 import { NowPlayingDisc } from './components/y2k/NowPlayingDisc';
 import { Portrait } from './components/y2k/Portrait';
 import { AboutProfile } from './components/y2k/AboutProfile';
+import { Keychain } from './components/y2k/Keychain';
 import { Equalizer } from './components/y2k/Equalizer';
 import { MessengerWindow } from './components/y2k/MessengerWindow';
 import { Taskbar } from './components/y2k/Taskbar';
@@ -130,7 +131,10 @@ function FunMode() {
                 {t.label}
               </span>
             ))}
-            <Sparkle size={36} delay={0.4} color="#c9a7ff" className="absolute -top-5 -right-4" />
+            {/* her keychain, clipped to the window corner like on her bag */}
+            <div className="hidden md:block absolute -top-3 -right-10 z-30">
+              <Keychain size={82} />
+            </div>
           </div>
           {/* …and as a tidy row below it on smaller screens */}
           <div className="lg:hidden flex flex-wrap justify-center gap-2 mt-5 max-w-md">
@@ -158,6 +162,12 @@ function FunMode() {
           ]}
         />
       </div>
+
+      {/* ── ABOUT ── */}
+      <section data-anim id="about" className="relative z-10 max-w-6xl xl:max-w-[1360px] 2xl:max-w-[1600px] mx-auto px-4 lg:px-8 pt-20 pb-8 scroll-mt-16">
+        <SectionTitle kicker="profile" title="About Me" />
+        <AboutProfile />
+      </section>
 
       {/* ── PROJECTS: MEDIA PLAYER ── */}
       <section data-anim id="deck" ref={deckRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-12 scroll-mt-16">
@@ -194,13 +204,6 @@ function FunMode() {
           />
         </Y2KWindow>
         </div>
-      </section>
-
-      {/* ── ABOUT ── */}
-      <section data-anim id="about" className="relative z-10 max-w-6xl mx-auto px-4 py-20 scroll-mt-16">
-        <SectionTitle kicker="profile" title="About Me" />
-        <AboutProfile />
-        <p className="text-center font-pixel text-lg text-ink/60 mt-8 hidden md:block">psst… you can drag the windows around ✦</p>
       </section>
 
       {/* ── SKILLS: WINAMP EQ ── */}

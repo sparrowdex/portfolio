@@ -20,7 +20,7 @@ export type ProjectKey = 'photobooth' | 'innervoice' | 'diecast' | 'armatrix' | 
 const PROJECT_ALIASES: Record<ProjectKey, string[]> = {
   photobooth: ['photobooth', 'photo booth', 'photo strip', 'camera app', 'pink photobooth'],
   innervoice: ['inner voice', 'innervoice', 'mental health', 'wellness', 'journaling', 'trusted friends'],
-  diecast: ['diecast', 'die cast', 'diecast store', 'the diecast store', 'scale model', 'f1 store', 'ecommerce', 'e commerce', 'cto'],
+  diecast: ['diecast', 'die cast', 'diecast store', 'the diecast store', 'scale model', 'f1 store', 'ecommerce', 'e commerce', 'cto', 'co founder', 'cofounder'],
   armatrix: ['armatrix', 'team page', 'robotic arm', 'robot arm'],
   flowers: ['flowers', 'flower', 'beloved', 'bouquet', 'botanical', 'garden'],
   spicevault: ['spicevault', 'spice vault', 'spice', 'recipe', 'recipes', 'culinary', 'food app'],
@@ -86,8 +86,6 @@ export function detectProject(text: string): ProjectKey | null {
   let bestLen = 0;
   for (const [key, aliases] of Object.entries(PROJECT_ALIASES) as [ProjectKey, string[]][]) {
     for (const a of aliases) {
-      // "cto" alone is ambiguous with general role questions; only counts with other cues
-      if (a === 'cto' && !/diecast|store|company|startup/.test(text.toLowerCase())) continue;
       if (containsPhrase(words, a) && a.length > bestLen) {
         best = key;
         bestLen = a.length;

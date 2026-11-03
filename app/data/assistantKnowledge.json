@@ -76,7 +76,7 @@
    "inner voice",
    "nic"
   ],
-  "answer": "Yes! I am currently the **Founder & Lead Developer** at **Inner Voice**, a mental health AI startup, where I architected a full-stack wellness platform using Next.js and Firebase.\n\nPreviously, I was a **Web Development Intern at the National Informatics Centre (NIC)**, where I contributed to the digitalization of government workflows."
+  "answer": "Yes! I'm **Co-Founder & CTO of The Diecast Store** (since July 2026, after building it as its freelance lead developer), and **Founder & Lead Developer at Inner Voice**, a mental-health AI startup built with Next.js and Firebase.\n\nBefore that I was a **Web Development Intern at the National Informatics Centre (NIC)**, contributing to the digitalization of government workflows."
  },
  {
   "projectId": "general",
@@ -579,13 +579,22 @@
   "projectId": "diecast",
   "question": "What was your role?",
   "tags": [
-   "role",
-   "who built",
-   "team",
+   "clients",
+   "co-founder",
+   "cofounder",
+   "contribution",
+   "creative direction",
+   "cto",
+   "founder",
+   "job",
    "part",
-   "contribution"
+   "position",
+   "role",
+   "sales",
+   "team",
+   "who built"
   ],
-  "answer": "**Partner & Technical Co-Founder / CTO.** What began as a technical build transitioned into a long-term equity partnership where I serve as Technical Co-Founder & CTO, leading product engineering, payment security, logistics telemetry, and technology roadmap."
+  "answer": "**Co-Founder & CTO** (since July 2026). I first built the platform as its freelance lead developer (Jan – June 2026), then joined as co-founder. I own the product, technology roadmap and infrastructure, and since it's a young company I wear many hats: I also support key client deals alongside our sales co-founder, and lead the brand's creative direction."
  },
  {
   "projectId": "diecast",
@@ -706,14 +715,22 @@
   "projectId": "diecast",
   "question": "What was the final impact or result?",
   "tags": [
+   "growth",
+   "how many",
    "impact",
-   "result",
-   "outcome",
-   "success",
+   "launch",
+   "metrics",
    "milestone",
-   "launch"
+   "numbers",
+   "outcome",
+   "result",
+   "stats",
+   "success",
+   "traffic",
+   "users",
+   "visitors"
   ],
-  "answer": "The platform is currently in a successful beta testing phase and is scheduled to officially launch in mid-June. It has already received highly positive feedback from the client regarding its visual fidelity and administrative ease."
+  "answer": "It's live at thediecaststore.in! It ships as an installable PWA with push notifications, has grown to **~70 users**, and hit a peak of **325 visitors in a single day**."
  },
  {
   "projectId": "diecast",

@@ -78,6 +78,8 @@ export const PROJECTS_DATA: Project[] = [
     specialBadge: 'Most Creative Submission',
     featuredHighlight: 'Complex kinetic mouse-relative tracking vectors linked into hardware-accelerated grid layers.',
     imageFallback: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop',
+    logo: '/images/armatrix/logo.svg',
+    logoBg: '#0a0a0a',
   },
   {
     id: 5,

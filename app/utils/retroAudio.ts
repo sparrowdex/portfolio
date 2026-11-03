@@ -319,6 +319,28 @@ class RetroAudioManager {
     sub.stop(now + duration + 0.02);
   }
 
+  // Little gold keychain bell: a few bright inharmonic partials, quick decay.
+  public playBell() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    [[2400, 0.07, 0.9], [3720, 0.04, 0.6], [5150, 0.025, 0.45], [2410, 0.05, 0.9]].forEach(([f, vol, dur], i) => {
+      const t = now + (i === 3 ? 0.11 : 0);
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g);
+      g.connect(this.masterGain ?? ctx.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+    });
+  }
+
   // Nokia SMS Incoming Chime / Message Beep
   public playSmsChime() {
     if (this.isMuted) return;

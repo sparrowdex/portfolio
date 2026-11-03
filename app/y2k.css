@@ -276,3 +276,29 @@ html[data-overlay='true'] .pause-on-overlay * {
 .y2k-scroll { scrollbar-width: thin; scrollbar-color: #ff8fd8 transparent; }
 .y2k-scroll::-webkit-scrollbar { width: 8px; }
 .y2k-scroll::-webkit-scrollbar-thumb { background: #ff8fd8; border-radius: 999px; }
+
+/* SreejaSpace glitter name (AboutProfile.tsx) */
+@keyframes sp-glitter-shift { from { background-position: 0% 50%, 0 0; } to { background-position: 200% 50%, 40px 40px; } }
+.sp-glitter {
+  background:
+    linear-gradient(90deg, #ff2e93, #ff8fd8, #ffffff, #c9a7ff, #ff2e93, #ff8fd8) 0% 50% / 200% 100%,
+    radial-gradient(#fff 1px, transparent 1.5px) 0 0 / 7px 7px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px #7a0044;
+  filter: drop-shadow(0 0 6px rgba(255, 143, 216, 0.8));
+  animation: sp-glitter-shift 3s linear infinite;
+}
+
+/* keychain charm: big swing when clicked, then settles (Keychain.tsx) */
+@keyframes charm-jingle {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(-24deg); }
+  32% { transform: rotate(18deg); }
+  50% { transform: rotate(-11deg); }
+  68% { transform: rotate(6deg); }
+  84% { transform: rotate(-3deg); }
+  100% { transform: rotate(0); }
+}
+.animate-charm-jingle { animation: charm-jingle 1.4s ease-out both; }

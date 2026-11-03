@@ -6,8 +6,8 @@ import { ChromeButton } from './ChromeButton';
 import { setViewMode, type ViewMode } from './viewMode';
 
 const LINKS = [
-  ['#deck', 'projects'],
   ['#about', 'about'],
+  ['#deck', 'projects'],
   ['#skills', 'skills'],
   ['#contact', 'contact'],
 ] as const;

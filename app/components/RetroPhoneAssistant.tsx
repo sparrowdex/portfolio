@@ -3,7 +3,11 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { retroAudio } from '../utils/retroAudio';
 import { answer, type ProjectKey } from '../utils/assistantEngine';
+import { usePathname } from 'next/navigation';
 import { useViewMode } from './y2k/viewMode';
+import { Keychain } from './y2k/Keychain';
+import { PROJECTS_DATA } from '../data/projects';
+import type { NowPlaying } from '../utils/spotify';
 
 /* ── Accessibility prefs: big screen + text size, remembered per visitor ── */
 type Prefs = { big: boolean; size: 0 | 1 | 2 };
@@ -46,6 +50,8 @@ const OPT_SIZE = ['text-[15px]', 'text-[18px]', 'text-[21px]'];
 
 /** Event the home page listens for to load a project into the disc player. */
 export const PLAY_PROJECT_EVENT = 'portfolio:play-project';
+/** Fire this to open the phone (e.g. the profile's "Instant Message" button). */
+export const OPEN_PHONE_EVENT = 'portfolio:open-phone';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -56,11 +62,81 @@ interface Message {
 const START_SUGGESTIONS = ['Show me all projects', 'Tell me about The Diecast Store', 'What are her skills?', 'How do I contact her?'];
 
 const KEYS: [string, string][] = [
-  ['1', 'opt'], ['2', 'abc'], ['3', 'def'],
-  ['4', 'ghi'], ['5', 'jkl'], ['6', 'mno'],
-  ['7', 'pqrs'], ['8', 'tuv'], ['9', 'wxyz'],
-  ['*', 'clr'], ['0', '␣'], ['#', 'send'],
+  ['1', 'opt'], ['2', 'opt'], ['3', 'opt'],
+  ['4', 'opt'], ['5', '♫ song'], ['6', '🎲 rand'],
+  ['7', '🥚 secret'], ['8', '😂 joke'], ['9', '💧 h2o'],
+  ['*', 'clr'], ['0', '☰ help'], ['#', 'send'],
 ];
+
+/* Fun keys 5–9: questions about the site itself (no made-up personal facts). */
+const FUN_KEYS: Record<string, { q: string; reply: () => string | Promise<{ text: string; projectId?: number }> }> = {
+  '5': {
+    q: "what's she listening to rn?",
+    reply: async () => {
+      try {
+        const j: NowPlaying = await (await fetch('/api/now-playing')).json();
+        if (!j.configured || !j.title) return { text: "her playlist's on private mode rn 🎧 check back later!" };
+        return {
+          text: `${j.isPlaying ? '🎧 listening right now:' : '🎧 last played:'} **${j.title}** by ${j.artist} ♫
+(the spinning disc in the bottom-left corner has it too)`,
+        };
+      } catch {
+        return { text: 'no signal to the music satellite 📡 try again in a sec!' };
+      }
+    },
+  },
+  '6': {
+    q: 'surprise me 🎲',
+    reply: async () => {
+      const p = PROJECTS_DATA[Math.floor(Math.random() * PROJECTS_DATA.length)];
+      return { text: `🎲 you rolled… **${p.title}**!
+${p.desc}`, projectId: p.id };
+    },
+  },
+  '7': {
+    q: 'any secrets on this site? 👀',
+    reply: () =>
+      [
+        'psst… this site is full of tiny surprises 🥚',
+        '- drag her portrait window (or press & hold it on your phone)',
+        '- click the keychain charm, it jingles',
+        '- stay a while… someone might remind you to hydrate',
+        '- About Me → "Contacting Sreeja" box → try "Block User" 😈',
+        '- tap anywhere on mobile for butterflies',
+        'and there may be more ✦',
+      ].join('\n'),
+  },
+  '8': {
+    q: 'tell me a joke 😂',
+    reply: () =>
+      [
+        "why do programmers prefer dark mode? because light attracts bugs 🐛",
+        "there are 10 kinds of people: those who understand binary and those who don't",
+        "a CSS file walks into a bar… and a table falls over somewhere else 🍸",
+        'why did the developer go broke? they used up all their cache 💸',
+        "it works on my machine ✦ then we'll ship your machine 📦",
+        "how many programmers does it take to change a light bulb? none, that's a hardware problem 💡",
+      ][Math.floor(Math.random() * 6)],
+  },
+  '9': {
+    q: 'hydration check 💧',
+    reply: () => 'this is your sign to drink some water 💧🥤 (she keeps her pink tumbler nearby for exactly this reason)',
+  },
+  '0': {
+    q: 'help ☰',
+    reply: () =>
+      [
+        '☰ keypad cheat sheet:',
+        '- 1–4 → the numbered options on screen',
+        "- 5 ♫ → what she's listening to",
+        '- 6 🎲 → a random project',
+        '- 7 🥚 → site secrets',
+        '- 8 😂 → a dev joke',
+        '- 9 💧 → hydration check',
+        '- * clear · # send · or just type anything!',
+      ].join('\n'),
+  },
+};
 
 /* ── tiny, safe markdown-ish renderer for KB answers (no innerHTML) ── */
 const INLINE = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\)|`[^`]+`|https?:\/\/[^\s)]+|\/assets\/[^\s)]+|\*[^*\s][^*]*\*)/g;
@@ -136,13 +212,14 @@ function Clock() {
 
 export function RetroPhoneAssistant() {
   const mode = useViewMode();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [context, setContext] = useState<ProjectKey | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>(START_SUGGESTIONS);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', text: "1 NEW MSG ✦ hiii! i'm Sreeja's phone. Ask me about her projects, skills, experience, or how to reach her. Press 1–4 for quick picks!\n(tip: ⤢ = big screen, Aa = bigger text)" },
+    { role: 'assistant', text: "1 NEW MSG ✦ hiii! i'm Sreeja's phone. Ask me about her projects, skills, experience, or how to reach her. Press 1–4 for quick picks!\n(tip: keys 5–9 are fun ones ✦ ⤢ = big screen, Aa = bigger text)" },
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -170,13 +247,23 @@ export function RetroPhoneAssistant() {
   }, [messages, typing, isOpen]);
 
   useEffect(() => {
+    const open = () => {
+      retroAudio.playSmsChime();
+      setIsOpen(true);
+    };
+    window.addEventListener(OPEN_PHONE_EVENT, open);
+    return () => window.removeEventListener(OPEN_PHONE_EVENT, open);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsOpen(false);
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen]);
 
-  if (mode === 'recruiter') return null;
+  // Not on the recruiter view or the print-ready /resume page.
+  if (mode === 'recruiter' || pathname?.startsWith('/resume')) return null;
 
   const send = (raw?: string) => {
     const q = (raw ?? input).trim();
@@ -195,14 +282,27 @@ export function RetroPhoneAssistant() {
     }, 420 + Math.min(900, reply.text.length * 2));
   };
 
+  /** Fixed "fun key" exchanges (keys 5–9, 0). */
+  const sendFun = async (k: string) => {
+    const fun = FUN_KEYS[k];
+    if (!fun || typing) return;
+    setMessages((m) => [...m, { role: 'user', text: fun.q }]);
+    setTyping(true);
+    // reply + a short "typing…" pause, whichever takes longer
+    const [out] = await Promise.all([fun.reply(), new Promise((r) => setTimeout(r, 600))]);
+    const reply = typeof out === 'string' ? { text: out } : out;
+    retroAudio.playSmsChime();
+    setTyping(false);
+    setMessages((m) => [...m, { role: 'assistant', text: reply.text, projectId: reply.projectId }]);
+  };
+
   const pressKey = (k: string) => {
     retroAudio.playPhoneTone(k);
     const n = Number(k);
     if (n >= 1 && n <= 4 && suggestions[n - 1]) send(suggestions[n - 1]);
     else if (k === '*') setInput('');
     else if (k === '#') send();
-    else if (k === '0') setInput((v) => v + ' ');
-    inputRef.current?.focus({ preventScroll: true });
+    else if (FUN_KEYS[k]) sendFun(k);
   };
 
   const playDisc = (id: number) => {
@@ -417,20 +517,14 @@ export function RetroPhoneAssistant() {
           ))}
         </div>
 
-        {/* phone strap charm, hanging off the side like a real Y2K phone charm */}
-        <div className="absolute top-20 -left-7 w-9 flex flex-col items-center origin-top animate-swing pointer-events-none" aria-hidden>
-          <span className="w-4 h-3 -mb-0.5 rounded-t-full border-2 border-b-0 border-[#7a0044]" />
-          <span className="w-0.5 h-6 bg-[#7a0044]" />
-          <span className="w-3 h-3 rounded-full bg-[#7fe3ff] border-2 border-[#7a0044]" />
-          <span className="w-0.5 h-2 bg-[#7a0044]" />
-          <span className="w-3 h-3 rounded-full bg-[#c9a7ff] border-2 border-[#7a0044]" />
-          <span className="w-0.5 h-2 bg-[#7a0044]" />
-          <svg viewBox="0 0 24 24" className="w-9 h-9 drop-shadow-[2px_2px_0_#7a0044]">
-            <path d="M12 1.5l3.1 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.3l-6.4 3.6 1.5-7.1L1.7 8.9l7.2-.8z" fill="#ffe14a" stroke="#7a0044" strokeWidth="1.6" strokeLinejoin="round" />
-            <circle cx="9.5" cy="11" r="0.9" fill="#7a0044" />
-            <circle cx="14.5" cy="11" r="0.9" fill="#7a0044" />
-            <path d="M10 13.6q2 1.6 4 0" stroke="#7a0044" strokeWidth="1" fill="none" strokeLinecap="round" />
-          </svg>
+        {/* strap lug on the phone's edge… */}
+        <span
+          aria-hidden
+          className="absolute top-[34px] -left-[9px] w-4 h-4 rounded-full border-[3px] border-[#7a0044] bg-[#ffd6ec] z-[5]"
+        />
+        {/* …with Sreeja's keychain hooked through it (ring centre = lug centre) */}
+        <div className="absolute top-[33px] -left-[32px] z-10">
+          <Keychain size={62} />
         </div>
       </div>
       </div>

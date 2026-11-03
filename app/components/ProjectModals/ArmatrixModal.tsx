@@ -1,6 +1,5 @@
 import { Project } from '../../types/project';
 import { ScrollReveal } from '../ScrollReveal';
-import { DemoVideo } from './DemoVideo';
 
 export const ArmatrixModal = ({ selectedProject }: { selectedProject: Project }) => {
   return (
@@ -110,15 +109,6 @@ export const ArmatrixModal = ({ selectedProject }: { selectedProject: Project })
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
             <div className="flex flex-col gap-6 w-full">
-              <div className="w-full aspect-video rounded-2xl overflow-hidden border shadow-2xl bg-[#0a0a0a] relative" style={{ borderColor: `${selectedProject.colors[0]}33` }}>
-                <DemoVideo 
-                  src="/images/armatrix/Armatrix_team_page.mp4"
-                  skipStartTime={84}
-                  skipEndTime={110}
-                  className="w-full h-full [&>video]:object-cover"
-                  spinnerColor={selectedProject.colors[0]}
-                />
-              </div>
 
               <div className="flex flex-col items-center text-center gap-4 p-8 bg-[#0a0a0a]/80 border hover:border-opacity-60 border-opacity-20 rounded-2xl shadow-2xl transition-colors duration-500" style={{ borderColor: selectedProject.colors[0] }}>
                   <div className="w-16 h-16 rounded-full flex items-center justify-center border bg-black" style={{ borderColor: `${selectedProject.colors[0]}4D` }}>

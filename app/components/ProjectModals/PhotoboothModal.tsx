@@ -75,7 +75,7 @@ export const PhotoboothModal = ({ selectedProject }: { selectedProject: Project 
         <div className="md:min-h-[80vh] flex flex-col justify-center gap-6">
           <h3 className="text-3xl md:text-4xl tracking-wide text-[#ff66b2] font-serif italic capitalize mb-6">The Demo</h3>
           <div className="relative w-full aspect-video bg-neutral-950/80 border border-[#ff66b2]/20 hover:border-[#ff66b2]/60 rounded-2xl overflow-hidden flex flex-col justify-center items-center group transition-colors duration-500 shadow-2xl">
-            <video src="/images/photobooth/photobooth_demo.mp4" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" />
+            <img src="/images/photobooth/photobooth-gif.gif" alt="Photobooth demo" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
           </div>
         </div>

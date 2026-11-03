@@ -23,14 +23,7 @@ export const TimelessModal = ({ selectedProject }: { selectedProject: Project })
       {/* Hero Video */}
       <ScrollReveal>
         <div className="w-full aspect-video md:aspect-[21/9] rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 relative mt-4 md:mt-8 shadow-2xl">
-          <video 
-            src="/images/christmas-spirit/christmas_demo.mp4" 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <img src="/images/christmas-spirit/present.webp" alt="Timeless demo" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent pointer-events-none" />
         </div>
       </ScrollReveal>

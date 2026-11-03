@@ -3,7 +3,6 @@ import { useState, useRef } from 'react';
 import { Project } from '../../types/project';
 import { ScrollReveal } from '../ScrollReveal';
 
-import { DemoVideo } from './DemoVideo';
 
 export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) => {
   return (
@@ -64,16 +63,6 @@ export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) 
         </div>
       </ScrollReveal>
 
-      {/* Demo Video */}
-      <ScrollReveal>
-        <div className="w-full">
-          <DemoVideo 
-            src="/images/flowersforbeloved/flowers_demo.mp4" 
-            startTime={10} 
-            className="w-full aspect-video rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl" 
-          />
-        </div>
-      </ScrollReveal>
 
       {/* Slide 2: The Heart Bloom Challenge */}
       <ScrollReveal>
@@ -129,13 +118,6 @@ export const FlowersModal = ({ selectedProject }: { selectedProject: Project }) 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
             <div className="flex flex-col gap-8 w-full">
-              <div className="w-full aspect-video rounded-2xl overflow-hidden border border-[#ff2d75]/20 shadow-2xl bg-neutral-950 relative">
-                <DemoVideo 
-                  src="/images/flowersforbeloved/The_Heart_Bloom.mp4"
-                  className="w-full h-full [&>video]:object-cover"
-                  spinnerColor={selectedProject.colors[0]}
-                />
-              </div>
 
               <div className="flex flex-col items-center text-center gap-3 md:gap-4 p-5 md:p-8 bg-neutral-950/80 border border-[#ff2d75]/20 hover:border-[#ff2d75]/60 rounded-2xl shadow-2xl transition-colors duration-500">
                   <div className="w-12 h-12 md:w-16 md:h-16 bg-[#ff2d75]/10 rounded-full flex items-center justify-center border border-[#ff2d75]/30 backdrop-blur-md">

@@ -46,3 +46,6 @@ CHANGELOG.md
 .open-next
 .wrangler
 .dev.vars
+
+# demo videos are too big for Cloudflare (25 MB/file limit)
+public/**/*.mp4

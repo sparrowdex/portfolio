@@ -1,6 +1,7 @@
 """
 Builds the hero's pixel-portrait frames ("Game Boy Camera" style) from the
-transparent expression cutouts in public/images/sreeja/.
+transparent expression cutouts in scripts/avatar-sources/
+(kept out of public/ so they aren't deployed).
 
   python scripts/make_pixel_avatars.py
 
@@ -17,8 +18,8 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / 'public/images/sreeja'
-OUT = SRC / 'pixel'
+SRC = ROOT / 'scripts/avatar-sources'
+OUT = ROOT / 'public/images/sreeja/pixel'
 
 FRAMES = [
     ('hmm', 'sreeja_think_left_cutout.webp'),  # opening frame
@@ -47,7 +48,7 @@ def head_box(alpha: np.ndarray):
 
 
 def main():
-    OUT.mkdir(exist_ok=True)
+    OUT.mkdir(parents=True, exist_ok=True)
     images = [(name, Image.open(SRC / f).convert('RGBA')) for name, f in FRAMES]
 
     # One shared crop for all frames.

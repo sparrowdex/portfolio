@@ -90,7 +90,7 @@ export default function About() {
     {
       title: 'Experience & Achievements',
       altTitle: 'The bigger picture:',
-      ethos: "Working on massive systems at the National Informatics Centre taught me the true value of scalable, organized architecture. I'm naturally someone who loves planning and structuring workflows. Whether I'm refactoring an early startup codebase or architecting a new platform from scratch, I stay level-headed by breaking complex problems into manageable pieces. My philosophy is simple: we handle the intense technical complexity behind the scenes, so the user only ever experiences the effortless magic."
+      ethos: "Running the tech side of The Diecast Store taught me the true value of scalable, organized architecture. I'm naturally someone who loves planning and structuring workflows. Whether I'm refactoring an early startup codebase or architecting a new platform from scratch, I stay level-headed by breaking complex problems into manageable pieces. My philosophy is simple: we handle the intense technical complexity behind the scenes, so the user only ever experiences the effortless magic."
     }
   ];
 
@@ -110,7 +110,7 @@ export default function About() {
     },
     {
       category: 'Design & Tools',
-      skills: ['Figma', 'Canva', 'UI/UX Prototyping', 'Git/GitHub', 'Postman']
+      skills: ['Canva', 'UI/UX Prototyping', 'Git/GitHub', 'Postman']
     }
   ];
 

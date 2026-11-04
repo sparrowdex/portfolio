@@ -69,6 +69,49 @@ const KEYS: [string, string][] = [
 ];
 
 /* Fun keys 5–9: questions about the site itself (no made-up personal facts). */
+
+const JOKES = [
+  'why do programmers prefer dark mode? because light attracts bugs 🐛',
+  "there are 10 kinds of people: those who understand binary and those who don't",
+  'a CSS file walks into a bar… and a table falls over somewhere else 🍸',
+  'why did the developer go broke? they used up all their cache 💸',
+  "it works on my machine ✦ then we'll ship your machine 📦",
+  "how many programmers does it take to change a light bulb? none, that's a hardware problem 💡",
+  "why do java developers wear glasses? because they don't C# 👓",
+  "i'd tell you a UDP joke, but you might not get it 📡",
+  "i'd tell you a TCP joke, but i'd have to keep repeating it until you got it 🔁",
+  'a SQL query walks into a bar, walks up to two tables and asks: "can i JOIN you?" 🍹',
+  "why was the javascript developer sad? because they didn't Node how to Express themselves 😢",
+  'my code has zero bugs. it just has a few surprise features ✨',
+  'git commit -m "fixed it" … git commit -m "actually fixed it" … git commit -m "pls" 🙏',
+  "why don't programmers like nature? too many bugs and no ctrl+z 🌳",
+  'debugging: being the detective in a crime movie where you are also the murderer 🔍',
+  'a QA engineer walks into a bar. orders 1 beer. orders 0 beers. orders 99999 beers. orders -1 beers. orders a lizard 🦎',
+  '…then the first real customer walks in and asks where the bathroom is. the bar bursts into flames 🔥',
+  "why did the function break up with the loop? it felt like they were going in circles 💔",
+  'how do you comfort a javascript bug? you console it 🫂',
+  "what is a programmer's favourite hangout spot? foo bar 🍸",
+  "why are arrays so tired? they're always being indexed from zero 😴",
+  'the two hardest problems in programming: cache invalidation, naming things, and off-by-one errors',
+  "!false — it's funny because it's true",
+  `a programmer's partner says "get a loaf of bread, and if they have eggs, get a dozen." they came back with 12 loaves 🍞`,
+  'why did the react component feel lost? it had no sense of state 🧭',
+  'roses are #ff0000, violets are #0000ff, all my base are belong to you 🌹',
+  'there is no place like 127.0.0.1 🏠',
+  "my css isn't broken, it's just expressing its feelings through overflow 💅",
+  'why did the private class member never go out? it had no public life 🔒',
+  'documentation is like a love letter to your future self… that you never write 💌',
+  'tabs vs spaces? i just hit the keyboard until prettier fixes it ⌨️',
+  "i asked the AI to fix my bug. now i have two bugs, but they're very polite 🤖",
+];
+let lastJoke = -1;
+function nextJoke() {
+  let i = Math.floor(Math.random() * JOKES.length);
+  if (i === lastJoke) i = (i + 1) % JOKES.length; // never the same one twice in a row
+  lastJoke = i;
+  return JOKES[i];
+}
+
 const FUN_KEYS: Record<string, { q: string; reply: () => string | Promise<{ text: string; projectId?: number }> }> = {
   '5': {
     q: "what's she listening to rn?",
@@ -108,15 +151,7 @@ ${p.desc}`, projectId: p.id };
   },
   '8': {
     q: 'tell me a joke 😂',
-    reply: () =>
-      [
-        "why do programmers prefer dark mode? because light attracts bugs 🐛",
-        "there are 10 kinds of people: those who understand binary and those who don't",
-        "a CSS file walks into a bar… and a table falls over somewhere else 🍸",
-        'why did the developer go broke? they used up all their cache 💸',
-        "it works on my machine ✦ then we'll ship your machine 📦",
-        "how many programmers does it take to change a light bulb? none, that's a hardware problem 💡",
-      ][Math.floor(Math.random() * 6)],
+    reply: nextJoke,
   },
   '9': {
     q: 'hydration check 💧',

@@ -25,7 +25,7 @@ export const RESUME = {
     { group: 'Frontend & Animation', items: 'Next.js, React.js, Three.js, React Three Fiber, Framer Motion, GSAP, HTML/CSS, Tailwind CSS' },
     { group: 'Backend & Cloud', items: 'Node.js, Express, PostgreSQL (Neon), Prisma ORM, Firebase' },
     { group: 'Languages', items: 'JavaScript (ES6+), TypeScript, Python, SQL' },
-    { group: 'Design & Tools', items: 'Figma, UI/UX Prototyping, Git/GitHub, Postman, Capacitor, Vite' },
+    { group: 'Design & Tools', items: 'UI/UX Prototyping, Git/GitHub, Postman, Capacitor, Vite' },
   ],
   experience: [
     {

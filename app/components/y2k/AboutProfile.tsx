@@ -7,6 +7,7 @@ import type { NowPlaying } from '../../utils/spotify';
 import { retroAudio } from '../../utils/retroAudio';
 import { OPEN_PHONE_EVENT, PLAY_PROJECT_EVENT } from '../RetroPhoneAssistant';
 import { Y2KWindow } from './Y2KWindow';
+import { openGame, isBerryUnlocked, subscribeBerryUnlock } from './arcade';
 
 /**
  * "SreejaSpace": a 2006-style social profile for the About section.
@@ -138,7 +139,7 @@ const DETAILS: [string, string][] = [
 const INTERESTS: [string, string][] = [
   ['General', 'creative coding, hiding tiny surprises, mental-health tech'],
   ['Code', 'WebGL & shaders, mic-reactive toys, Web Audio'],
-  ['Design', 'UI/UX & Figma, designing in Canva, e-commerce that feels premium'],
+  ['Design', 'UI/UX, designing in Canva, e-commerce that feels premium'],
   ['Music', "whatever's playing on my profile song ♫"],
 ];
 
@@ -427,11 +428,72 @@ function Customizer({ custom }: { custom: Custom }) {
   );
 }
 
+/* Sreeja's Arcade: one game to play, one to find (Berry Basket unlocks once discovered). */
+function Arcade() {
+  const berry = useSyncExternalStore(subscribeBerryUnlock, isBerryUnlocked, () => false);
+  const play = (id: 'berry' | 'stack') => {
+    retroAudio.playCassetteInsert();
+    openGame(id);
+  };
+  const row = 'flex items-center gap-3 border rounded px-2.5 py-2';
+  const btn = 'shrink-0 font-bold text-[0.85em] px-2.5 py-1 rounded-full border-2 hover:brightness-110 active:translate-y-px';
+  return (
+    <Box title="🕹️ Sreeja's Arcade">
+      <div className="space-y-2 text-[0.9em]">
+        <div className={row} style={{ borderColor: 'var(--sp-border)' }}>
+          <span className="text-2xl" aria-hidden>💿</span>
+          <div className="flex-1 min-w-0 leading-tight">
+            <p className="font-bold">Disc Stacker</p>
+            <p style={{ color: 'var(--sp-muted)' }}>tap to stack CD cases. how high can you go?</p>
+          </div>
+          <button type="button" onClick={() => play('stack')} className={btn} style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', borderColor: 'var(--sp-border)' }}>
+            ▶ play
+          </button>
+        </div>
+        {berry ? (
+          <div className={row} style={{ borderColor: 'var(--sp-border)' }}>
+            <span className="text-2xl" aria-hidden>🍓</span>
+            <div className="flex-1 min-w-0 leading-tight">
+              <p className="font-bold">Berry Basket <span className="font-normal" style={{ color: 'var(--sp-accent)' }}>✦ found it!</span></p>
+              <p style={{ color: 'var(--sp-muted)' }}>catch berries, dodge beetles</p>
+            </div>
+            <button type="button" onClick={() => play('berry')} className={btn} style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', borderColor: 'var(--sp-border)' }}>
+              ▶ play
+            </button>
+          </div>
+        ) : (
+          <div className={`${row} border-dashed`} style={{ borderColor: 'var(--sp-border)' }}>
+            <span className="text-2xl grayscale opacity-60" aria-hidden>🔒</span>
+            <div className="flex-1 min-w-0 leading-tight">
+              <p className="font-bold">??? <span className="font-normal" style={{ color: 'var(--sp-muted)' }}>· secret cartridge</span></p>
+              <p style={{ color: 'var(--sp-muted)' }}>psst… the pink banner up top is ticklish 🍓</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </Box>
+  );
+}
+
 /* ── Profile ───────────────────────────────────────────────────────── */
+
+// Phones/tablets: one section at a time behind these tabs (laptops show everything).
+const TABS = [
+  ['blurbs', 'Blurbs'],
+  ['details', 'Details'],
+  ['song', 'Song'],
+  ['friends', 'Friends'],
+  ['arcade', 'Arcade'],
+  ['awards', 'Awards'],
+  ['contact', 'Contact'],
+] as const;
+type TabId = (typeof TABS)[number][0];
 
 export function AboutProfile() {
   const custom = useSyncExternalStore(subscribe, readCustom, () => DEFAULT);
   const [editing, setEditing] = useState(false);
+  const [tab, setTab] = useState<TabId>('blurbs');
+  const show = (id: TabId) => (tab === id ? '' : 'hidden lg:block');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const theme = THEMES[custom.theme] ?? THEMES.bubblegum;
   const font = FONTS[custom.font] ?? FONTS.default;
@@ -478,7 +540,7 @@ export function AboutProfile() {
 
         {/* extended network banner */}
         <div
-          className="mb-4 px-3 py-2 border-2 text-center font-bold text-[1.05em]"
+          className="hidden lg:block mb-4 px-3 py-2 border-2 text-center font-bold text-[1.05em]"
           style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)', color: 'var(--sp-accent)' }}
         >
           Sreeja is in your extended network ✦
@@ -527,24 +589,51 @@ export function AboutProfile() {
               </p>
             </div>
 
-            <Box title="♫ Sreeja's Profile Song">
+            {/* MySpace-style section links (phones/tablets only) */}
+            <nav
+              aria-label="Profile sections"
+              className="lg:hidden border-2 px-2 py-1.5 flex flex-wrap justify-center gap-x-1 gap-y-0.5 text-[0.9em]"
+              style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}
+            >
+              {TABS.map(([id, label], i) => (
+                <React.Fragment key={id}>
+                  {i > 0 && <span aria-hidden style={{ color: 'var(--sp-muted)' }}>|</span>}
+                  <button
+                    type="button"
+                    aria-pressed={tab === id}
+                    onClick={() => {
+                      retroAudio.playHover();
+                      setTab(id);
+                    }}
+                    className={`px-1 rounded-sm ${tab === id ? 'font-bold' : 'underline underline-offset-2'}`}
+                    style={tab === id ? { background: 'var(--sp-head)', color: 'var(--sp-head-text)' } : { color: 'var(--sp-link)' }}
+                  >
+                    {label}
+                  </button>
+                </React.Fragment>
+              ))}
+            </nav>
+
+            <Box title="♫ Sreeja's Profile Song" className={show('song')}>
               <ProfileSong />
             </Box>
 
-            <ContactBox toast={setToastMsg} />
+            <div className={show('contact')}>
+              <ContactBox toast={setToastMsg} />
+            </div>
 
-            <Box title="Sreeja's Details">
+            <Box title="Sreeja's Details" className={show('details')}>
               <Table rows={DETAILS} />
             </Box>
 
-            <Box title="Sreeja's Interests">
+            <Box title="Sreeja's Interests" className={show('details')}>
               <Table rows={INTERESTS} />
             </Box>
           </div>
 
           {/* ── right column ── */}
           <div className="space-y-4 min-w-0">
-            <Box title="Sreeja's Blurbs">
+            <Box title="Sreeja's Blurbs" className={show('blurbs')}>
               <h5 className="font-bold text-[1.05em]" style={{ color: 'var(--sp-accent)' }}>
                 About me:
               </h5>
@@ -554,9 +643,9 @@ export function AboutProfile() {
                   photobooth that prints strips, a snow globe you blow on, a garden of 3D flowers made for friends.
                 </p>
                 <p>
-                  I also love the unglamorous half. I&apos;m Co-Founder &amp; CTO of <b>The Diecast Store</b>, a diecast-car store I first built
-                  as its freelance developer and now help run, and the founder of <b>Inner Voice</b>, a mental-health platform built around
-                  anonymous support. Before that I helped digitise government workflows at the <b>National Informatics Centre</b>.
+                  I also love the unglamorous half. Most of my time goes into <b>The Diecast Store</b>, a diecast-car store I first built as
+                  its freelance developer and now help run as Co-Founder &amp; CTO. The rest goes into building fun things, like the ones on
+                  the disc player below.
                 </p>
                 <p style={{ color: 'var(--sp-muted)' }}>
                   what I care about: ✦ rewarding curiosity ✦ logic meets reliability ✦ the bigger picture
@@ -572,9 +661,15 @@ export function AboutProfile() {
               </ul>
             </Box>
 
-            <TopFriends />
+            <div className={show('friends')}>
+              <TopFriends />
+            </div>
 
-            <Box title="Sreeja's Awards">
+            <div className={show('arcade')}>
+              <Arcade />
+            </div>
+
+            <Box title="Sreeja's Awards" className={show('awards')}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {AWARDS.map((a) => (
                   <div key={a.t} className="text-center border rounded px-2 py-2" style={{ borderColor: 'var(--sp-border)' }}>

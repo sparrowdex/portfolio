@@ -16,5 +16,7 @@
   ],
   "observability": {
     "enabled": true
-  }
+  },
+  // Branch builds (anything but main) run `wrangler preview`, which needs this block.
+  "previews": {}
 }

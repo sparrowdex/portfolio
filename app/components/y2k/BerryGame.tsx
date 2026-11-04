@@ -24,7 +24,7 @@ const PALETTE: Record<string, string> = {
   o: '#ff9a1f', // golden shade
   k: '#3a1530', // beetle / outline
   w: '#ffffff',
-  p: '#ff8fbf', // gingham pink
+  c: '#ff8fbf', // basket check pink
   d: '#7a0044', // basket rim
   h: '#ff2e93', // heart
 };
@@ -35,10 +35,10 @@ const SPRITES = {
   beetle: ['.k...k.', '..kkk..', '.kkkkk.', 'kkwkwkk', 'kkkkkkk', '.kkkkk.', 'k.k.k.k'],
   basket: [
     'dddddddddddddddd',
-    'dpwpwpwpwpwpwpwd',
-    'dwpwpwpwpwpwpwpd',
-    '.dpwpwpwpwpwpwd.',
-    '.dwpwpwpwpwpwpd.',
+    'dcwcwcwcwcwcwcwd',
+    'dwcwcwcwcwcwcwcd',
+    '.dcwcwcwcwcwcwd.',
+    '.dwcwcwcwcwcwcd.',
     '..dddddddddddd..',
   ],
 };
@@ -197,7 +197,7 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
             const pts = it.kind === 'golden' ? 5 : 1;
             s += pts;
             setScore(s);
-            burst(it.x + 3, BASKET_Y, it.kind === 'golden' ? PALETTE.y : PALETTE.p, it.kind === 'golden' ? 14 : 8);
+            burst(it.x + 3, BASKET_Y, it.kind === 'golden' ? PALETTE.y : PALETTE.c, it.kind === 'golden' ? 14 : 8);
             retroAudio.playNote(it.kind === 'golden' ? 1318 : 660 + (s % 5) * 110, 0.25, 0.08);
           }
           continue;

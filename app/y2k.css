@@ -302,3 +302,12 @@ html[data-overlay='true'] .pause-on-overlay * {
   100% { transform: rotate(0); }
 }
 .animate-charm-jingle { animation: charm-jingle 1.4s ease-out both; }
+
+/* ── Faint picnic gingham behind the disc rack (page.tsx) ── */
+.y2k-gingham-soft {
+  background-color: #fff7fc;
+  background-image:
+    linear-gradient(90deg, rgba(255, 95, 150, 0.045) 50%, transparent 50%),
+    linear-gradient(rgba(255, 95, 150, 0.045) 50%, transparent 50%);
+  background-size: 22px 22px;
+}

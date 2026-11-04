@@ -112,15 +112,26 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
       <div className="grid grid-cols-1 lg:grid-cols-12 lg:h-full">
         {/* ── Player body ── */}
         <div
-          className="lg:col-span-5 p-4 sm:p-5 flex flex-col gap-3 lg:min-h-0 lg:justify-center"
+          className="relative lg:col-span-5 p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 lg:min-h-0 lg:justify-center"
           style={{
             background: `linear-gradient(160deg, #fdf6fb 0%, #e9dfe8 55%, color-mix(in srgb, ${accent} 22%, #e9dfe8) 100%)`,
           }}
         >
+          {/* phones: the badge rides on the screen's corner like a sticker instead of taking a row in the notes */}
+          {project?.specialBadge && (
+            <span
+              key={`badge-${project.id}`}
+              className="md:hidden absolute top-1 right-1 z-10 font-pixel text-base leading-none px-2.5 py-1 rounded-full text-white border-2 border-ink rotate-6 shadow-[2px_2px_0_#1a0f1f] animate-pop-in"
+              style={{ background: accent }}
+            >
+              ★ {project.specialBadge}
+            </span>
+          )}
+
           {/* Screen */}
           {/* touch: swipe the screen left/right to change project (vertical scrolling still works) */}
           <div
-            className="y2k-lcd rounded-xl aspect-[4/3] border-4 border-[#3a1530] touch-pan-y lg:w-[min(100%,calc((100svh-21rem)*4/3))] lg:mx-auto lg:shrink-0"
+            className="y2k-lcd rounded-xl aspect-[16/10] sm:aspect-[4/3] border-[3px] sm:border-4 border-[#3a1530] touch-pan-y lg:w-[min(100%,calc((100svh-21rem)*4/3))] lg:mx-auto lg:shrink-0"
             style={{ '--accent': accent } as React.CSSProperties}
             onPointerDown={(e) => {
               if (e.pointerType !== 'mouse') swipeRef.current = { x: e.clientX, y: e.clientY };
@@ -156,22 +167,22 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
             )}
 
             {project && !Intro && (
-              <div key={`${project.id}-np`} className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center animate-pop-in">
+              <div key={`${project.id}-np`} className="absolute inset-0 flex flex-col items-center justify-center gap-1 sm:gap-2 px-4 text-center animate-pop-in">
                 {project.logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={project.logo}
                     alt=""
-                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-2xl p-2 border-2"
+                    className="w-12 h-12 sm:w-20 sm:h-20 object-contain rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border-2"
                     style={{ borderColor: accent, background: project.logoBg ?? 'rgba(255,255,255,0.95)' }}
                   />
                 ) : (
-                  <Disc accent={accent} spinning={isPlaying} className="w-16 sm:w-20" />
+                  <Disc accent={accent} spinning={isPlaying} className="w-12 sm:w-20" />
                 )}
                 <p className="font-pixel text-xs sm:text-sm tracking-[0.3em] opacity-80">NOW PLAYING</p>
-                <p className="font-pixel text-3xl sm:text-4xl leading-none">{project.title}</p>
-                <p className="font-pixel text-base sm:text-lg leading-tight opacity-80 line-clamp-2">{project.subtitle}</p>
-                <div className="flex items-end gap-1 h-6 mt-1" aria-hidden>
+                <p className="font-pixel text-2xl sm:text-4xl leading-none">{project.title}</p>
+                <p className="font-pixel text-base sm:text-lg leading-tight opacity-80 line-clamp-1 sm:line-clamp-2">{project.subtitle}</p>
+                <div className="flex items-end gap-1 h-4 sm:h-6 mt-1" aria-hidden>
                   {Array.from({ length: 12 }).map((_, i) => (
                     <span
                       key={i}
@@ -184,22 +195,21 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
             )}
           </div>
 
-          <p className="md:hidden -mt-1 text-center font-pixel text-base text-ink/50">‹ swipe the screen to change track ›</p>
-
           {/* Track readout */}
           <div
-            className="y2k-lcd rounded-md px-3 py-1 font-pixel text-lg flex items-center justify-between"
+            className="y2k-lcd rounded-md px-3 py-0.5 sm:py-1 font-pixel text-base sm:text-lg flex items-center justify-between"
             style={{ '--accent': accent } as React.CSSProperties}
           >
             <span>TRK {project ? `0${project.id}` : '--'}/0{trackCount}</span>
             <span>
               {isPlaying && project ? '▶' : '■'} {fmt(elapsed)}
             </span>
-            <span className="hidden sm:inline">STEREO</span>
+            <span className="md:hidden opacity-70">‹ swipe ›</span>
+            <span className="hidden md:inline">STEREO</span>
           </div>
 
           {/* Transport */}
-          <div className="flex items-center justify-center gap-2.5 sm:gap-3 pt-1">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 sm:pt-1">
             {transport.map((b) => (
               <ChromeButton
                 key={b.label}
@@ -208,7 +218,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                 variant="accent"
                 color={accent}
                 onClick={b.onClick}
-                className={`!p-0 !text-lg ${b.big ? 'w-14 h-14 !text-2xl' : 'w-11 h-11'}`}
+                className={`!p-0 !text-lg ${b.big ? 'w-12 h-12 sm:w-14 sm:h-14 !text-2xl' : 'w-10 h-10 sm:w-11 sm:h-11'}`}
               >
                 {b.glyph}
               </ChromeButton>
@@ -229,7 +239,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
         </div>
 
         {/* ── Liner notes / details ── */}
-        <div className="lg:col-span-7 p-5 sm:p-7 border-t-2 lg:border-t-0 lg:border-l-2 border-[#3a1530]/15 bg-[#fff7fc] min-h-[22rem] lg:min-h-0 lg:overflow-y-auto y2k-scroll">
+        <div className="lg:col-span-7 p-4 sm:p-7 border-t-2 lg:border-t-0 lg:border-l-2 border-[#3a1530]/15 bg-[#fff7fc] sm:min-h-[22rem] lg:min-h-0 lg:overflow-y-auto y2k-scroll">
           {!project ? (
             <div className="h-full flex flex-col items-center justify-center text-center gap-2 py-10">
               <p className="font-bubble text-3xl text-ink">no disc inserted</p>
@@ -239,14 +249,14 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
             <div key={project.id} className="animate-pop-in">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-pixel text-lg uppercase tracking-wider" style={{ color: `color-mix(in srgb, ${accent} 65%, #1a0f1f)` }}>
+                  <p className="font-pixel text-base sm:text-lg uppercase tracking-wider" style={{ color: `color-mix(in srgb, ${accent} 65%, #1a0f1f)` }}>
                     track 0{project.id} · {project.subtitle}
                   </p>
-                  <h3 className="font-bubble text-3xl sm:text-4xl text-ink leading-tight">{project.title}</h3>
+                  <h3 className="font-bubble text-2xl sm:text-4xl text-ink leading-tight">{project.title}</h3>
                 </div>
                 {project.specialBadge && (
                   <span
-                    className="font-pixel text-lg px-3 py-0.5 rounded-full text-white border-2 border-ink rotate-3 shadow-[2px_2px_0_#1a0f1f]"
+                    className="hidden md:inline-block font-pixel text-lg px-3 py-0.5 rounded-full text-white border-2 border-ink rotate-3 shadow-[2px_2px_0_#1a0f1f]"
                     style={{ background: accent }}
                   >
                     ★ {project.specialBadge}
@@ -255,7 +265,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
               </div>
 
               {/* Links: live site / repo / downloads */}
-              <div className="flex flex-wrap items-center gap-2 mt-4">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 sm:mt-4">
                 {project.links?.map((l) => (
                   <a
                     key={l.href}
@@ -263,11 +273,11 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => retroAudio.playHover()}
-                    className="inline-flex items-center gap-1.5 font-pixel text-lg leading-none px-2.5 py-1.5 rounded-full border-2 border-ink bg-white hover:bg-babypink shadow-[2px_2px_0_#1a0f1f] active:translate-y-0.5 active:shadow-none"
+                    className="inline-flex items-center gap-1.5 font-pixel text-base sm:text-lg leading-none px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border-2 border-ink bg-white hover:bg-babypink shadow-[2px_2px_0_#1a0f1f] active:translate-y-0.5 active:shadow-none"
                   >
                     <span aria-hidden>{LINK_ICON[l.kind]}</span>
                     <span className="opacity-60">{LINK_LABEL[l.kind]}</span>
-                    <span className="max-w-[16rem] truncate">{l.label}</span>
+                    <span className="max-w-[10rem] sm:max-w-[16rem] truncate">{l.label}</span>
                     <span aria-hidden>↗</span>
                   </a>
                 ))}
@@ -278,15 +288,15 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                 )}
               </div>
 
-              <div className="space-y-5 pt-5 mt-5 border-t-2 border-dashed border-ink/20">
-                  <p className={`text-[15px] leading-relaxed text-ink/85 ${notesOpen ? '' : 'line-clamp-4 md:line-clamp-none'}`}>
+              <div className="space-y-4 sm:space-y-5 pt-4 sm:pt-5 mt-4 sm:mt-5 border-t-2 border-dashed border-ink/20">
+                  <p className={`text-[15px] leading-relaxed text-ink/85 ${notesOpen ? '' : 'line-clamp-3 md:line-clamp-none'}`}>
                     {project.longDesc || project.desc}
                   </p>
                   {!notesOpen && (
                     <button
                       type="button"
                       onClick={() => setNotesOpen(true)}
-                      className="md:hidden w-full font-pixel text-lg py-1.5 rounded-lg border-2 border-dashed border-ink/30 text-ink/70"
+                      className="md:hidden w-full font-pixel text-base py-1 rounded-lg border-2 border-dashed border-ink/30 text-ink/70"
                     >
                       read full liner notes ▾
                     </button>
@@ -344,12 +354,12 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                         retroAudio.playCassetteInsert();
                         setShowcaseOpen(true);
                       }}
-                      className="group w-full text-left y2k-lcd rounded-xl px-4 py-3 flex items-center gap-4 border-2 border-ink"
+                      className="group w-full text-left y2k-lcd rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-3 sm:gap-4 border-2 border-ink"
                       style={{ '--accent': accent } as React.CSSProperties}
                     >
-                      <Disc accent={accent} spinning className="w-12 shrink-0" />
+                      <Disc accent={accent} spinning className="w-9 sm:w-12 shrink-0" />
                       <span className="flex-1 min-w-0">
-                        <span className="block font-pixel text-xl leading-none">BONUS TRACK ▸ full interactive showcase</span>
+                        <span className="block font-pixel text-lg sm:text-xl leading-none">BONUS TRACK ▸ full interactive showcase</span>
                         <span className="block font-pixel text-base opacity-70 leading-tight mt-1">demos, videos, architecture &amp; lessons, in a full-screen window</span>
                       </span>
                       <span className="font-pixel text-2xl group-hover:translate-x-1 transition-transform">▶</span>

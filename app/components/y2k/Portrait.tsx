@@ -6,21 +6,19 @@ import { useInView, useOverlayOpen } from './visibility';
 import { retroAudio } from '../../utils/retroAudio';
 
 /**
- * Flip-book of Sreeja's expressions, in two looks:
- *  - pixel (default): "Game Boy Camera" dithered frames made by
- *    scripts/make_pixel_avatars.py, swapped with a chunky CRT-refresh wipe
- *  - photo: the original cutouts
+ * Flip-book of Sreeja's expressions as "Game Boy Camera" dithered frames
+ * (made by scripts/make_pixel_avatars.py), swapped with a chunky CRT-refresh wipe.
  *
  * The raised-eyebrows frame is not in the loop: it shows while someone drags
  * the window (desktop) or presses and holds the picture (touch).
  */
 
 const FRAMES = [
-  { src: '/images/sreeja/sreeja_think_left_cutout.webp', pixel: '/images/sreeja/pixel/hmm.png', name: 'hmm', say: "hi, i'm sreeja ✦ hmm…" },
-  { src: '/images/sreeja/sreeja_think_right_cutout.webp', pixel: '/images/sreeja/pixel/idea.png', name: 'idea', say: 'what should i build next?' },
-  { src: '/images/sreeja/sreeja_hello_cutout.png', pixel: '/images/sreeja/pixel/peace.png', name: 'peace', say: '✌ ok, got it!' },
-  { src: '/images/sreeja/sreeja_showing_right_cutout.webp', pixel: '/images/sreeja/pixel/tada.png', name: 'tada', say: 'ta-da! my projects are below ↓' },
-  { src: '/images/sreeja/sreeja_surprised_cutout.webp', pixel: '/images/sreeja/pixel/wait.png', name: 'wait', say: 'where are you taking me?!' },
+  { pixel: '/images/sreeja/pixel/hmm.png', name: 'hmm', say: "hi, i'm sreeja ✦ hmm…" },
+  { pixel: '/images/sreeja/pixel/idea.png', name: 'idea', say: 'what should i build next?' },
+  { pixel: '/images/sreeja/pixel/peace.png', name: 'peace', say: '✌ ok, got it!' },
+  { pixel: '/images/sreeja/pixel/tada.png', name: 'tada', say: 'ta-da! my projects are below ↓' },
+  { pixel: '/images/sreeja/pixel/wait.png', name: 'wait', say: 'where are you taking me?!' },
 ];
 const GRABBED_FRAME = FRAMES.length - 1;
 const SEQ = FRAMES.length - 1; // frames in the auto loop
@@ -29,8 +27,6 @@ const LONG_PRESS_MS = 420;
 const PIXEL_ASPECT = 144 / 130; // matches make_pixel_avatars.py output
 const SCREEN_BG =
   'repeating-linear-gradient(0deg, rgba(255,46,147,0.06) 0 1px, transparent 1px 4px), linear-gradient(180deg, #fffafd, #ffe1f1)';
-
-type View = 'pixel' | 'photo';
 
 /* ── Water-break easter egg ──────────────────────────────────────────
    Once per visit, after a few minutes of browsing (and only when the
@@ -81,7 +77,6 @@ function WaterBottle({ animate, box }: { animate: boolean; box: { top: number; l
 
 export function Portrait() {
   const [frames, setFrames] = useState({ cur: 0, prev: 0, resume: 0 });
-  const [view, setView] = useState<View>('pixel');
   const [grabbed, setGrabbed] = useState(false);
   const [paused, setPaused] = useState(false);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -146,7 +141,7 @@ export function Portrait() {
 
   // Fire it when the portrait is actually visible and nothing else is going on.
   useEffect(() => {
-    if (!waterDue || water || !inView || overlay || grabbed || view !== 'pixel') return;
+    if (!waterDue || water || !inView || overlay || grabbed) return;
     try {
       sessionStorage.setItem(WATER_KEY, '1');
     } catch {
@@ -158,7 +153,7 @@ export function Portrait() {
       retroAudio.playSmsChime();
     }, 0);
     return () => clearTimeout(start);
-  }, [waterDue, water, inView, overlay, grabbed, view]);
+  }, [waterDue, water, inView, overlay, grabbed]);
 
   useEffect(() => {
     if (!water) return;
@@ -189,8 +184,8 @@ export function Portrait() {
   return (
     <div ref={wrapRef} className="relative">
     <Y2KWindow
-      title={view === 'pixel' ? 'sreeja.bmp' : 'sreeja.jpg'}
-      icon={view === 'pixel' ? '👾' : '🖼️'}
+      title="sreeja.bmp"
+      icon="👾"
       draggable
       bodyClassName="p-0"
       onDragStart={grab}
@@ -224,8 +219,7 @@ export function Portrait() {
           }
         }}
       >
-        {view === 'pixel' ? (
-          <div className="absolute inset-0 overflow-hidden" style={{ background: SCREEN_BG }}>
+        <div className="absolute inset-0 overflow-hidden" style={{ background: SCREEN_BG }}>
             {/* previous frame underneath while the new one wipes in… */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={FRAMES[frames.prev].pixel} alt="" draggable={false} className="absolute inset-0 w-full h-full [image-rendering:pixelated]" />
@@ -241,13 +235,7 @@ export function Portrait() {
                 <img key={fr.pixel} src={fr.pixel} alt="" />
               ))}
             </span>
-          </div>
-        ) : (
-          <div className="absolute inset-0 y2k-gingham">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={f.src} alt="" draggable={false} className="w-full h-full object-cover object-[50%_35%]" />
-          </div>
-        )}
+        </div>
 
         <span
           key={`${frame}-${grabbed}-${Boolean(water)}`}
@@ -259,24 +247,13 @@ export function Portrait() {
 
       <div className="font-pixel text-lg px-3 py-1 bg-white border-t-2 border-ink/20 flex items-center justify-between gap-2">
         <span className="truncate">
-          {frame === GRABBED_FRAME ? '!!' : String(frame + 1).padStart(2, '0')}/{String(SEQ).padStart(2, '0')} · {f.name}.
-          {view === 'pixel' ? 'bmp' : 'jpg'}
+          {frame === GRABBED_FRAME ? '!!' : String(frame + 1).padStart(2, '0')}/{String(SEQ).padStart(2, '0')} · {f.name}.bmp
         </span>
         <span className="flex items-center gap-1" aria-hidden>
           {FRAMES.slice(0, SEQ).map((_, i) => (
             <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === frame ? 'bg-hotpink' : 'bg-ink/20'}`} />
           ))}
         </span>
-        <button
-          type="button"
-          onClick={() => {
-            retroAudio.playButtonClack();
-            setView((v) => (v === 'pixel' ? 'photo' : 'pixel'));
-          }}
-          className="text-hotpink hover:underline shrink-0"
-        >
-          {view === 'pixel' ? '◐ photo' : '👾 pixel'}
-        </button>
       </div>
     </Y2KWindow>
     {water && <WaterBottle animate={water.animate} box={water.box} />}

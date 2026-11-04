@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { PLAY_PROJECT_EVENT } from './components/RetroPhoneAssistant';
 import { PROJECTS_DATA } from './data/projects';
 import { PROFILE } from './data/profile';
@@ -23,6 +24,11 @@ import { MessengerWindow } from './components/y2k/MessengerWindow';
 import { Taskbar } from './components/y2k/Taskbar';
 import { RecruiterView } from './components/y2k/RecruiterView';
 import { useViewMode } from './components/y2k/viewMode';
+import { OPEN_GAME_EVENT, markBerryUnlocked, type GameId } from './components/y2k/arcade';
+
+// Hidden strawberry mode: only downloaded once someone unlocks it.
+const BerryGame = dynamic(() => import('./components/y2k/BerryGame').then((m) => m.BerryGame), { ssr: false });
+const DiscStacker = dynamic(() => import('./components/y2k/DiscStacker').then((m) => m.DiscStacker), { ssr: false });
 import { useOffscreenPause } from './components/y2k/visibility';
 
 const STICKERS = [
@@ -43,6 +49,42 @@ function FunMode() {
   const [replayKey, setReplayKey] = useState(0);
   const deckRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
+  const [game, setGame] = useState<GameId | null>(null);
+  const tickerTaps = useRef<number[]>([]);
+
+  // Secret: tap the pink ticker 5× quickly, type "berry", or visit with ?berry.
+  // Finding it once also unlocks it in the About profile's arcade box.
+  const findBerry = () => {
+    markBerryUnlocked();
+    setGame('berry');
+  };
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).has('berry');
+    const t = fromUrl ? setTimeout(findBerry, 0) : undefined;
+    const onOpen = (e: Event) => setGame((e as CustomEvent<GameId>).detail);
+    window.addEventListener(OPEN_GAME_EVENT, onOpen);
+    let typed = '';
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest('input, textarea, [contenteditable="true"]')) return;
+      typed = (typed + e.key.toLowerCase()).slice(-5);
+      if (typed === 'berry') findBerry();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener(OPEN_GAME_EVENT, onOpen);
+    };
+  }, []);
+  const tapTicker = () => {
+    const now = Date.now();
+    tickerTaps.current = [...tickerTaps.current.filter((t) => now - t < 2500), now];
+    retroAudio.playNote(520 + tickerTaps.current.length * 130, 0.2, 0.06);
+    if (tickerTaps.current.length >= 5) {
+      tickerTaps.current = [];
+      findBerry();
+    }
+  };
 
   useOffscreenPause();
 
@@ -81,6 +123,9 @@ function FunMode() {
       <StarTrail />
       <NowPlayingDisc />
       <Taskbar mode="fun" />
+
+      {game === 'berry' && <BerryGame onClose={() => setGame(null)} />}
+      {game === 'stack' && <DiscStacker onClose={() => setGame(null)} />}
 
       {/* ── HERO ── */}
       <section data-anim className="relative z-10 max-w-6xl mx-auto px-4 pt-12 sm:pt-20 pb-10 grid lg:grid-cols-12 gap-10 items-center">
@@ -151,7 +196,7 @@ function FunMode() {
         </div>
       </section>
 
-      <div data-anim className="relative z-10 border-y-2 border-ink bg-hotpink text-white">
+      <div data-anim className="relative z-10 border-y-2 border-ink bg-hotpink text-white select-none" onClick={tapTicker}>
         <Marquee
           className="font-pixel text-2xl py-1.5"
           items={[
@@ -191,7 +236,7 @@ function FunMode() {
         />
         </div>
 
-        <Y2KWindow title={`disc_rack/  —  ${PROJECTS_DATA.length} items`} icon="📁" className="order-first md:order-none" bodyClassName="px-3 sm:px-6 py-3 md:py-4">
+        <Y2KWindow title={`disc_rack/  —  ${PROJECTS_DATA.length} items`} icon="📁" className="order-first md:order-none" bodyClassName="px-3 sm:px-6 py-3 md:py-4 y2k-gingham-soft">
           <p className="font-pixel text-lg text-ink/70 mb-1 text-center">
             <span className="md:hidden">swipe & tap a disc ✦</span>
             <span className="hidden md:inline">click a disc to load it into the player ✦</span>
@@ -207,7 +252,7 @@ function FunMode() {
       </section>
 
       {/* ── SKILLS: WINAMP EQ ── */}
-      <section data-anim id="skills" className="relative z-10 max-w-4xl mx-auto px-4 py-16 scroll-mt-16">
+      <section data-anim id="skills" className="relative z-10 max-w-4xl lg:max-w-6xl mx-auto px-4 py-16 scroll-mt-16">
         <SectionTitle kicker="stack frequencies" title="Equalizer" />
         <Equalizer />
       </section>

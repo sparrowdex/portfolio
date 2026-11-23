@@ -1,190 +1,45 @@
 'use client';
 
-import React, { useEffect, useState, useSyncExternalStore } from 'react';
-import { PROJECTS_DATA } from '../../data/projects';
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { PROFILE } from '../../data/profile';
 import type { NowPlaying } from '../../utils/spotify';
 import { retroAudio } from '../../utils/retroAudio';
-import { OPEN_PHONE_EVENT, PLAY_PROJECT_EVENT } from '../RetroPhoneAssistant';
-import { Y2KWindow } from './Y2KWindow';
+import { OPEN_PHONE_EVENT } from '../RetroPhoneAssistant';
 import { openGame, isBerryUnlocked, subscribeBerryUnlock } from './arcade';
+import { OrigamiSwan, type SwanMode } from './OrigamiSwan';
+import { setMusicBoxOpen } from '../../utils/skyAmbience';
+import { SectionTitle } from './Decor';
+import { MusicBox, type BoxCard } from './MusicBox';
 
 /**
- * "SreejaSpace": a 2006-style social profile for the About section.
- * Visitors can re-skin it Quotev-style (theme / font / glitter name); their
- * choice is remembered in localStorage.
+ * About me, up in the clouds: a blush-pink paper swan (drawn in code, OrigamiSwan.tsx)
+ * flutters in. Tap it and it unfolds stage by stage, to the sound of real paper, into a flat creased sheet with the About-me notes written on it. It can fold
+ * itself back into a swan. Faint wind chimes play while you're up here.
  */
 
-/* ── Customisation ─────────────────────────────────────────────────── */
+// colours the small pieces below share
+const VARS = {
+  '--sp-border': 'rgba(255, 143, 216, 0.55)',
+  '--sp-head': '#ff5fb0',
+  '--sp-head-text': '#ffffff',
+  '--sp-muted': '#7a4a6a',
+  '--sp-link': '#c2006f',
+  '--sp-accent': '#ff2e93',
+} as React.CSSProperties;
 
-type ThemeId = 'bubblegum' | 'classic' | 'lilac' | 'emo';
-type FontId = 'default' | 'comic' | 'pixel';
-type Custom = { theme: ThemeId; font: FontId; glitter: boolean };
-
-const THEMES: Record<ThemeId, { label: string; swatch: string; vars: Record<string, string> }> = {
-  bubblegum: {
-    label: 'bubblegum',
-    swatch: '#ff5fb0',
-    vars: {
-      '--sp-page': 'repeating-conic-gradient(#ffe1f1 0 25%, #ffd0ea 0 50%) 0 0 / 26px 26px',
-      '--sp-head': '#ff5fb0',
-      '--sp-head-text': '#ffffff',
-      '--sp-panel': '#fff7fc',
-      '--sp-text': '#1a0f1f',
-      '--sp-muted': '#7a4a6a',
-      '--sp-link': '#c2006f',
-      '--sp-accent': '#ff2e93',
-      '--sp-border': '#ff5fb0',
-    },
-  },
-  classic: {
-    label: 'classic blue',
-    swatch: '#6699cc',
-    vars: {
-      '--sp-page': '#e5ecf7',
-      '--sp-head': '#6699cc',
-      '--sp-head-text': '#ffffff',
-      '--sp-panel': '#ffffff',
-      '--sp-text': '#000000',
-      '--sp-muted': '#555555',
-      '--sp-link': '#003399',
-      '--sp-accent': '#ff6600',
-      '--sp-border': '#6699cc',
-    },
-  },
-  lilac: {
-    label: 'lilac dream',
-    swatch: '#9b6bff',
-    vars: {
-      '--sp-page': 'radial-gradient(#c9a7ff 1.5px, transparent 1.7px) 0 0 / 16px 16px, #f3ecff',
-      '--sp-head': '#9b6bff',
-      '--sp-head-text': '#ffffff',
-      '--sp-panel': '#fbf8ff',
-      '--sp-text': '#24123f',
-      '--sp-muted': '#6b5a8a',
-      '--sp-link': '#6a2cff',
-      '--sp-accent': '#7a3cff',
-      '--sp-border': '#9b6bff',
-    },
-  },
-  emo: {
-    label: 'emo night',
-    swatch: '#1a0f1f',
-    vars: {
-      '--sp-page': 'repeating-linear-gradient(45deg, #1a0f1f 0 12px, #241626 12px 24px)',
-      '--sp-head': '#000000',
-      '--sp-head-text': '#ff8fd8',
-      '--sp-panel': '#1f1420',
-      '--sp-text': '#ffd6ee',
-      '--sp-muted': '#c79ab8',
-      '--sp-link': '#ff5fb0',
-      '--sp-accent': '#ff2e93',
-      '--sp-border': '#ff2e93',
-    },
-  },
-};
-
-const FONTS: Record<FontId, { label: string; family?: string; size?: string }> = {
-  default: { label: 'normal' },
-  comic: { label: 'comic sans', family: '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive' },
-  pixel: { label: 'pixel', family: 'var(--font-vt323), "Courier New", monospace', size: '1.18em' },
-};
-
-const KEY = 'sreejaspace_custom';
-const DEFAULT: Custom = { theme: 'bubblegum', font: 'default', glitter: true };
-const listeners = new Set<() => void>();
-let cache: { raw: string | null; value: Custom } = { raw: null, value: DEFAULT };
-
-function readCustom(): Custom {
-  let raw: string | null = null;
-  try {
-    raw = localStorage.getItem(KEY);
-  } catch {
-    /* storage blocked */
-  }
-  if (raw !== cache.raw) {
-    try {
-      cache = { raw, value: { ...DEFAULT, ...(raw ? JSON.parse(raw) : {}) } };
-    } catch {
-      cache = { raw, value: DEFAULT };
-    }
-  }
-  return cache.value;
-}
-function writeCustom(next: Custom) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    cache = { raw: JSON.stringify(next), value: next };
-  }
-  listeners.forEach((l) => l());
-}
-const subscribe = (cb: () => void) => {
-  listeners.add(cb);
-  return () => {
-    listeners.delete(cb);
-  };
-};
-
-/* ── Content ───────────────────────────────────────────────────────── */
-
-const DETAILS: [string, string][] = [
-  ['Status', 'Building things ✦'],
-  ['Here for', 'Collabs, cool projects, good people'],
-  ['Hometown', 'New Delhi, India'],
-  ['Education', "B.Tech CSE @ SRM IST ('23–'27) · CGPA 9.05"],
-  ['Occupation', 'Co-Founder & CTO @ The Diecast Store · Founder @ Inner Voice'],
+const WINS = [
+  { t: 'Top 10 of 107', d: 'Girls Leading Tech hackathon, built in 4 hours' },
+  { t: 'IBM Data Science', d: 'Professional Certificate' },
+  { t: 'NPTEL', d: 'Natural Language Processing' },
+  { t: 'Mentor', d: 'taught 20+ girls to code' },
 ];
 
-const INTERESTS: [string, string][] = [
-  ['General', 'creative coding, hiding tiny surprises, mental-health tech'],
-  ['Code', 'WebGL & shaders, mic-reactive toys, Web Audio'],
-  ['Design', 'UI/UX, designing in Canva, e-commerce that feels premium'],
-  ['Music', "whatever's playing on my profile song ♫"],
-];
-
-const AWARDS = [
-  { icon: '🏆', t: 'Top 10 / 107', d: 'Girls Leading Tech Hackathon' },
-  { icon: '🎓', t: 'IBM Data Science', d: 'Professional Certificate' },
-  { icon: '📜', t: 'NPTEL', d: 'Natural Language Processing' },
-  { icon: '💗', t: 'Mentor', d: '20+ girls taught to code' },
-];
-
-/* ── Pieces ────────────────────────────────────────────────────────── */
-
-function Box({ title, children, className = '' }: { title: React.ReactNode; children: React.ReactNode; className?: string }) {
-  return (
-    <section className={`border-2 ${className}`} style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}>
-      <h4 className="px-3 py-1 font-bold text-[0.95em]" style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)' }}>
-        {title}
-      </h4>
-      <div className="p-3">{children}</div>
-    </section>
-  );
-}
-
-function Table({ rows }: { rows: [string, string][] }) {
-  return (
-    <table className="w-full text-[0.92em] border-separate border-spacing-y-1">
-      <tbody>
-        {rows.map(([k, v]) => (
-          <tr key={k}>
-            <th
-              scope="row"
-              className="text-left align-top font-bold pr-2 py-1 px-2 w-[34%]"
-              style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', opacity: 0.85 }}
-            >
-              {k}:
-            </th>
-            <td className="align-top py-1 px-2" style={{ background: 'color-mix(in srgb, var(--sp-head) 12%, var(--sp-panel))' }}>
-              {v}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+/** A highlighter swipe over a few words. */
+const Hl = ({ children, c = '#fff27a' }: { children: React.ReactNode; c?: string }) => (
+  <mark className="nb-hl" style={{ '--hl': c } as React.CSSProperties}>
+    {children}
+  </mark>
+);
 
 function ProfileSong() {
   const [song, setSong] = useState<NowPlaying | null>(null);
@@ -221,27 +76,16 @@ function ProfileSong() {
     );
   }
   return (
-    <div className="flex items-center gap-3 p-2 rounded border" style={{ borderColor: 'var(--sp-border)' }}>
-      {has && song.albumArt ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={song.albumArt} alt="" className="w-11 h-11 rounded object-cover shrink-0" />
-      ) : (
-        <span className="w-11 h-11 rounded grid place-items-center text-xl shrink-0" style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)' }}>
-          ♫
-        </span>
-      )}
-      <div className="min-w-0 flex-1 text-[0.9em] leading-tight">
-        {has ? (
-          <>
-            <p className="font-bold truncate">{song.title}</p>
-            <p className="truncate" style={{ color: 'var(--sp-muted)' }}>
-              {song.artist}
-            </p>
-          </>
-        ) : (
-          <p style={{ color: 'var(--sp-muted)' }}>no profile song set (yet) ♡</p>
-        )}
-      </div>
+    <div className="nb-cassette">
+      <span className="nb-cassette-label">
+        <span className="block font-pixel text-sm leading-none text-ink/60">side A · now playing</span>
+        <span className="block truncate font-bold leading-tight">{has ? song.title : 'no song yet ♡'}</span>
+        {has && <span className="block truncate text-[0.85em] text-ink/65">{song.artist}</span>}
+      </span>
+      <span className="nb-reels" aria-hidden>
+        <span />
+        <span />
+      </span>
       {has && trackId && (
         <button
           type="button"
@@ -251,8 +95,7 @@ function ProfileSong() {
           }}
           aria-label={`Play ${song.title} here`}
           title="play it right here"
-          className="w-8 h-8 rounded-full grid place-items-center text-sm shrink-0 text-white"
-          style={{ background: 'var(--sp-accent)' }}
+          className="absolute -right-2 -top-2 w-8 h-8 rounded-full grid place-items-center text-sm text-white bg-[#ff2e93] shadow-md"
         >
           ▶
         </button>
@@ -272,16 +115,15 @@ const BLOCK_MESSAGES = [
   'ok fine, blocked. (just kidding, refresh and see) ✦',
 ];
 
-function ContactBox({ toast }: { toast: (msg: string) => void }) {
+function FriendActions({ toast }: { toast: (msg: string) => void }) {
   const [blockCount, setBlockCount] = useState(0);
   const actions: { icon: string; label: string; onClick: () => void }[] = [
-    { icon: '✉', label: 'Send Message', onClick: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) },
-    { icon: '➕', label: 'Add to Friends', onClick: () => window.open(PROFILE.links.linkedin, '_blank', 'noopener') },
-    { icon: '💬', label: 'Instant Message', onClick: () => window.dispatchEvent(new Event(OPEN_PHONE_EVENT)) },
-    { icon: '👥', label: 'Add to Group', onClick: () => window.open(PROFILE.links.github, '_blank', 'noopener') },
+    { icon: '✉', label: 'Message', onClick: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) },
+    { icon: '➕', label: 'Add friend', onClick: () => window.open(PROFILE.links.linkedin, '_blank', 'noopener') },
+    { icon: '💬', label: 'IM', onClick: () => window.dispatchEvent(new Event(OPEN_PHONE_EVENT)) },
     {
       icon: '↪',
-      label: 'Forward to Friend',
+      label: 'Share',
       onClick: () => {
         navigator.clipboard?.writeText(window.location.origin).then(
           () => toast('profile link copied ✦ send it to your bestie'),
@@ -291,7 +133,7 @@ function ContactBox({ toast }: { toast: (msg: string) => void }) {
     },
     {
       icon: '⛔',
-      label: 'Block User',
+      label: 'Block',
       onClick: () => {
         toast(BLOCK_MESSAGES[blockCount % BLOCK_MESSAGES.length]);
         setBlockCount((c) => c + 1);
@@ -299,204 +141,240 @@ function ContactBox({ toast }: { toast: (msg: string) => void }) {
     },
   ];
   return (
-    <Box title="Contacting Sreeja">
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[0.92em]">
-        {actions.map((a) => (
+    <p className="nb-hand text-[22px] leading-tight text-[#c2006f]">
+      {actions.map((a, i) => (
+        <React.Fragment key={a.label}>
+          {i > 0 && <span className="text-ink/30"> · </span>}
           <button
-            key={a.label}
             type="button"
             onClick={() => {
               retroAudio.playHover();
               a.onClick();
             }}
-            className="flex items-center gap-1.5 text-left hover:underline"
-            style={{ color: 'var(--sp-link)' }}
+            className="underline decoration-wavy decoration-[#ff8fd8] underline-offset-4 hover:text-ink"
           >
-            <span aria-hidden className="w-5 text-center">
-              {a.icon}
-            </span>
-            {a.label}
+            {a.label.toLowerCase()}
+            {a.label === 'Block' ? ' (try it)' : ''}
           </button>
-        ))}
-      </div>
-    </Box>
+        </React.Fragment>
+      ))}
+    </p>
   );
 }
 
-function TopFriends() {
-  return (
-    <Box title={<>Sreeja&apos;s Friend Space · <span className="font-normal">Sreeja has {PROJECTS_DATA.length} friends (projects)</span></>}>
-      <p className="text-[0.85em] mb-2" style={{ color: 'var(--sp-muted)' }}>
-        Sreeja&apos;s Top 8 · click one to play it in the disc player
-      </p>
-      <div className="grid grid-cols-4 2xl:grid-cols-8 gap-2 sm:gap-3">
-        {PROJECTS_DATA.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => {
-              retroAudio.playCassetteInsert();
-              window.dispatchEvent(new CustomEvent(PLAY_PROJECT_EVENT, { detail: p.id }));
-            }}
-            className="group flex flex-col items-center gap-1 text-center"
-          >
-            <span
-              className="w-full aspect-square rounded border-2 overflow-hidden grid place-items-center transition-transform group-hover:-translate-y-0.5"
-              style={{ borderColor: 'var(--sp-border)', background: p.logo ? (p.logoBg ?? '#fff') : p.colors[0] }}
-            >
-              {p.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.logo} alt="" className="w-3/4 h-3/4 object-contain" />
-              ) : (
-                <span className="font-bubble text-2xl text-white">{p.title[0]}</span>
-              )}
-            </span>
-            <span className="text-[0.72em] leading-tight font-bold group-hover:underline line-clamp-2" style={{ color: 'var(--sp-link)' }}>
-              {p.title.split(':')[0]}
-            </span>
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-          className="group flex flex-col items-center gap-1 text-center"
-        >
-          <span
-            className="w-full aspect-square rounded border-2 border-dashed grid place-items-center text-2xl"
-            style={{ borderColor: 'var(--sp-border)', color: 'var(--sp-muted)' }}
-          >
-            ?
-          </span>
-          <span className="text-[0.72em] leading-tight font-bold group-hover:underline" style={{ color: 'var(--sp-link)' }}>
-            your project here?
-          </span>
-        </button>
-      </div>
-    </Box>
-  );
-}
-
-function Customizer({ custom }: { custom: Custom }) {
-  const set = (patch: Partial<Custom>) => {
-    retroAudio.playHover();
-    writeCustom({ ...custom, ...patch });
-  };
-  return (
-    <div className="font-pixel text-lg text-ink bg-white border-2 border-ink rounded-xl shadow-[3px_3px_0_#1a0f1f] p-3 space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-16">theme:</span>
-        {(Object.keys(THEMES) as ThemeId[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => set({ theme: id })}
-            aria-pressed={custom.theme === id}
-            title={THEMES[id].label}
-            className={`flex items-center gap-1.5 px-2 rounded-full border-2 ${custom.theme === id ? 'border-ink bg-babypink' : 'border-transparent hover:border-ink/30'}`}
-          >
-            <span className="w-4 h-4 rounded-full border border-ink/40" style={{ background: THEMES[id].swatch }} />
-            {THEMES[id].label}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-16">font:</span>
-        {(Object.keys(FONTS) as FontId[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => set({ font: id })}
-            aria-pressed={custom.font === id}
-            className={`px-2 rounded-full border-2 ${custom.font === id ? 'border-ink bg-babypink' : 'border-transparent hover:border-ink/30'}`}
-            style={{ fontFamily: FONTS[id].family }}
-          >
-            {FONTS[id].label}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-16">extras:</span>
-        <label className="flex items-center gap-1.5 cursor-pointer">
-          <input type="checkbox" checked={custom.glitter} onChange={(e) => set({ glitter: e.target.checked })} className="accent-hotpink" />
-          glitter name
-        </label>
-        <button type="button" onClick={() => set(DEFAULT)} className="ml-auto underline text-ink/60 hover:text-ink">
-          reset
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* Sreeja's Arcade: one game to play, one to find (Berry Basket unlocks once discovered). */
+/* One game to play, one to find (Berry Basket unlocks once discovered). */
 function Arcade() {
   const berry = useSyncExternalStore(subscribeBerryUnlock, isBerryUnlocked, () => false);
   const play = (id: 'berry' | 'stack') => {
     retroAudio.playCassetteInsert();
     openGame(id);
   };
-  const row = 'flex items-center gap-3 border rounded px-2.5 py-2';
-  const btn = 'shrink-0 font-bold text-[0.85em] px-2.5 py-1 rounded-full border-2 hover:brightness-110 active:translate-y-px';
   return (
-    <Box title="🕹️ Sreeja's Arcade">
-      <div className="space-y-2 text-[0.9em]">
-        <div className={row} style={{ borderColor: 'var(--sp-border)' }}>
-          <span className="text-2xl" aria-hidden>💿</span>
-          <div className="flex-1 min-w-0 leading-tight">
-            <p className="font-bold">Disc Stacker</p>
-            <p style={{ color: 'var(--sp-muted)' }}>tap to stack CD cases. how high can you go?</p>
-          </div>
-          <button type="button" onClick={() => play('stack')} className={btn} style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', borderColor: 'var(--sp-border)' }}>
-            ▶ play
-          </button>
-        </div>
-        {berry ? (
-          <div className={row} style={{ borderColor: 'var(--sp-border)' }}>
-            <span className="text-2xl" aria-hidden>🍓</span>
-            <div className="flex-1 min-w-0 leading-tight">
-              <p className="font-bold">Berry Basket <span className="font-normal" style={{ color: 'var(--sp-accent)' }}>✦ found it!</span></p>
-              <p style={{ color: 'var(--sp-muted)' }}>catch berries, dodge beetles</p>
-            </div>
-            <button type="button" onClick={() => play('berry')} className={btn} style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', borderColor: 'var(--sp-border)' }}>
-              ▶ play
-            </button>
-          </div>
-        ) : (
-          <div className={`${row} border-dashed`} style={{ borderColor: 'var(--sp-border)' }}>
-            <span className="text-2xl grayscale opacity-60" aria-hidden>🔒</span>
-            <div className="flex-1 min-w-0 leading-tight">
-              <p className="font-bold">??? <span className="font-normal" style={{ color: 'var(--sp-muted)' }}>· secret cartridge</span></p>
-              <p style={{ color: 'var(--sp-muted)' }}>psst… the pink banner up top is ticklish 🍓</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </Box>
+    <div className="flex gap-3">
+      <button type="button" onClick={() => play('stack')} className="nb-cart" style={{ '--cart': '#8fd3ff' } as React.CSSProperties}>
+        <span className="nb-cart-label">
+          <span aria-hidden className="text-xl">💿</span>
+          <b>Disc Stacker</b>
+          <span>▶ play</span>
+        </span>
+      </button>
+      {berry ? (
+        <button type="button" onClick={() => play('berry')} className="nb-cart" style={{ '--cart': '#ff9cc6' } as React.CSSProperties}>
+          <span className="nb-cart-label">
+            <span aria-hidden className="text-xl">🍓</span>
+            <b>Berry Basket</b>
+            <span>found it! ▶</span>
+          </span>
+        </button>
+      ) : (
+        <span className="nb-cart is-locked" title="psst… the pink banner up top is ticklish" style={{ '--cart': '#d9cfd8' } as React.CSSProperties}>
+          <span className="nb-cart-label">
+            <span aria-hidden className="text-xl">🔒</span>
+            <b>???</b>
+            <span>secret</span>
+          </span>
+        </span>
+      )}
+    </div>
   );
 }
 
-/* ── Profile ───────────────────────────────────────────────────────── */
+/* ── the origami swan ── */
 
-// Phones/tablets: one section at a time behind these tabs (laptops show everything).
-const TABS = [
-  ['blurbs', 'Blurbs'],
-  ['details', 'Details'],
-  ['song', 'Song'],
-  ['friends', 'Friends'],
-  ['arcade', 'Arcade'],
-  ['awards', 'Awards'],
-  ['contact', 'Contact'],
-] as const;
-type TabId = (typeof TABS)[number][0];
+const UNFOLD_URL = '/audio/unfolding_paper.mp3';
+
+type Stage = 'away' | 'flying' | 'perched' | 'unfolding' | 'open' | 'folding';
+
+let unfoldBuf: Promise<AudioBuffer | null> | null = null;
+/** Your recorded paper-unfolding sound, through the site's output (so mute covers it). */
+function playUnfoldSound(reverse = false) {
+  const io = retroAudio.getOutput();
+  if (!io) return;
+  const { ctx, out } = io;
+  unfoldBuf ??= fetch(UNFOLD_URL)
+    .then((r) => r.arrayBuffer())
+    .then((b) => ctx.decodeAudioData(b))
+    .catch(() => null);
+  unfoldBuf.then((buf) => {
+    if (!buf) return;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    if (reverse) src.playbackRate.value = 1.6; // folding back up is quicker
+    const g = ctx.createGain();
+    g.gain.value = 0.8;
+    src.connect(g).connect(out);
+    src.start();
+  });
+}
+
+/** Which About-me presentation to show: the music box, or the origami swan (kept for comparison). */
+const ABOUT_STYLE: 'musicbox' | 'swan' = 'musicbox';
+
+const BOX_CARDS: BoxCard[] = [
+  { id: 'hello', label: 'hello', tint: '#ffd6e6' },
+  { id: 'now', label: 'right now', tint: '#d9ecff' },
+  { id: 'wins', label: 'little wins', tint: '#fff1b8' },
+  { id: 'fun', label: 'for fun', tint: '#e6dcff' },
+  { id: 'hi', label: 'say hi', tint: '#d8f3e3' },
+];
+
+/** The About-me music box, and the card that opens beside it. */
+function MusicBoxAbout() {
+  const [picked, setPicked] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toastMsg) return;
+    const id = setTimeout(() => setToastMsg(null), 2800);
+    return () => clearTimeout(id);
+  }, [toastMsg]);
+  // the music box's tune stops if you leave while it's open
+  useEffect(() => () => setMusicBoxOpen(false), []);
+
+  const card = BOX_CARDS.find((c) => c.id === picked);
+  return (
+    <>
+      <SectionTitle kicker="profile" title="About Me" />
+      <div className={`mb-about ${card ? 'has-note' : ''}`} style={VARS}>
+        <MusicBox cards={BOX_CARDS} picked={picked} onPick={setPicked} />
+        {card && (
+        <div key={card.id} className="mb-note is-open" style={{ '--tint': card.tint } as React.CSSProperties}>
+          {/* the same card you picked from the box, grown big: its label on a ribbon tab, brass corners, a bar of music */}
+          <span className="mb-note-tab nb-hand" aria-hidden>
+            ♪ {card.label}
+          </span>
+          {['tl', 'tr', 'bl', 'br'].map((k) => (
+            <span key={k} className={`mb-corner is-${k}`} aria-hidden />
+          ))}
+          <svg viewBox="0 0 240 70" className="mb-staff" aria-hidden>
+            {[10, 20, 30, 40, 50].map((y) => (
+              <line key={y} x1="0" x2="240" y1={y} y2={y} />
+            ))}
+            <g className="mb-staff-notes">
+              <ellipse cx="40" cy="40" rx="6" ry="4.5" transform="rotate(-20 40 40)" />
+              <line x1="45.5" y1="39" x2="45.5" y2="10" />
+              <ellipse cx="90" cy="30" rx="6" ry="4.5" transform="rotate(-20 90 30)" />
+              <line x1="95.5" y1="29" x2="95.5" y2="2" />
+              <ellipse cx="150" cy="35" rx="6" ry="4.5" transform="rotate(-20 150 35)" />
+              <ellipse cx="185" cy="25" rx="6" ry="4.5" transform="rotate(-20 185 25)" />
+              <line x1="155.5" y1="34" x2="155.5" y2="6" />
+              <line x1="190.5" y1="24" x2="190.5" y2="-4" />
+              <line x1="155.5" y1="6" x2="190.5" y2="-4" strokeWidth="3" />
+            </g>
+          </svg>
+          {card?.id === 'hello' && (
+            <div className="og-story">
+              <figure className="mb-photo">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/sreeja/sreeja_party.jpeg" alt="Sreeja" />
+              </figure>
+              <h3 className="og-h">Hello,</h3>
+              <p>
+                I fell for computer science through creative coding, and I still build things that reward curiosity: a photobooth that
+                prints strips, a snow globe you blow on, a garden of 3D flowers for my friends.
+              </p>
+              <p>
+                These days most of my time goes into <Hl>The Diecast Store</Hl>, which I built as a freelancer and now help run as{' '}
+                <Hl>co-founder &amp; CTO</Hl>.
+              </p>
+            </div>
+          )}
+          {card?.id === 'now' && (
+            <div>
+              <h3 className="og-h">Right now</h3>
+              <dl className="og-facts">
+                <div>
+                  <dt>building</dt>
+                  <dd>The Diecast Store, as Co-Founder &amp; CTO</dd>
+                </div>
+                <div>
+                  <dt>studying</dt>
+                  <dd>
+                    B.Tech CSE at SRM, &apos;27 · <Hl c="#ffd2e6">9.05 CGPA</Hl>
+                  </dd>
+                </div>
+                <div>
+                  <dt>open to</dt>
+                  <dd>
+                    <Hl c="#cfefff">freelance, remote &amp; flexible</Hl> work
+                  </dd>
+                </div>
+                <div>
+                  <dt>into</dt>
+                  <dd>WebGL toys, Web Audio, mental-health tech</dd>
+                </div>
+              </dl>
+            </div>
+          )}
+          {card?.id === 'wins' && (
+            <div>
+              <h3 className="og-h">Little wins</h3>
+              <ul className="og-wins">
+                {WINS.map((w) => (
+                  <li key={w.t}>
+                    <b>{w.t}</b> <span>{w.d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {card?.id === 'fun' && (
+            <div className="space-y-4">
+              <h3 className="og-h">For fun</h3>
+              <ProfileSong />
+              <Arcade />
+            </div>
+          )}
+          {card?.id === 'hi' && (
+            <div>
+              <h3 className="og-h">Say hi</h3>
+              <p className="og-story">Working on something fun, or need a hand with a build? I&apos;d love to hear about it.</p>
+              <FriendActions toast={setToastMsg} />
+            </div>
+          )}
+        </div>
+        )}
+      </div>
+      {toastMsg && (
+        <div
+          role="status"
+          className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] max-w-[calc(100vw-2rem)] text-center font-pixel text-xl px-5 py-2 rounded-full bg-white text-ink shadow-[0_10px_30px_rgba(140,50,80,0.3)] animate-pop-in"
+        >
+          {toastMsg}
+        </div>
+      )}
+    </>
+  );
+}
 
 export function AboutProfile() {
-  const custom = useSyncExternalStore(subscribe, readCustom, () => DEFAULT);
-  const [editing, setEditing] = useState(false);
-  const [tab, setTab] = useState<TabId>('blurbs');
-  const show = (id: TabId) => (tab === id ? '' : 'hidden lg:block');
+  return ABOUT_STYLE === 'musicbox' ? <MusicBoxAbout /> : <SwanAbout />;
+}
+
+function SwanAbout() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const theme = THEMES[custom.theme] ?? THEMES.bubblegum;
-  const font = FONTS[custom.font] ?? FONTS.default;
+  const [stage, setStage] = useState<Stage>('away');
+  const stageRef = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
 
   useEffect(() => {
     if (!toastMsg) return;
@@ -504,198 +382,150 @@ export function AboutProfile() {
     return () => clearTimeout(id);
   }, [toastMsg]);
 
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms));
+  };
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  // the swan flies in the first time the section comes into view
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setStage(still ? 'perched' : 'flying');
+        if (!still) later(() => setStage('perched'), 2600);
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+
+  const unfold = () => {
+    if (stage !== 'perched') return;
+    playUnfoldSound();
+    setStage('unfolding');
+  };
+  const foldBack = () => {
+    if (stage !== 'open') return;
+    playUnfoldSound(true);
+    setStage('folding');
+  };
+
+  const showSwan = stage !== 'open';
+  const swanMode: SwanMode =
+    stage === 'flying' || stage === 'away' ? 'flying' : stage === 'unfolding' ? 'unfolding' : stage === 'folding' ? 'folding' : 'resting';
+
   return (
-    <Y2KWindow title="sreejaspace.com/sreeja" icon="💖" bodyClassName="p-0">
-      {/* fake browser address bar + customise toggle */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#f4eef2] border-b-2 border-ink/15 font-pixel text-lg">
-        <span className="flex-1 min-w-0 truncate rounded bg-white border border-ink/25 px-2 text-ink/70">http://www.sreejaspace.com/sreeja</span>
+    <>
+    <SectionTitle kicker="profile" title="About Me" className={`og-heading ${stage === 'away' ? 'is-waiting' : ''}`} />
+    <div ref={stageRef} className="og-stage" style={VARS}>
+      {showSwan && (
         <button
           type="button"
-          onClick={() => {
-            retroAudio.playButtonClack();
-            setEditing((e) => !e);
-          }}
-          aria-expanded={editing}
-          className="shrink-0 px-2.5 rounded-full border-2 border-ink bg-white hover:bg-babypink"
+          onClick={unfold}
+          disabled={stage !== 'perched'}
+          className={`og-swan is-${stage}`}
+          aria-label="Unfold the paper swan to read about me"
         >
-          ✎ {editing ? 'done' : 'customize'}
+          <OrigamiSwan
+            mode={swanMode}
+            size={460}
+            onDone={() => {
+              if (stage === 'unfolding') later(() => setStage('open'), 150);
+              if (stage === 'folding') setStage('perched');
+            }}
+          />
+          {stage === 'perched' && <span className="og-hint nb-hand">tap the swan to unfold it ✿</span>}
         </button>
-      </div>
+      )}
 
-      <div
-        className="relative p-3 sm:p-5"
-        style={{
-          ...(theme.vars as React.CSSProperties),
-          background: 'var(--sp-page)',
-          color: 'var(--sp-text)',
-          fontFamily: font.family,
-          fontSize: font.size,
-        }}
-      >
-        {editing && (
-          <div className="mb-4">
-            <Customizer custom={custom} />
-          </div>
-        )}
+      {stage === 'open' && (
+        <article className="og-sheet">
+          <div className="og-sheet-grid">
+            <figure className="og-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/sreeja/sreeja_party.jpeg" alt="Sreeja" />
+              <figcaption className="nb-hand">Sreeja Das · New Delhi</figcaption>
+            </figure>
 
-        {/* extended network banner */}
-        <div
-          className="hidden lg:block mb-4 px-3 py-2 border-2 text-center font-bold text-[1.05em]"
-          style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)', color: 'var(--sp-accent)' }}
-        >
-          Sreeja is in your extended network ✦
-        </div>
-
-        <div className="grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-4 xl:gap-6 items-start">
-          {/* ── left column ── */}
-          <div className="space-y-4 min-w-0">
-            <div className="border-2 p-3" style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}>
-              <h3 className={`font-bubble text-3xl leading-none ${custom.glitter ? 'sp-glitter' : ''}`} style={custom.glitter ? undefined : { color: 'var(--sp-accent)' }}>
-                Sreeja ✦
-              </h3>
-              <div className="flex gap-3 mt-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/sreeja/sreeja_party.jpeg"
-                  alt="Sreeja"
-                  className="w-32 h-32 object-cover object-[64%_38%] border-2 shrink-0"
-                  style={{ borderColor: 'var(--sp-border)' }}
-                />
-                <div className="text-[0.9em] leading-snug space-y-1 min-w-0">
-                  <p className="italic">&ldquo;bridging logic &amp; emotion&rdquo;</p>
-                  <p>New Delhi, India</p>
-                  <p>
-                    <span className="font-bold">Mood:</span> 💗 shipping
-                  </p>
-                  <p className="font-bold flex items-center gap-1" style={{ color: 'var(--sp-accent)' }}>
-                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#22c55e] animate-blink" aria-hidden />
-                    Online Now!
-                  </p>
-                </div>
-              </div>
-              <p className="mt-3 text-[0.88em]">
-                <span className="font-bold">View My: </span>
-                <a href="#player" className="hover:underline" style={{ color: 'var(--sp-link)' }}>
-                  Projects
-                </a>{' '}
-                |{' '}
-                <a href="/resume" className="hover:underline" style={{ color: 'var(--sp-link)' }}>
-                  Résumé
-                </a>{' '}
-                |{' '}
-                <a href={PROFILE.links.github} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: 'var(--sp-link)' }}>
-                  Code
-                </a>
+            <div className="og-story">
+              <h3 className="og-h">Hello,</h3>
+              <p>
+                I fell for computer science through creative coding, and I still build things that reward curiosity: a photobooth that
+                prints strips, a snow globe you blow on, a garden of 3D flowers for my friends.
+              </p>
+              <p>
+                These days most of my time goes into <Hl>The Diecast Store</Hl>, which I built as a freelancer and now help run as{' '}
+                <Hl>co-founder &amp; CTO</Hl>.
               </p>
             </div>
 
-            {/* MySpace-style section links (phones/tablets only) */}
-            <nav
-              aria-label="Profile sections"
-              className="lg:hidden border-2 px-2 py-1.5 flex flex-wrap justify-center gap-x-1 gap-y-0.5 text-[0.9em]"
-              style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}
-            >
-              {TABS.map(([id, label], i) => (
-                <React.Fragment key={id}>
-                  {i > 0 && <span aria-hidden style={{ color: 'var(--sp-muted)' }}>|</span>}
-                  <button
-                    type="button"
-                    aria-pressed={tab === id}
-                    onClick={() => {
-                      retroAudio.playHover();
-                      setTab(id);
-                    }}
-                    className={`px-1 rounded-sm ${tab === id ? 'font-bold' : 'underline underline-offset-2'}`}
-                    style={tab === id ? { background: 'var(--sp-head)', color: 'var(--sp-head-text)' } : { color: 'var(--sp-link)' }}
-                  >
-                    {label}
-                  </button>
-                </React.Fragment>
-              ))}
-            </nav>
-
-            <Box title="♫ Sreeja's Profile Song" className={show('song')}>
-              <ProfileSong />
-            </Box>
-
-            <div className={show('contact')}>
-              <ContactBox toast={setToastMsg} />
+            <div>
+              <h4 className="og-sub">Right now</h4>
+              <dl className="og-facts">
+                <div>
+                  <dt>studying</dt>
+                  <dd>
+                    B.Tech CSE at SRM, &apos;27 · <Hl c="#ffd2e6">9.05 CGPA</Hl>
+                  </dd>
+                </div>
+                <div>
+                  <dt>open to</dt>
+                  <dd>
+                    <Hl c="#cfefff">freelance, remote &amp; flexible</Hl> work
+                  </dd>
+                </div>
+                <div>
+                  <dt>into</dt>
+                  <dd>WebGL toys, Web Audio, mental-health tech</dd>
+                </div>
+              </dl>
             </div>
 
-            <Box title="Sreeja's Details" className={show('details')}>
-              <Table rows={DETAILS} />
-            </Box>
-
-            <Box title="Sreeja's Interests" className={show('details')}>
-              <Table rows={INTERESTS} />
-            </Box>
-          </div>
-
-          {/* ── right column ── */}
-          <div className="space-y-4 min-w-0">
-            <Box title="Sreeja's Blurbs" className={show('blurbs')}>
-              <h5 className="font-bold text-[1.05em]" style={{ color: 'var(--sp-accent)' }}>
-                About me:
-              </h5>
-              <div className="mt-1 space-y-2 leading-relaxed">
-                <p>
-                  My view of computer science changed the moment I found creative coding. Now I build interfaces that reward curiosity: a
-                  photobooth that prints strips, a snow globe you blow on, a garden of 3D flowers made for friends.
-                </p>
-                <p>
-                  I also love the unglamorous half. Most of my time goes into <b>The Diecast Store</b>, a diecast-car store I first built as
-                  its freelance developer and now help run as Co-Founder &amp; CTO. The rest goes into building fun things, like the ones on
-                  the disc player below.
-                </p>
-                <p style={{ color: 'var(--sp-muted)' }}>
-                  what I care about: ✦ rewarding curiosity ✦ logic meets reliability ✦ the bigger picture
-                </p>
-              </div>
-              <h5 className="font-bold text-[1.05em] mt-4" style={{ color: 'var(--sp-accent)' }}>
-                Who I&apos;d like to meet:
-              </h5>
-              <ul className="mt-1 space-y-1">
-                <li>♡ teams building tactile, delightful products</li>
-                <li>♡ founders who care about UX as much as uptime</li>
-                <li>♡ anyone who thinks a site deserves a personality as much as a design (they kinda go hand in hand)</li>
-              </ul>
-            </Box>
-
-            <div className={show('friends')}>
-              <TopFriends />
-            </div>
-
-            <div className={show('arcade')}>
-              <Arcade />
-            </div>
-
-            <Box title="Sreeja's Awards" className={show('awards')}>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {AWARDS.map((a) => (
-                  <div key={a.t} className="text-center border rounded px-2 py-2" style={{ borderColor: 'var(--sp-border)' }}>
-                    <div className="text-xl" aria-hidden>
-                      {a.icon}
-                    </div>
-                    <div className="font-bold text-[0.85em] leading-tight mt-1">{a.t}</div>
-                    <div className="text-[0.75em] leading-tight" style={{ color: 'var(--sp-muted)' }}>
-                      {a.d}
-                    </div>
-                  </div>
+            <div>
+              <h4 className="og-sub">Little wins</h4>
+              <ul className="og-wins">
+                {WINS.map((w) => (
+                  <li key={w.t}>
+                    <b>{w.t}</b> <span>{w.d}</span>
+                  </li>
                 ))}
-              </div>
-            </Box>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        {toastMsg && (
-          <div
-            role="status"
-            className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] max-w-[calc(100vw-2rem)] text-center font-pixel text-xl px-5 py-2 rounded-full bg-white text-ink border-2 border-ink shadow-[3px_3px_0_#1a0f1f] animate-pop-in"
-          >
-            {toastMsg}
+          <div className="og-fun">
+            <div className="w-[250px] max-w-full">
+              <ProfileSong />
+            </div>
+            <Arcade />
+            <div className="flex-1 min-w-[220px]">
+              <p className="nb-hand text-[20px] leading-none text-ink/50 mb-1">say hi ↓</p>
+              <FriendActions toast={setToastMsg} />
+            </div>
           </div>
-        )}
-      </div>
-    </Y2KWindow>
+
+          <button type="button" onClick={foldBack} className="og-refold nb-hand">
+            fold it back into a swan ↺
+          </button>
+        </article>
+      )}
+
+      {toastMsg && (
+        <div
+          role="status"
+          className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] max-w-[calc(100vw-2rem)] text-center font-pixel text-xl px-5 py-2 rounded-full bg-white text-ink shadow-[0_10px_30px_rgba(140,50,80,0.3)] animate-pop-in"
+        >
+          {toastMsg}
+        </div>
+      )}
+    </div>
+    </>
   );
 }

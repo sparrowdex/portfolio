@@ -1,5 +1,5 @@
 /**
- * The résumé, as data. Recruiter mode and the /resume page render it, and
+ * The résumé, as data. The /resume page (the recruiter view) renders it, and
  * `npm run resume:pdf` prints /resume to public/assets/Sreeja-Resume.pdf,
  * so editing this file is all it takes to update every version.
  */
@@ -37,15 +37,15 @@ export const RESUME = {
       points: [
         'Joined as **Co-Founder & CTO** in July 2026 after building the platform as its freelance lead developer; own the product, technology roadmap and infrastructure.',
         'Architected a fully functional, serverless full-stack e-commerce platform tailored for diecast hobbyists using Next.js, TypeScript, and Prisma.',
-        'Engineered a premium, responsive UI featuring Bento Grid layouts and fluid animations, successfully integrating production endpoints for payment and shipping gateways (Razorpay/Shiprocket).',
-        'Shipped it as an installable PWA with push notifications; grown to **~70 users**, with a peak of **325 visitors in a single day**.',
-        "Wear many hats beyond engineering: support key client deals alongside our sales co-founder, and lead the brand's creative direction.",
+        'Engineered a premium, responsive UI with fluid animations, and integrated production payment and shipping gateways (Razorpay/Shiprocket).',
+        'Shipped it as an installable PWA with push notifications; grown to **100+ users** and **~1.2k site visits a month**, peaking at **325 visitors in a single day**.',
+        "Lead the brand's creative direction with final say on the company name, logo, first product-launch packaging and marketing; also support key client deals alongside our sales co-founder.",
       ],
     },
     {
       org: 'Inner Voice',
       orgNote: '(Mental Health AI Startup)',
-      dates: 'July 2025 – Present',
+      dates: 'July 2025 – July 2026',
       role: 'Founder & Lead Developer',
       place: 'Remote, India',
       points: [

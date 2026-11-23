@@ -66,9 +66,9 @@ export function LoadingBar({ duration = 1800, segments = 14 }: { duration?: numb
 }
 
 /** Section heading: small pixel kicker plus chrome bubble title. */
-export function SectionTitle({ kicker, title }: { kicker: string; title: string }) {
+export function SectionTitle({ kicker, title, className = '' }: { kicker: string; title: string; className?: string }) {
   return (
-    <div className="text-center mb-10">
+    <div className={`text-center mb-10 ${className}`}>
       <span className="font-pixel text-xl text-hotpink tracking-widest uppercase inline-flex items-center gap-2">
         <Sparkle size={14} animate={false} />
         {kicker}

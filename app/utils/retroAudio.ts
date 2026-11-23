@@ -1,6 +1,9 @@
 // Retro Analog Synthesized Web Audio Engine
 // 100% Procedural synthesis using Web Audio API - zero latency, zero external asset dependencies
 
+/** Fired on window whenever sound is muted or unmuted. */
+export const MUTE_EVENT = 'retro-audio-mute';
+
 class RetroAudioManager {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
@@ -26,13 +29,59 @@ class RetroAudioManager {
         this.ctx = new AudioCtx();
         this.masterGain = this.ctx.createGain();
         this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
-        this.masterGain.connect(this.ctx.destination);
+        this.masterGain.connect(this.makeEnhancer(this.ctx));
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => { });
     }
     return this.ctx;
+  }
+
+  /** The shared audio context and output, for other sound makers (e.g. plantSong). Null while muted. */
+  public getOutput(): { ctx: AudioContext; out: AudioNode } | null {
+    if (this.isMuted) return null;
+    const ctx = this.getContext();
+    return ctx && this.masterGain ? { ctx, out: this.masterGain } : null;
+  }
+
+  /**
+   * "Small speaker" enhancer on everything that goes through the master output (plant
+   * songs, intro sounds, beach sounds). Laptop speakers can't play deep notes and lose
+   * quiet details, so: cut the rumble they can't reproduce, lift the presence range they
+   * play best, then compress and turn up so quiet sounds come through without loud ones
+   * clipping. On phones and headphones it simply sounds a little fuller and clearer.
+   */
+  private makeEnhancer(ctx: AudioContext): AudioNode {
+    const lowCut = ctx.createBiquadFilter();
+    lowCut.type = 'highpass';
+    lowCut.frequency.value = 110;
+    const presence = ctx.createBiquadFilter();
+    presence.type = 'peaking';
+    presence.frequency.value = 2800;
+    presence.Q.value = 0.8;
+    presence.gain.value = 5;
+    const air = ctx.createBiquadFilter();
+    air.type = 'highshelf';
+    air.frequency.value = 6000;
+    air.gain.value = 3;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -30;
+    comp.knee.value = 18;
+    comp.ratio.value = 5;
+    comp.attack.value = 0.003;
+    comp.release.value = 0.2;
+    const makeup = ctx.createGain();
+    makeup.gain.value = 2.6;
+    // a final limiter so the boost can never clip
+    const limit = ctx.createDynamicsCompressor();
+    limit.threshold.value = -3;
+    limit.knee.value = 0;
+    limit.ratio.value = 20;
+    limit.attack.value = 0.001;
+    limit.release.value = 0.1;
+    lowCut.connect(presence).connect(air).connect(comp).connect(makeup).connect(limit).connect(ctx.destination);
+    return lowCut;
   }
 
   public getVolume(): number {
@@ -64,6 +113,8 @@ class RetroAudioManager {
     if (muted) {
       this.stopTapeMotor();
     }
+    // let any on-screen mute switch know
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event(MUTE_EVENT));
   }
 
   public toggleMute(): boolean {

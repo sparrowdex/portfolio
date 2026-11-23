@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display, VT323, Bagel_Fat_One } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display, VT323, Bagel_Fat_One, Caveat } from "next/font/google";
 import "./globals.css";
 import "./y2k.css";
 import { RetroPhoneAssistant } from "./components/RetroPhoneAssistant";
@@ -28,6 +28,13 @@ const vt323 = VT323({
   weight: "400",
 });
 
+// Handwriting, for the About-me notebook page
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["500", "700"],
+});
+
 // Bubbly display face for chrome headings
 const bagel = Bagel_Fat_One({
   variable: "--font-bagel",
@@ -48,7 +55,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${vt323.variable} ${bagel.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${vt323.variable} ${bagel.variable} ${caveat.variable} h-full antialiased`}
     >
       <head>
         <script

@@ -5,7 +5,7 @@
  * About profile's arcade box (which launches them / hints at the secret one).
  */
 
-export type GameId = 'berry' | 'stack';
+export type GameId = 'berry' | 'stack' | 'bugs';
 export const OPEN_GAME_EVENT = 'open-game';
 
 export function openGame(id: GameId) {

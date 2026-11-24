@@ -15,6 +15,8 @@ export interface Project {
   tech: string[];
   features: string[];
   featuredHighlight?: string;
+  /** One plain line on what was built, shown under the CD case so the rack reads without clicking. */
+  pitch?: string;
   specialBadge?: string;
   imageFallback: string;
   logo?: string;

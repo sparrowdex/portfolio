@@ -74,6 +74,7 @@ export function setGardenAmbience(visible: boolean) {
 
 /** Wings as a bird takes off: a few soft, low, unhurried whooshes. */
 export function playFlutter() {
+  if (!on) return; // birds take off on their own anywhere, but you only hear wings in the garden
   const io = retroAudio.getOutput();
   if (!io) return;
   const { ctx, out } = io;

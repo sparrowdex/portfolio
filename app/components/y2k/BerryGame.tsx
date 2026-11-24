@@ -32,6 +32,7 @@ const PALETTE: Record<string, string> = {
 const SPRITES = {
   berry: ['..g.g..', '.ggggg.', 'rrrrrrr', 'rsrrsrr', 'rrrrrsr', '.rsrrr.', '..rrr..', '...r...'],
   golden: ['..g.g..', '.ggggg.', 'yyyyyyy', 'ysyysyy', 'yyyyoyy', '.yoyyy.', '..yyy..', '...y...'],
+  heart: ['.hh.hh.', 'hhhhhhh', 'hwhhhhh', 'hhhhhhh', '.hhhhh.', '..hhh..', '...h...'],
   beetle: ['.k...k.', '..kkk..', '.kkkkk.', 'kkwkwkk', 'kkkkkkk', '.kkkkk.', 'k.k.k.k'],
   basket: [
     'dddddddddddddddd',
@@ -42,7 +43,7 @@ const SPRITES = {
     '..dddddddddddd..',
   ],
 };
-type Kind = 'berry' | 'golden' | 'beetle';
+type Kind = 'berry' | 'golden' | 'beetle' | 'heart';
 
 function drawSprite(ctx: CanvasRenderingContext2D, rows: string[], x: number, y: number) {
   rows.forEach((row, j) => {
@@ -55,7 +56,8 @@ function drawSprite(ctx: CanvasRenderingContext2D, rows: string[], x: number, y:
   });
 }
 
-interface Item { x: number; y: number; kind: Kind; vy: number }
+interface Item { x: number; y: number; kind: Kind; vy: number; x0: number; wob: number }
+interface Pop { x: number; y: number; text: string; life: number }
 interface Spark { x: number; y: number; vx: number; vy: number; life: number; color: string }
 
 type Phase = 'title' | 'play' | 'over';
@@ -66,6 +68,8 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
   const [phase, setPhase] = useState<Phase>('title');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  const [combo, setCombo] = useState(0);
+  const [banner, setBanner] = useState<string | null>(null);
   const [best, setBest] = useState(() => readBest(BEST_KEY)); // client-only component (ssr: false)
   const [newBest, setNewBest] = useState(false);
   const targetX = useRef<number | null>(null);
@@ -75,6 +79,8 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
     retroAudio.playCassetteInsert();
     setScore(0);
     setLives(3);
+    setCombo(0);
+    setBanner(null);
     setNewBest(false);
     setPhase('play');
   }, []);
@@ -127,6 +133,21 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
     let basketX = (W - BASKET_W) / 2;
     let items: Item[] = [];
     let sparks: Spark[] = [];
+    let pops: Pop[] = [];
+    let c = 0; // combo: berries in a row without dropping one or touching a beetle
+    let shower = 0; // seconds left of a berry shower
+    let nextShower = 25; // points until the next one
+    let shake = 0;
+    const mult = () => 1 + Math.min(4, Math.floor(c / 5));
+    const say = (text: string, ms = 1400) => {
+      setBanner(text);
+      window.setTimeout(() => setBanner((b) => (b === text ? null : b)), ms);
+    };
+    const breakCombo = () => {
+      if (c >= 5) say('combo lost…', 900);
+      c = 0;
+      setCombo(0);
+    };
     let t = 0;
     let spawnIn = 0.6;
     let s = 0;
@@ -148,11 +169,12 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
       last = now;
       t += dt;
 
-      // difficulty ramps over ~90s
-      const ramp = Math.min(1, t / 90);
-      const fall = 38 + ramp * 70;
-      const every = 0.85 - ramp * 0.48;
-      const beetleChance = 0.14 + ramp * 0.22;
+      // difficulty ramps over ~60s
+      const ramp = Math.min(1, t / 60);
+      const fall = 44 + ramp * 80;
+      const every = shower > 0 ? 0.12 : 0.75 - ramp * 0.42;
+      const beetleChance = shower > 0 ? 0 : 0.16 + ramp * 0.22;
+      if (shower > 0) shower -= dt;
 
       // move basket
       const speed = 150;
@@ -172,20 +194,27 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
       if (spawnIn <= 0) {
         spawnIn = every * (0.7 + Math.random() * 0.6);
         const r = Math.random();
-        const kind: Kind = r < beetleChance ? 'beetle' : r < beetleChance + 0.06 ? 'golden' : 'berry';
-        items.push({ x: 4 + Math.random() * (W - 15), y: -8, kind, vy: fall * (0.85 + Math.random() * 0.3) });
+        const kind: Kind =
+          r < beetleChance ? 'beetle' : r < beetleChance + 0.06 ? 'golden' : r < beetleChance + 0.08 && l < 3 ? 'heart' : 'berry';
+        const x = 10 + Math.random() * (W - 27);
+        // later beetles zigzag, so you can't just park under a gap
+        const wob = kind === 'beetle' && Math.random() < ramp ? 6 + Math.random() * 10 : 0;
+        items.push({ x, x0: x, wob, y: -8, kind, vy: fall * (0.85 + Math.random() * 0.3) * (kind === 'heart' ? 1.3 : 1) });
       }
 
       // update items + catches
       const next: Item[] = [];
       for (const it of items) {
         it.y += it.vy * dt;
+        if (it.wob) it.x = Math.max(0, Math.min(W - 7, it.x0 + Math.sin(it.y / 9) * it.wob));
         const caught = it.y + 7 >= BASKET_Y && it.y <= BASKET_Y + 3 && it.x + 6 >= basketX && it.x <= basketX + BASKET_W - 1;
         if (caught) {
           if (it.kind === 'beetle') {
             l -= 1;
             flash = 0.25;
+            shake = 0.25;
             setLives(l);
+            breakCombo();
             burst(it.x + 3, BASKET_Y, PALETTE.k, 10);
             retroAudio.playButtonClack();
             try {
@@ -193,20 +222,38 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
             } catch {
               /* no haptics */
             }
+          } else if (it.kind === 'heart') {
+            l = Math.min(3, l + 1);
+            setLives(l);
+            burst(it.x + 3, BASKET_Y, PALETTE.h, 12);
+            pops.push({ x: it.x, y: BASKET_Y - 6, text: '+♥', life: 0.8 });
+            retroAudio.playNote(988, 0.2, 0.08);
+            window.setTimeout(() => retroAudio.playNote(1318, 0.3, 0.08), 110);
           } else {
-            const pts = it.kind === 'golden' ? 5 : 1;
+            c += 1;
+            setCombo(c);
+            if (c % 5 === 0 && c <= 20) say(`combo x${mult()}!`, 900);
+            const pts = (it.kind === 'golden' ? 5 : 1) * mult();
             s += pts;
             setScore(s);
+            pops.push({ x: it.x, y: BASKET_Y - 6, text: `+${pts}`, life: 0.6 });
+            if (s >= nextShower) {
+              nextShower += 40;
+              shower = 4;
+              say('🍓 berry shower! 🍓', 1800);
+            }
             burst(it.x + 3, BASKET_Y, it.kind === 'golden' ? PALETTE.y : PALETTE.c, it.kind === 'golden' ? 14 : 8);
             retroAudio.playNote(it.kind === 'golden' ? 1318 : 660 + (s % 5) * 110, 0.25, 0.08);
           }
           continue;
         }
         if (it.y < H) next.push(it);
+        else if (it.kind === 'berry' || it.kind === 'golden') breakCombo(); // dropped one
       }
       items = next;
 
       sparks = sparks.filter((p) => (p.life -= dt) > 0);
+      pops = pops.filter((p) => (p.life -= dt) > 0);
       for (const p of sparks) {
         p.x += p.vx * dt;
         p.y += p.vy * dt;
@@ -214,13 +261,29 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
       }
 
       // draw
+      ctx.save();
+      if (shake > 0) {
+        shake -= dt;
+        ctx.translate(Math.round((Math.random() - 0.5) * 4), Math.round((Math.random() - 0.5) * 4));
+      }
       drawBg(ctx);
+      if (shower > 0) {
+        ctx.fillStyle = 'rgba(255,210,63,0.18)';
+        ctx.fillRect(0, 0, W, H);
+      }
       for (const it of items) drawSprite(ctx, SPRITES[it.kind], it.x, it.y);
       for (const p of sparks) {
         ctx.fillStyle = p.color;
         ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1);
       }
       drawSprite(ctx, SPRITES.basket, basketX, BASKET_Y);
+      ctx.font = '8px monospace';
+      ctx.textAlign = 'center';
+      for (const p of pops) {
+        ctx.fillStyle = `rgba(122,0,68,${Math.min(1, p.life * 2)})`;
+        ctx.fillText(p.text, p.x + 3, p.y - (0.8 - p.life) * 20);
+      }
+      ctx.restore();
       if (flash > 0) {
         flash -= dt;
         ctx.fillStyle = 'rgba(58,21,48,0.35)';
@@ -262,12 +325,21 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
 
       {/* HUD */}
       <div className="absolute inset-x-0 top-0 flex justify-between px-2 pt-1 font-pixel text-lg leading-none text-[#7a0044] pointer-events-none">
-        <span>🍓 {score}</span>
+        <span>
+          🍓 {score}
+          {combo >= 5 && <span className="ml-1 text-[#ff2e93]">x{1 + Math.min(4, Math.floor(combo / 5))}</span>}
+        </span>
         <span aria-label={`${lives} lives`}>
           {'♥'.repeat(Math.max(0, lives))}
           <span className="opacity-25">{'♥'.repeat(Math.max(0, 3 - lives))}</span>
         </span>
       </div>
+
+      {phase === 'play' && banner && (
+        <p className="absolute inset-x-0 top-1/3 text-center font-pixel text-xl text-[#ff2e93] pointer-events-none animate-pulse [text-shadow:0_1px_0_#fff]">
+          {banner}
+        </p>
+      )}
 
       {phase !== 'play' && (
         <GameCard title={phase === 'title' ? 'Berry Basket' : 'game over'} best={best} again={phase === 'over'} onStart={start}>
@@ -275,7 +347,9 @@ export function BerryGame({ onClose }: { onClose: () => void }) {
             <p className="font-pixel text-base text-[#7a0044] leading-tight mt-1">
               drag to catch berries 🍓
               <br />
-              golden = +5 · dodge beetles!
+              golden = +5 · ♥ = extra life
+              <br />
+              chain catches for combos · dodge beetles!
             </p>
           ) : (
             <p className="font-pixel text-xl text-[#7a0044] leading-none mt-1">

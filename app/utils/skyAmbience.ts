@@ -1,202 +1,207 @@
 import { retroAudio } from './retroAudio';
 
 /**
- * Music for the About section up in the clouds: a quiet music-box lullaby with soft wind
- * chimes woven into it. The chimes are part of the arrangement, not a separate sound:
- *   - they play the notes of whatever chord the lullaby is on, so they always harmonise;
- *   - they sit just one octave above the melody, in the same sine timbre;
- *   - both go through the same soft filter and the same echo, so they share one space;
- *   - every note ends with a gentle vibrato that widens as it rings out, for depth.
- * Only plays while the music box is open, the section is on screen and sound is on.
+ * Music for the About section while Sreeja's laptop is open: a mellow lo-fi boom-bap beat,
+ * all synthesised. A swung kick / snare / hi-hat groove at 88 BPM, a warm electric-piano
+ * chord loop (Fmaj7 · Em7 · Dm7 · Cmaj7) with a soft bass line, and a little record
+ * crackle, through a gentle low-pass so it sits in the background. It fades in when the
+ * laptop opens and out when it closes or you scroll away.
  */
 
-// notes (Hz)
-const F3 = 174.61, G3 = 196, A3 = 220, C4 = 261.63;
-const C5 = 523.25, D5 = 587.33, E5 = 659.25, G5 = 783.99, A5 = 880;
-const C6 = 1046.5, D6 = 1174.66, E6 = 1318.51, F6 = 1396.91, G6 = 1567.98, A6 = 1760;
+const BPM = 88;
+const STEP = 60 / BPM / 4; // one 16th note
+const SWING = 0.12; // push every second 16th a little late
 
-// a slow lullaby in four lines of 8 beats, over C, Am, F, G: [note, beats]
-const LULLABY: [number, number][] = [
-  [E5, 1], [G5, 1], [C5, 2], [D5, 1], [E5, 1], [G5, 2],
-  [A5, 1], [G5, 1], [E5, 2], [D5, 1], [C5, 1], [D5, 2],
-  [E5, 1], [D5, 1], [C5, 2], [A5, 1], [G5, 1], [E5, 2],
-  [G5, 1], [E5, 1], [D5, 2], [C5, 4],
-];
-const ROOTS = [C4, A3, F3, G3];
+// drums over one bar of 16 steps
+const KICK = [0, 7, 10];
+const SNARE = [4, 12];
+const HAT = [0, 2, 4, 6, 8, 10, 12, 14];
+const GHOST = [15]; // a soft extra snare before the bar repeats
 
-// the chimes' answers, made only of each line's chord tones, one octave above the tune.
-// They come in during the second half of a line, where the melody holds a long note.
-const B6 = 1975.53;
-// every answer is four notes, all in the same octave above the tune (never down in its
-// range, where a chime would sound heavier and fight the melody)
-const ANSWERS: number[][][] = [
-  /* C  */ [[G6, E6, C6, E6], [C6, E6, G6, E6]],
-  /* Am */ [[E6, C6, A6, E6], [A6, E6, C6, E6]],
-  /* F  */ [[F6, C6, A6, C6], [A6, F6, C6, F6]],
-  /* G  */ [[D6, B6, G6, D6], [G6, D6, B6, G6]],
+// chords (one per bar) and their bass notes
+const CHORDS = [
+  [174.61, 220, 261.63, 329.63], // Fmaj7
+  [164.81, 196, 246.94, 293.66], // Em7
+  [146.83, 174.61, 220, 261.63], // Dm7
+  [130.81, 164.81, 196, 246.94], // Cmaj7
 ];
-// the chord under each line, for the light harp pulse: [root, fifth, octave]
-const PULSE: number[][] = [
-  [C4, 392, 523.25],
-  [A3, 329.63, 440],
-  [F3, 261.63, 349.23],
-  [G3, 293.66, 392],
-];
-
-const BEAT = 1.2; // seconds: slow and dreamy
+const BASS = [87.31, 82.41, 73.42, 65.41];
 
 let on = false;
-let bed: { ctx: AudioContext; bus: GainNode; chimes: GainNode; pulse: GainNode; timer: number; pass: number } | null = null;
+let laptopOpen = false;
+let rig: { ctx: AudioContext; bus: GainNode; timer: number; crackle: AudioBufferSourceNode } | null = null;
 
-/**
- * One soft note: a sine with a faint octave, a gentle attack and a long decay. As it rings
- * out, a slow vibrato fades in and widens, which gives the tail its shimmer and depth.
- */
-function note(ctx: AudioContext, out: AudioNode, freq: number, at: number, vol: number, ring: number, bright = 0.1, attack = 0.03) {
-  const lfo = ctx.createOscillator();
-  lfo.frequency.value = 4.6;
-  const depth = ctx.createGain();
-  depth.gain.setValueAtTime(0, at);
-  depth.gain.linearRampToValueAtTime(0, at + ring * 0.25);
-  depth.gain.linearRampToValueAtTime(freq * 0.007, at + ring);
-  lfo.connect(depth);
-  lfo.start(at);
-  lfo.stop(at + ring + 0.1);
+let noiseBuf: AudioBuffer | null = null;
+function noise(ctx: AudioContext) {
+  if (!noiseBuf || noiseBuf.sampleRate !== ctx.sampleRate) {
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const s = ctx.createBufferSource();
+  s.buffer = noiseBuf;
+  return s;
+}
+
+function env(ctx: AudioContext, at: number, peak: number, attack: number, decay: number) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(peak, at + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + attack + decay);
+  return g;
+}
+
+function kick(ctx: AudioContext, out: AudioNode, at: number) {
+  const o = ctx.createOscillator();
+  o.frequency.setValueAtTime(130, at);
+  o.frequency.exponentialRampToValueAtTime(46, at + 0.12);
+  o.connect(env(ctx, at, 1, 0.004, 0.32)).connect(out);
+  o.start(at);
+  o.stop(at + 0.4);
+}
+
+function snare(ctx: AudioContext, out: AudioNode, at: number, vol = 0.55) {
+  const n = noise(ctx);
+  const f = ctx.createBiquadFilter();
+  f.type = 'bandpass';
+  f.frequency.value = 1900;
+  f.Q.value = 0.7;
+  n.connect(f).connect(env(ctx, at, vol, 0.003, 0.2)).connect(out);
+  n.start(at, Math.random() * 0.5);
+  n.stop(at + 0.25);
+  const o = ctx.createOscillator();
+  o.frequency.setValueAtTime(200, at);
+  o.frequency.exponentialRampToValueAtTime(150, at + 0.08);
+  o.connect(env(ctx, at, vol * 0.5, 0.003, 0.1)).connect(out);
+  o.start(at);
+  o.stop(at + 0.15);
+}
+
+function hat(ctx: AudioContext, out: AudioNode, at: number, vol: number) {
+  const n = noise(ctx);
+  const f = ctx.createBiquadFilter();
+  f.type = 'highpass';
+  f.frequency.value = 7000;
+  n.connect(f).connect(env(ctx, at, vol, 0.002, 0.05)).connect(out);
+  n.start(at, Math.random() * 0.5);
+  n.stop(at + 0.08);
+}
+
+/** A soft electric-piano note: two slightly detuned sines and a faint bell overtone. */
+function keys(ctx: AudioContext, out: AudioNode, f: number, at: number, vol: number, len: number) {
   [
-    [1, 1],
-    [2, bright],
-  ].forEach(([m, level]) => {
+    [1, 1, -3],
+    [1, 1, 3],
+    [3, 0.06, 0],
+  ].forEach(([m, level, cents]) => {
     const o = ctx.createOscillator();
-    o.type = 'sine';
-    o.frequency.value = freq * m;
-    depth.connect(o.frequency);
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, at);
-    g.gain.exponentialRampToValueAtTime(vol * level, at + attack);
-    g.gain.exponentialRampToValueAtTime(0.0001, at + ring);
-    o.connect(g).connect(out);
+    o.frequency.value = f * m;
+    o.detune.value = cents;
+    o.connect(env(ctx, at, vol * level, 0.012, len)).connect(out);
     o.start(at);
-    o.stop(at + ring + 0.1);
+    o.stop(at + len + 0.05);
   });
 }
 
-function startBed() {
-  if (bed) return;
+function bass(ctx: AudioContext, out: AudioNode, f: number, at: number, len: number) {
+  [f, f * 2].forEach((hz, i) => {
+    const o = ctx.createOscillator();
+    o.frequency.value = hz;
+    o.connect(env(ctx, at, i ? 0.18 : 0.55, 0.02, len)).connect(out);
+    o.start(at);
+    o.stop(at + len + 0.05);
+  });
+}
+
+function crackleBuffer(ctx: AudioContext) {
+  const len = ctx.sampleRate * 4;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) {
+    d[i] = (Math.random() * 2 - 1) * 0.03;
+    if (Math.random() < 0.0005) d[i] += (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.5);
+  }
+  return buf;
+}
+
+function start() {
+  if (rig) return;
   const io = retroAudio.getOutput();
   if (!io) return;
   const { ctx, out } = io;
   const now = ctx.currentTime;
 
-  // one shared space: a soft filter and an echo on the beat, for the tune and the chimes alike
-  const room = ctx.createBiquadFilter();
-  room.type = 'lowpass';
-  room.frequency.value = 2200;
-  const echo = ctx.createDelay(2);
-  echo.delayTime.value = BEAT * 0.75;
-  const fb = ctx.createGain();
-  fb.gain.value = 0.3;
-  const wet = ctx.createGain();
-  wet.gain.value = 0.45;
-  room.connect(out);
-  room.connect(echo).connect(fb).connect(echo);
-  echo.connect(wet).connect(out);
+  // the whole beat through a warm low-pass, faded in
+  const bus = ctx.createGain();
+  bus.gain.setValueAtTime(0.0001, now);
+  bus.gain.exponentialRampToValueAtTime(0.16, now + 2.5);
+  const warm = ctx.createBiquadFilter();
+  warm.type = 'lowpass';
+  warm.frequency.value = 3200;
+  bus.connect(warm).connect(out);
 
-  const fadeIn = (g: GainNode, level: number) => {
-    g.gain.setValueAtTime(0.0001, now);
-    g.gain.exponentialRampToValueAtTime(level, now + 4);
-  };
-  const bus = ctx.createGain(); // the lullaby
-  fadeIn(bus, 0.022);
-  bus.connect(room);
-  // the chimes: softer than the tune, and muffled a little more so they have no hard edge
-  const chimes = ctx.createGain();
-  fadeIn(chimes, 0.01);
-  const velvet = ctx.createBiquadFilter();
-  velvet.type = 'lowpass';
-  velvet.frequency.value = 1500;
-  chimes.connect(velvet).connect(room);
+  const drums = ctx.createGain();
+  drums.gain.value = 0.9;
+  drums.connect(bus);
+  const music = ctx.createGain();
+  music.gain.value = 0.5;
+  const musicTone = ctx.createBiquadFilter();
+  musicTone.type = 'lowpass';
+  musicTone.frequency.value = 1800;
+  music.connect(musicTone).connect(bus);
 
-  // the harp pulse: very quiet and muffled, just enough to keep the music walking forward
-  const pulse = ctx.createGain();
-  fadeIn(pulse, 0.012);
-  const pluckSoft = ctx.createBiquadFilter();
-  pluckSoft.type = 'lowpass';
-  pluckSoft.frequency.value = 900;
-  pulse.connect(pluckSoft).connect(room);
+  const crackleGain = ctx.createGain();
+  crackleGain.gain.value = 0.35;
+  const crackle = ctx.createBufferSource();
+  crackle.buffer = crackleBuffer(ctx);
+  crackle.loop = true;
+  crackle.connect(crackleGain).connect(bus);
+  crackle.start(now);
 
-  const me = { ctx, bus, chimes, pulse, timer: 0, pass: 0 };
-  bed = me;
-
-  // the warm hum under each line
-  const hum = (f: number, at: number, len: number) =>
-    [1, 1.5].forEach((m) => {
-      const o = ctx.createOscillator();
-      o.type = 'sine';
-      o.frequency.value = f * m;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, at);
-      g.gain.exponentialRampToValueAtTime(m === 1 ? 0.5 : 0.22, at + len * 0.4);
-      g.gain.exponentialRampToValueAtTime(0.0001, at + len + 0.6);
-      o.connect(g).connect(bus);
-      o.start(at);
-      o.stop(at + len + 0.7);
-    });
-
-  // one pass of the lullaby, then queue the next just before it ends
-  const pass = (at: number) => {
-    if (bed !== me) return;
-    let t = at;
-    let beats = 0;
-    LULLABY.forEach(([f, b]) => {
-      if (beats % 8 === 0) {
-        const line = beats / 8;
-        hum(ROOTS[line], t, 8 * BEAT);
-        // a light step: a muted harp softly picking the chord, one note per beat
-        for (let k = 0; k < 8; k++) {
-          const pf = PULSE[line][[0, 1, 2, 1][k % 4]];
-          note(ctx, pulse, pf, t + k * BEAT, k % 4 === 0 ? 0.7 : 0.5, 1.1, 0.04, 0.012);
-        }
-        // one chime melody only: it answers in the second and fourth lines, every pass
-        if (line === 1 || line === 3) {
-          const phrase = ANSWERS[line][(me.pass + line) % ANSWERS[line].length];
-          // in the line's second half, between the tune's beats, so they weave around it
-          const start = t + 4.5 * BEAT;
-          // one chime per beat (not per half beat), each swelling in softly and ringing long
-          phrase.forEach((cf, i) => note(ctx, chimes, cf, start + i * BEAT, i === phrase.length - 1 ? 0.6 : 0.75, 3.8, 0.05, 0.2));
-        }
+  // schedule a little ahead, step by step
+  let step = 0;
+  let next = now + 0.1;
+  const me = { ctx, bus, timer: 0, crackle };
+  rig = me;
+  me.timer = window.setInterval(() => {
+    while (next < ctx.currentTime + 0.35) {
+      const s = step % 16;
+      const bar = Math.floor(step / 16) % CHORDS.length;
+      const at = next + (s % 2 ? SWING * STEP : 0);
+      if (KICK.includes(s)) kick(ctx, drums, at);
+      if (SNARE.includes(s)) snare(ctx, drums, at);
+      if (GHOST.includes(s) && bar % 2) snare(ctx, drums, at, 0.16);
+      if (HAT.includes(s)) hat(ctx, drums, at, s % 4 === 2 ? 0.16 : 0.1);
+      if (s === 0) {
+        CHORDS[bar].forEach((f, i) => keys(ctx, music, f * 2, at + i * 0.012, 0.22, 2.2));
+        bass(ctx, music, BASS[bar], at, 1.1);
       }
-      note(ctx, bus, f, t, 0.9, 3.2);
-      t += b * BEAT;
-      beats += b;
-    });
-    me.pass++;
-    me.timer = window.setTimeout(() => pass(t), (t - ctx.currentTime - 1) * 1000);
-  };
-  pass(now + 0.3);
+      if (s === 10) CHORDS[bar].slice(1).forEach((f) => keys(ctx, music, f * 2, at, 0.12, 0.9)); // a soft off-beat stab
+      if (s === 8) bass(ctx, music, BASS[bar], at, 0.5);
+      next += STEP;
+      step++;
+    }
+  }, 90);
 }
 
-function stopBed() {
-  const me = bed;
+function stop() {
+  const me = rig;
   if (!me) return;
-  bed = null;
-  clearTimeout(me.timer);
+  rig = null;
+  clearInterval(me.timer);
   const t = me.ctx.currentTime;
-  for (const g of [me.bus, me.chimes, me.pulse]) {
-    g.gain.cancelScheduledValues(t);
-    g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5); // slow fade out
-  }
+  me.bus.gain.cancelScheduledValues(t);
+  me.bus.gain.setValueAtTime(Math.max(0.0001, me.bus.gain.value), t);
+  me.bus.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
   setTimeout(() => {
+    me.crackle.stop();
     me.bus.disconnect();
-    me.chimes.disconnect();
-    me.pulse.disconnect();
-  }, 3200);
+  }, 1800);
 }
 
-let boxOpen = false;
 function update() {
-  if (on && boxOpen) startBed();
-  else stopBed();
+  if (on && laptopOpen) start();
+  else stop();
 }
 
 /** Call with true while the About section is on screen, false when it leaves. */
@@ -206,8 +211,8 @@ export function setSkyAmbience(visible: boolean) {
   update();
 }
 
-/** The About music box: the tune only plays while its lid is open. */
+/** The beat only plays while the laptop is open. */
 export function setMusicBoxOpen(open: boolean) {
-  boxOpen = open;
+  laptopOpen = open;
   update();
 }

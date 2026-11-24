@@ -27,8 +27,10 @@ import { OPEN_GAME_EVENT, markBerryUnlocked, type GameId } from './components/y2
 // Hidden strawberry mode: only downloaded once someone unlocks it.
 const BerryGame = dynamic(() => import('./components/y2k/BerryGame').then((m) => m.BerryGame), { ssr: false });
 const DiscStacker = dynamic(() => import('./components/y2k/DiscStacker').then((m) => m.DiscStacker), { ssr: false });
+const BugSquash = dynamic(() => import('./components/y2k/BugSquash').then((m) => m.BugSquash), { ssr: false });
 import { useOffscreenPause } from './components/y2k/visibility';
 import { watchSoundZones } from './utils/soundZones';
+import { useBirthday } from './utils/birthday';
 
 const STICKERS = [
   { label: 'New Delhi ✈', bg: '#7fe3ff', pos: '-bottom-12 -left-10', rot: '-10deg' },
@@ -44,6 +46,7 @@ const HERO_STATS = [
 ];
 
 export default function Home() {
+  const birthday = useBirthday();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null); // rack first; the player opens on a pick
   const [isPlaying, setIsPlaying] = useState(true);
   const [replayKey, setReplayKey] = useState(0);
@@ -130,6 +133,7 @@ export default function Home() {
 
       {game === 'berry' && <BerryGame onClose={() => setGame(null)} />}
       {game === 'stack' && <DiscStacker onClose={() => setGame(null)} />}
+      {game === 'bugs' && <BugSquash onClose={() => setGame(null)} />}
 
       {/* ── HERO ── */}
       <section data-anim className="relative z-10 max-w-6xl mx-auto px-4 pt-12 sm:pt-20 pb-10 grid lg:grid-cols-12 gap-10 items-center">
@@ -137,6 +141,11 @@ export default function Home() {
           <span className="inline-flex items-center gap-2 font-pixel text-xl px-3 py-0.5 rounded-full bg-white/80 border-2 border-ink/70 shadow-[3px_3px_0_#1a0f1f]">
             <Sparkle size={14} animate={false} /> welcome 2 my homepage <Sparkle size={14} animate={false} />
           </span>
+          {birthday && (
+            <span className="bd-sticker mt-3 font-bubble text-lg px-4 py-1 rounded-full border-2 border-ink shadow-[3px_3px_0_#1a0f1f]">
+              🎂 it&apos;s Sreeja&apos;s birthday today!
+            </span>
+          )}
 
           <h1 className="relative mt-5 font-bubble text-[4rem] leading-[0.9] sm:text-8xl lg:text-[8.5rem] lg:-ml-1">
             <span className="y2k-chrome-text block">Sreeja</span>
@@ -178,6 +187,11 @@ export default function Home() {
         <div className="lg:col-span-5 flex flex-col items-center">
           <div className="relative w-full max-w-md">
             <Portrait />
+            {birthday && (
+              <span className="bd-crown" aria-label="birthday crown" role="img">
+                👑
+              </span>
+            )}
             {/* sticker tags: scattered around the window on desktop */}
             {STICKERS.map((t, i) => (
               <span
@@ -280,12 +294,13 @@ export default function Home() {
       </section>
 
       {/* ── CONTACT: INSTANT MESSENGER ── */}
-      <section data-anim id="contact" className="relative z-10 max-w-2xl mx-auto px-4 py-16 scroll-mt-16">
+      {/* empty space here lets clicks through to the shells on the beach below; only the content catches them */}
+      <section data-anim id="contact" className="relative z-10 max-w-2xl mx-auto px-4 py-16 scroll-mt-16 pointer-events-none [&>*]:pointer-events-auto">
         <SectionTitle kicker="let's connect" title="Say Hi!" />
         <MessengerWindow />
       </section>
 
-      <footer className="relative z-10 max-w-4xl mx-auto px-4 pb-56 pt-6">
+      <footer className="relative z-10 max-w-4xl mx-auto px-4 pb-56 pt-6 pointer-events-none">
         <p className="font-pixel text-lg text-ink/70 text-center">
           made with Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · Web Audio API
         </p>

@@ -57,7 +57,7 @@ export function DiscRack({
   onSelect: (p: Project) => void;
 }) {
   return (
-    <ul className="flex gap-6 sm:gap-8 overflow-x-auto sm:overflow-visible sm:flex-wrap sm:justify-center snap-x snap-mandatory no-scrollbar px-2 pt-3 pb-4">
+    <ul className="flex gap-6 sm:gap-8 xl:gap-4 overflow-x-auto sm:overflow-visible sm:flex-wrap xl:flex-nowrap sm:justify-center snap-x snap-mandatory no-scrollbar px-2 pt-3 pb-4">
       {projects.map((p) => {
         const selected = p.id === selectedId;
         const accent = p.colors?.[0] ?? '#ff2e93';
@@ -69,7 +69,7 @@ export function DiscRack({
               onMouseEnter={() => retroAudio.playHover()}
               aria-pressed={selected}
               aria-label={`Play ${p.title}`}
-              className={`cd-case group flex flex-col items-center gap-2.5 w-28 sm:w-32 focus-visible:outline-none ${selected ? 'is-on' : ''}`}
+              className={`cd-case group flex flex-col items-center gap-2 w-32 sm:w-36 xl:w-[132px] focus-visible:outline-none ${selected ? 'is-on' : ''}`}
               style={{ '--glow': accent } as React.CSSProperties}
             >
               <span className="relative block w-24 h-24 sm:w-28 sm:h-28">
@@ -97,6 +97,7 @@ export function DiscRack({
               >
                 {p.title}
               </span>
+              {p.pitch && <span className="text-[12.5px] leading-snug text-center text-ink/70 px-1">{p.pitch}</span>}
             </button>
           </li>
         );

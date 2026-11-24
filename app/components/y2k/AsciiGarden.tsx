@@ -624,12 +624,11 @@ export function AsciiGarden() {
       )}
 
       <div className="mt-8 max-w-3xl mx-auto flex flex-col items-center gap-3 text-center">
-        <p className="font-pixel text-xl leading-tight text-ink/75">
-          five specimens under glass · the more projects use a skill, the wider it blooms · tap one to look closer
-        </p>
-        <p className="font-pixel text-lg leading-snug text-ink/60">
-          ♪ tap a jar and its flower sings. The melodies are inspired by plant biodata music, where artists clip electrodes to
-          real leaves and turn the plant&apos;s tiny electrical changes into notes. Each flower here gets its own scale and voice.
+        <p
+          className="font-pixel text-xl leading-tight text-ink/75"
+          title="the melodies are inspired by plant biodata music: electrodes on real leaves turn a plant's tiny electrical changes into notes"
+        >
+          the more projects use a skill, the wider it blooms · tap a jar to hear it sing ♪
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           <button

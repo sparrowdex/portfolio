@@ -44,8 +44,18 @@ class BeachEngine {
   raf = 0;
   drag: { i: number; dx: number; dy: number; lastX: number; vx: number } | null = null;
 
+  visible = false;
+  io: IntersectionObserver | null = null;
   setLayer = (el: HTMLDivElement | null) => {
+    if (el === this.layer) return;
+    this.io?.disconnect();
     this.layer = el;
+    if (!el) return;
+    this.io = new IntersectionObserver(([entry]) => {
+      this.visible = entry.isIntersecting;
+      if (this.visible && !this.raf && this.shells.some((s) => s.mode === 'float')) this.drift();
+    });
+    this.io.observe(el);
   };
   setEl = (i: number, el: HTMLImageElement | null) => {
     this.els[i] = el;
@@ -84,6 +94,7 @@ class BeachEngine {
   }
   stop() {
     cancelAnimationFrame(this.raf);
+    this.raf = 0;
   }
 
   /** Float everything that's in the water; stops by itself once nothing is. */
@@ -93,6 +104,11 @@ class BeachEngine {
     const step = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      // scrolled away from the beach: the sea holds its shells until you're back
+      if (!this.visible) {
+        this.raf = 0;
+        return;
+      }
       const { seaHeight: sea, sandTop: sand, height: h } = this.geo;
       const W = this.layer?.clientWidth ?? 1200;
       let afloat = false;
@@ -108,7 +124,8 @@ class BeachEngine {
           // a wave carries it up the beach
           s.mode = 'sand';
           playWash();
-          s.y = Math.min(h - s.w - 20, sand + 30 + Math.random() * Math.max(40, h - sand - s.w - 80));
+          // it lands just past the waterline, not flung far up the sand
+          s.y = Math.min(h - s.w - 20, sand - 16 + Math.random() * 46);
           s.rot += (Math.random() - 0.5) * 60;
           const el = this.els[i];
           if (el) {
@@ -119,7 +136,7 @@ class BeachEngine {
         }
         this.paint(i);
       });
-      if (afloat) this.raf = requestAnimationFrame(step);
+      this.raf = afloat ? requestAnimationFrame(step) : 0;
     };
     this.raf = requestAnimationFrame(step);
   }

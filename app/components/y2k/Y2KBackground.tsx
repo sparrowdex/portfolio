@@ -16,15 +16,18 @@ const BUTTERFLIES: { top: string; left: string; size: number; v: ButterflyVarian
   { top: '84%', left: '88%', size: 30, v: 'white', dur: 10, delay: -1 },
 ];
 
-export function Y2KBackground() {
+/** `wallpaper={false}`: just the live butterflies, over a background drawn elsewhere (WorldBackground). */
+export function Y2KBackground({ wallpaper = true }: { wallpaper?: boolean }) {
   return (
     <div aria-hidden className="fixed inset-0 z-0 pointer-events-none overflow-hidden pause-on-overlay">
+      {wallpaper && (
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url('${WALLPAPER}'), linear-gradient(160deg, #ffd6ee 0%, #fbb8df 42%, #f7a6d5 68%, #ffc8e7 100%)`,
         }}
       />
+      )}
       {BUTTERFLIES.map((b, i) => (
         <div
           key={i}

@@ -144,14 +144,14 @@ export function answer(query: string, context: ProjectKey | null): Reply {
   // ── Direct intents the KB doesn't cover well ──
   if (/\b(resume|cv)\b/.test(norm)) {
     return {
-      text: `Here's her résumé (PDF): ${PROFILE.resumeUrl}\nOr flip the site to **recruiter mode** in the top bar for a one-page summary.`,
+      text: `Here's her résumé (PDF): ${PROFILE.resumeUrl}\nOr open the **recruiter view** in the top bar to read it on one page: /resume`,
       context,
       suggestions: ['What is her experience?', 'What are her skills?', 'How do I contact her?'],
     };
   }
   if (/\b(contact|email|mail|hire|reach|linkedin|message|available|availability)\b/.test(norm)) {
     return {
-      text: `📧 ${PROFILE.email}\n💼 LinkedIn: ${PROFILE.links.linkedin}\n💾 GitHub: ${PROFILE.links.github}\nShe's always up for cool collabs ✦`,
+      text: `📧 ${PROFILE.email}\n💼 LinkedIn: ${PROFILE.links.linkedin}\n💾 GitHub: ${PROFILE.links.github}\nShe's open to freelance, remote and flexible-schedule work (not full-time on-site right now), and always up for cool collabs ✦`,
       context,
       suggestions: ['Download résumé', 'What are her skills?', 'Show me all projects'],
     };

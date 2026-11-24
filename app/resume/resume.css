@@ -9,40 +9,80 @@
   position: relative;
   z-index: 10;
   min-height: 100vh;
-  background: #e9e4e8;
   padding: 24px 12px 48px;
   color: #000;
+  overflow-x: clip;
+  background: #f9cfe3;
+}
+
+/* ── the sky (app/components/y2k/CloudSky.tsx) ── */
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(180deg, #9cc8ff 0%, #c4d6ff 28%, #f6cde6 62%, #ffe1ec 100%);
+}
+.sky-sun {
+  position: absolute;
+  right: 8%;
+  top: 6%;
+  width: 46vmin;
+  height: 46vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 246, 214, 0.9) 0%, rgba(255, 214, 230, 0.45) 35%, transparent 70%);
+}
+.sky-drift {
+  position: absolute;
+  left: 0;
+  will-change: transform;
+  animation: sky-drift linear infinite;
+}
+.sky-drift canvas { display: block; }
+@keyframes sky-drift {
+  from { transform: translateX(-60vw); }
+  to { transform: translateX(110vw); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky-drift { animation-play-state: paused; }
 }
 
 .rs-toolbar {
   max-width: 8.5in;
-  margin: 0 auto 14px;
+  margin: 0 auto 34px; /* room for the tape to sit clear of the buttons */
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: space-between;
   align-items: center;
-  font: 600 13px/1 ui-monospace, 'Courier New', monospace;
 }
-.rs-toolbar a { color: #1a0f1f; text-decoration: underline; }
-.rs-toolbar .rs-download {
-  text-decoration: none;
-  background: #000;
-  color: #fff;
-  padding: 10px 16px;
-}
-.rs-toolbar .rs-download:hover { background: #ff2e93; }
 
+/* The sheet floats on the sky. */
+.rs-sheet { position: relative; z-index: 1; max-width: 8.5in; margin: 0 auto; }
+
+
+/* The sheet itself stays plain black-on-white so nothing is harder to read. */
 .rs-page {
-  max-width: 8.5in;
-  margin: 0 auto;
   background: #fff;
   padding: 0.36in 0.5in;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 0 #f3d3e4, 0 26px 60px rgba(70, 40, 120, 0.25);
   font-family: 'CMU Serif', 'Latin Modern Roman', 'Times New Roman', Times, serif;
   font-size: 10pt;
   line-height: 1.17;
 }
 
-.rs-page a { color: #0ea5d8; text-decoration: none; }
+@media screen {
+  .rs-head h1::before, .rs-head h1::after {
+    content: '✦';
+    color: #ff2e93;
+    font-size: 0.55em;
+    vertical-align: middle;
+    margin: 0 0.6em;
+  }
+}
+
+.rs-page a { color: #c2006f; text-decoration: none; }
 .rs-page a:hover { text-decoration: underline; }
 
 .rs-head { text-align: center; margin-bottom: 4pt; }
@@ -54,7 +94,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.01em;
-  border-bottom: 0.8pt solid #000;
+  color: #c2006f;
+  border-bottom: 0.8pt solid #ff2e93;
   margin: 7pt 0 3pt;
   padding-bottom: 0.5pt;
 }
@@ -75,8 +116,9 @@
 @media print {
   html, body { background: #fff !important; }
   .rs-screen { background: #fff; padding: 0; min-height: 0; }
-  .rs-toolbar { display: none; }
-  .rs-page { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+  .rs-toolbar, .sky { display: none !important; }
+  .rs-sheet { max-width: none; margin: 0; }
+  .rs-page { margin: 0; padding: 0; box-shadow: none; }
   section { break-inside: auto; }
   .rs-entry { break-inside: avoid; }
 }

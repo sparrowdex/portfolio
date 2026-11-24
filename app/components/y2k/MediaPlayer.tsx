@@ -9,6 +9,7 @@ import { Disc } from './DiscRack';
 import { Marquee } from './Decor';
 import { INTROS, INTRO_DURATION } from './intros';
 import { ShowcaseWindow } from './ShowcaseWindow';
+import { playIntroSound, stopIntroSound } from '../../utils/introSounds';
 import type { ProjectLink } from '../../types/project';
 
 import { PhotoboothModal } from '../ProjectModals/PhotoboothModal';
@@ -84,6 +85,12 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
     return () => clearTimeout(id);
   }, [introFor, shownKey]);
 
+  // each intro brings its own little soundscape (utils/introSounds.ts)
+  useEffect(() => {
+    if (introFor !== null) playIntroSound(introFor);
+  }, [introFor, shownKey]);
+  useEffect(() => stopIntroSound, []);
+
   useEffect(() => {
     if (!isPlaying || !project) return;
     const id = setInterval(() => setElapsed((e) => e + 1), 1000);
@@ -105,6 +112,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
       title={`sreeja_media_player.exe${project ? ` — ${project.title}` : ''}`}
       icon="💿"
       accent={accent}
+      variant="glass"
       bodyClassName="p-0 lg:flex-1 lg:min-h-0"
       // Laptops/desktops: the whole player fits on one screen; the liner notes scroll inside.
       className="transition-[border-color,box-shadow] duration-500 lg:flex lg:flex-col lg:h-[min(calc(100svh-5.5rem),820px)]"
@@ -114,7 +122,8 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
         <div
           className="relative lg:col-span-5 p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 lg:min-h-0 lg:justify-center"
           style={{
-            background: `linear-gradient(160deg, #fdf6fb 0%, #e9dfe8 55%, color-mix(in srgb, ${accent} 22%, #e9dfe8) 100%)`,
+            // the sunset behind lights the device up in the project's colour
+            background: `linear-gradient(160deg, rgba(255,255,255,0.4) 0%, rgba(255,240,230,0.2) 50%, color-mix(in srgb, ${accent} 20%, transparent) 100%)`,
           }}
         >
           {/* phones: the badge rides on the screen's corner like a sticker instead of taking a row in the notes */}
@@ -131,7 +140,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
           {/* Screen */}
           {/* touch: swipe the screen left/right to change project (vertical scrolling still works) */}
           <div
-            className="y2k-lcd rounded-xl aspect-[16/10] sm:aspect-[4/3] border-[3px] sm:border-4 border-[#3a1530] touch-pan-y lg:w-[min(100%,calc((100svh-21rem)*4/3))] lg:mx-auto lg:shrink-0"
+            className="y2k-lcd rounded-2xl aspect-[16/10] sm:aspect-[4/3] border-[3px] border-white/80 shadow-[0_10px_30px_rgba(60,20,40,0.35)] touch-pan-y lg:w-[min(100%,calc((100svh-21rem)*4/3))] lg:mx-auto lg:shrink-0"
             style={{ '--accent': accent } as React.CSSProperties}
             onPointerDown={(e) => {
               if (e.pointerType !== 'mouse') swipeRef.current = { x: e.clientX, y: e.clientY };
@@ -158,7 +167,10 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                 <Intro key={loadKey} accent={accent} />
                 <button
                   type="button"
-                  onClick={() => setIntroFor(null)}
+                  onClick={() => {
+                    stopIntroSound();
+                    setIntroFor(null);
+                  }}
                   className="absolute top-2 right-2 z-10 font-pixel text-base px-2 rounded bg-black/60 hover:bg-black/80"
                 >
                   skip ▸▸
@@ -239,7 +251,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
         </div>
 
         {/* ── Liner notes / details ── */}
-        <div className="lg:col-span-7 p-4 sm:p-7 border-t-2 lg:border-t-0 lg:border-l-2 border-[#3a1530]/15 bg-[#fff7fc] sm:min-h-[22rem] lg:min-h-0 lg:overflow-y-auto y2k-scroll">
+        <div className="lg:col-span-7 p-4 sm:p-7 border-t-2 lg:border-t-0 lg:border-l border-white/70 bg-white/60 sm:min-h-[22rem] lg:min-h-0 lg:overflow-y-auto y2k-scroll">
           {!project ? (
             <div className="h-full flex flex-col items-center justify-center text-center gap-2 py-10">
               <p className="font-bubble text-3xl text-ink">no disc inserted</p>
@@ -256,7 +268,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                 </div>
                 {project.specialBadge && (
                   <span
-                    className="hidden md:inline-block font-pixel text-lg px-3 py-0.5 rounded-full text-white border-2 border-ink rotate-3 shadow-[2px_2px_0_#1a0f1f]"
+                    className="hidden md:inline-block font-pixel text-lg px-3 py-0.5 rounded-full text-white rotate-3 shadow-[0_6px_16px_rgba(140,50,80,0.25)]"
                     style={{ background: accent }}
                   >
                     ★ {project.specialBadge}
@@ -273,7 +285,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => retroAudio.playHover()}
-                    className="inline-flex items-center gap-1.5 font-pixel text-base sm:text-lg leading-none px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border-2 border-ink bg-white hover:bg-babypink shadow-[2px_2px_0_#1a0f1f] active:translate-y-0.5 active:shadow-none"
+                    className="inline-flex items-center gap-1.5 font-pixel text-base sm:text-lg leading-none px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/90 bg-white/80 hover:bg-white shadow-[0_4px_12px_rgba(140,50,80,0.15)] active:translate-y-0.5"
                   >
                     <span aria-hidden>{LINK_ICON[l.kind]}</span>
                     <span className="opacity-60">{LINK_LABEL[l.kind]}</span>
@@ -281,14 +293,29 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                     <span aria-hidden>↗</span>
                   </a>
                 ))}
-                {Showcase && (
-                  <ChromeButton variant="accent" color={accent} size="sm" onClick={() => setShowcaseOpen(true)}>
-                    ▶ bonus track
-                  </ChromeButton>
-                )}
               </div>
 
-              <div className="space-y-4 sm:space-y-5 pt-4 sm:pt-5 mt-4 sm:mt-5 border-t-2 border-dashed border-ink/20">
+              {/* the full story comes first: what it is, how it was built, what was learned */}
+              {Showcase && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    retroAudio.playCassetteInsert();
+                    setShowcaseOpen(true);
+                  }}
+                  className="group mt-4 w-full text-left y2k-lcd rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-3 sm:gap-4 shadow-[0_10px_24px_rgba(60,20,40,0.3)]"
+                  style={{ '--accent': accent } as React.CSSProperties}
+                >
+                  <Disc accent={accent} spinning className="w-10 sm:w-12 shrink-0" />
+                  <span className="flex-1 min-w-0">
+                    <span className="block font-pixel text-xl sm:text-2xl leading-none">THE FULL STORY ▸ how I built it</span>
+                    <span className="block font-pixel text-base opacity-75 leading-tight mt-1">demos, architecture, decisions &amp; lessons</span>
+                  </span>
+                  <span className="font-pixel text-2xl group-hover:translate-x-1 transition-transform">▶</span>
+                </button>
+              )}
+
+              <div className="space-y-4 sm:space-y-5 pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-white/80">
                   <p className={`text-[15px] leading-relaxed text-ink/85 ${notesOpen ? '' : 'line-clamp-3 md:line-clamp-none'}`}>
                     {project.longDesc || project.desc}
                   </p>
@@ -305,8 +332,8 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
 
                   {project.featuredHighlight && (
                     <div
-                      className="relative rounded-xl p-3.5 pl-12 border-2 border-ink/80"
-                      style={{ background: `color-mix(in srgb, ${accent} 14%, #fff)` }}
+                      className="relative rounded-2xl p-3.5 pl-12 border border-white/90 shadow-[0_6px_18px_rgba(140,50,80,0.12)]"
+                      style={{ background: `color-mix(in srgb, ${accent} 10%, rgba(255,255,255,0.75))` }}
                     >
                       <span className="absolute left-3 top-3 text-2xl" aria-hidden>
                         💡
@@ -320,7 +347,7 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                     <p className="font-pixel text-lg uppercase text-ink/70 mb-2">tracklist</p>
                     <ol className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {project.features.map((f, i) => (
-                        <li key={f} className="flex items-center gap-2 text-sm text-ink/85 bg-white rounded-lg border border-ink/15 px-2.5 py-2">
+                        <li key={f} className="flex items-center gap-2 text-sm text-ink/85 bg-white/75 rounded-xl border border-white/90 shadow-[0_2px_8px_rgba(140,50,80,0.08)] px-2.5 py-2">
                           <span className="font-pixel text-lg leading-none" style={{ color: `color-mix(in srgb, ${accent} 65%, #1a0f1f)` }}>
                             {String(i + 1).padStart(2, '0')}
                           </span>
@@ -333,11 +360,11 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                   <div>
                     <p className="font-pixel text-lg uppercase text-ink/70 mb-2">recorded with</p>
                     <div className="flex flex-wrap gap-2">
-                      {project.tech.map((t, i) => (
+                      {project.tech.map((t) => (
                         <span
                           key={t}
-                          className="font-pixel text-lg leading-none px-2.5 py-1 rounded-md border-2 border-ink bg-white shadow-[2px_2px_0_#1a0f1f]"
-                          style={{ rotate: `${((i * 7) % 5) - 2}deg` }}
+                          className="font-pixel text-lg leading-none px-2.5 py-1 rounded-full border bg-white/75"
+                          style={{ borderColor: `color-mix(in srgb, ${accent} 45%, #fff)` }}
                         >
                           {t}
                         </span>
@@ -346,25 +373,6 @@ export function MediaPlayer({ project, replayKey = 0, trackCount, isPlaying, onT
                   </div>
 
                   </div>
-
-                  {Showcase && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        retroAudio.playCassetteInsert();
-                        setShowcaseOpen(true);
-                      }}
-                      className="group w-full text-left y2k-lcd rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-3 sm:gap-4 border-2 border-ink"
-                      style={{ '--accent': accent } as React.CSSProperties}
-                    >
-                      <Disc accent={accent} spinning className="w-9 sm:w-12 shrink-0" />
-                      <span className="flex-1 min-w-0">
-                        <span className="block font-pixel text-lg sm:text-xl leading-none">BONUS TRACK ▸ full interactive showcase</span>
-                        <span className="block font-pixel text-base opacity-70 leading-tight mt-1">demos, videos, architecture &amp; lessons, in a full-screen window</span>
-                      </span>
-                      <span className="font-pixel text-2xl group-hover:translate-x-1 transition-transform">▶</span>
-                    </button>
-                  )}
 
                   <Marquee
                     items={[`now playing: ${project.title}`, ...project.colorLabels.map((c) => `colourway: ${c}`)]}

@@ -49,7 +49,7 @@ export function Handheld({
       aria-label={label}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-[380px] rounded-[28px] rounded-br-[64px] p-4 pb-6 border-[3px] border-ink bg-[linear-gradient(160deg,#ffd0e4,#ff8fbf)] shadow-[6px_8px_0_#1a0f1f]">
+      <div className="w-full max-w-[380px] lg:max-w-[500px] rounded-[28px] rounded-br-[64px] p-4 pb-6 border-[3px] border-ink bg-[linear-gradient(160deg,#ffd0e4,#ff8fbf)] shadow-[6px_8px_0_#1a0f1f]">
         <div className="flex items-center justify-between mb-2 px-1">
           <span className="font-pixel text-lg text-[#7a0044] tracking-widest">{brand}</span>
           <button

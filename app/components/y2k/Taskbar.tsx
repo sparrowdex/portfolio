@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useSyncExternalStore } from 'react';
+import { retroAudio, MUTE_EVENT } from '../../utils/retroAudio';
 import { PROFILE } from '../../data/profile';
 import { ChromeButton } from './ChromeButton';
-import { setViewMode, type ViewMode } from './viewMode';
 
 const LINKS = [
   ['#about', 'about'],
@@ -27,49 +27,34 @@ function Clock() {
   return <span className="font-pixel text-xl tabular-nums min-w-[4.5rem] text-right">{time}</span>;
 }
 
-/** Two-segment Fun / Recruiter switch, shared by both modes. */
-export function ModeSwitch({ mode, tone = 'y2k' }: { mode: ViewMode; tone?: 'y2k' | 'plain' }) {
-  const opts: [ViewMode, string][] = [
-    ['fun', '✦ fun'],
-    ['recruiter', '💼 recruiter'],
-  ];
-  if (tone === 'plain') {
-    return (
-      <div role="radiogroup" aria-label="View mode" className="inline-flex border border-black text-sm font-mono">
-        {opts.map(([m, label]) => (
-          <button
-            key={m}
-            role="radio"
-            aria-checked={mode === m}
-            onClick={() => setViewMode(m)}
-            className={`px-3 py-1 ${mode === m ? 'bg-black text-white' : 'bg-white text-black hover:bg-neutral-100'}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    );
-  }
+/** The speaker in the corner: click to mute or unmute every sound on the site (remembered). */
+function SoundToggle() {
+  const muted = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener(MUTE_EVENT, cb);
+      return () => window.removeEventListener(MUTE_EVENT, cb);
+    },
+    () => retroAudio.getMuted(),
+    () => false,
+  );
   return (
-    <div role="radiogroup" aria-label="View mode" className="inline-flex rounded-full border-2 border-ink/70 bg-white/70 p-0.5">
-      {opts.map(([m, label]) => (
-        <button
-          key={m}
-          role="radio"
-          aria-checked={mode === m}
-          onClick={() => setViewMode(m)}
-          className={`font-pixel text-base min-[400px]:text-lg leading-none whitespace-nowrap px-2 min-[400px]:px-2.5 sm:px-3 py-1 rounded-full transition-colors ${
-            mode === m ? 'bg-hotpink text-white' : 'text-ink/70 hover:text-ink'
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={() => {
+        const nowMuted = retroAudio.toggleMute();
+        if (!nowMuted) retroAudio.playNote(660, 0.4, 0.12);
+      }}
+      aria-pressed={muted}
+      aria-label={muted ? 'Turn sound on' : 'Mute sound'}
+      title={muted ? 'sound off · click to turn on' : 'sound on · click to mute'}
+      className="w-8 h-8 grid place-items-center rounded-md hover:bg-white border border-transparent hover:border-ink/30"
+    >
+      <span aria-hidden>{muted ? '🔇' : '🔊'}</span>
+    </button>
   );
 }
 
-export function Taskbar({ mode }: { mode: ViewMode }) {
+export function Taskbar() {
   return (
     <header
       className="sticky top-0 z-50 border-b-2 border-ink/70"
@@ -98,9 +83,11 @@ export function Taskbar({ mode }: { mode: ViewMode }) {
           </span>{' '}
           ↓
         </ChromeButton>
-        <ModeSwitch mode={mode} />
+        <ChromeButton href="/resume" size="sm" className="shrink-0 whitespace-nowrap">
+          💼 recruiter<span className="hidden sm:inline"> view</span>
+        </ChromeButton>
         <div className="hidden lg:flex items-center gap-2 pl-3 ml-1 border-l-2 border-ink/20 text-ink">
-          <span aria-hidden>🔊</span>
+          <SoundToggle />
           <Clock />
         </div>
       </div>

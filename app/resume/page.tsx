@@ -3,11 +3,14 @@ import React from 'react';
 import Link from 'next/link';
 import { RESUME } from '../data/resume';
 import { PROFILE } from '../data/profile';
+import { CloudSky } from '../components/y2k/CloudSky';
 import './resume.css';
 
+const PILL = 'y2k-gloss inline-flex items-center rounded-full font-pixel text-xl leading-none uppercase tracking-wide px-4 py-1.5';
+
 /**
- * Print-ready résumé, styled like the original Overleaf/LaTeX version.
- * It's also the source of the downloadable PDF: `npm run resume:pdf` prints this
+ * Print-ready résumé, styled like the original Overleaf/LaTeX version, and the
+ * site's recruiter view. On screen the sheet floats on a drifting pink sky. It's also the source of the downloadable PDF: `npm run resume:pdf` prints this
  * page to public/assets/Sreeja-Resume.pdf. Content lives in app/data/resume.ts.
  */
 
@@ -33,6 +36,9 @@ const L = ({ href, children }: { href: string; children: React.ReactNode }) => (
   </a>
 );
 
+/** Links are written out in full so they still work on a printed copy. */
+const show = (url: string) => url.replace(/^(mailto:|https?:\/\/(www\.)?)/, '').replace(/\/$/, '');
+
 const Row = ({ left, right }: { left: React.ReactNode; right: React.ReactNode }) => (
   <div className="rs-row">
     <span>{left}</span>
@@ -44,18 +50,25 @@ export default function ResumePage() {
   const r = RESUME;
   return (
     <div className="rs-screen">
+      {/* screen only: none of this reaches the printed PDF */}
+      <CloudSky />
+
       <div className="rs-toolbar">
-        <Link href="/">← back to the site</Link>
-        <a href={PROFILE.resumeUrl} download={PROFILE.resumeFileName} className="rs-download">
-          Download PDF ↓
+        <Link href="/" className={`${PILL} y2k-gloss-silver`}>
+          ← back to the site
+        </Link>
+        <a href={PROFILE.resumeUrl} download={PROFILE.resumeFileName} className={PILL} style={{ '--btn': '#ff2e93' } as React.CSSProperties}>
+          download pdf ↓
         </a>
       </div>
 
+      <div className="rs-sheet">
       <main className="rs-page">
         <header className="rs-head">
           <h1>{r.name.toUpperCase()}</h1>
           <p>
-            {r.location} | <L href={r.links.email}>Email</L> | <L href={r.links.linkedin}>LinkedIn</L> | <L href={r.links.github}>GitHub</L>
+            {r.location} | <L href={r.links.email}>{show(r.links.email)}</L> | <L href={r.links.linkedin}>{show(r.links.linkedin)}</L> |{' '}
+            <L href={r.links.github}>{show(r.links.github)}</L>
           </p>
         </header>
 
@@ -101,7 +114,7 @@ export default function ResumePage() {
                     {e.link && (
                       <>
                         {' '}
-                        | <L href={e.link}>Live Link</L>
+                        | <L href={e.link}>{show(e.link)}</L>
                       </>
                     )}
                   </>
@@ -127,7 +140,7 @@ export default function ResumePage() {
               <Row
                 left={
                   <>
-                    <strong>{p.name}</strong> | <L href={p.link}>Live Link</L>
+                    <strong>{p.name}</strong> | <L href={p.link}>{show(p.link)}</L>
                   </>
                 }
                 right={<em>{p.date}</em>}
@@ -154,7 +167,10 @@ export default function ResumePage() {
             ))}
           </ul>
         </section>
+
       </main>
+      </div>
+
     </div>
   );
 }

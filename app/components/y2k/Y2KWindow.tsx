@@ -7,6 +7,8 @@ interface Y2KWindowProps {
   icon?: string;
   /** Re-skins title bar, border and shadow. Defaults to the global hot pink. */
   accent?: string;
+  /** 'glass': frosted see-through panel with a soft shadow, for the world sections. */
+  variant?: 'classic' | 'glass';
   /** Drag by the title bar (pointer: fine devices only). */
   draggable?: boolean;
   className?: string;
@@ -25,6 +27,7 @@ export function Y2KWindow({
   title,
   icon = '✦',
   accent,
+  variant = 'classic',
   draggable = false,
   className = '',
   bodyClassName = 'p-4',
@@ -63,7 +66,7 @@ export function Y2KWindow({
 
   return (
     <div
-      className={`y2k-window overflow-hidden ${className}`}
+      className={`y2k-window ${variant === 'glass' ? 'is-glass' : ''} overflow-hidden ${className}`}
       style={{
         ...(accent ? ({ '--accent': accent } as React.CSSProperties) : {}),
         ...style,

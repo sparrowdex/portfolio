@@ -1,190 +1,50 @@
 'use client';
 
-import React, { useEffect, useState, useSyncExternalStore } from 'react';
-import { PROJECTS_DATA } from '../../data/projects';
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { PROFILE } from '../../data/profile';
+import { useBirthday } from '../../utils/birthday';
+import { PROJECTS_DATA } from '../../data/projects';
 import type { NowPlaying } from '../../utils/spotify';
 import { retroAudio } from '../../utils/retroAudio';
-import { OPEN_PHONE_EVENT, PLAY_PROJECT_EVENT } from '../RetroPhoneAssistant';
-import { Y2KWindow } from './Y2KWindow';
-import { openGame, isBerryUnlocked, subscribeBerryUnlock } from './arcade';
+import { OPEN_PHONE_EVENT } from '../RetroPhoneAssistant';
+import { openGame, isBerryUnlocked, subscribeBerryUnlock, markBerryUnlocked } from './arcade';
+import { OrigamiSwan, type SwanMode } from './OrigamiSwan';
+import { setMusicBoxOpen } from '../../utils/skyAmbience';
+import { SectionTitle } from './Decor';
+import { Laptop } from './Laptop';
+import { playLaptopOpen, playLaptopClose } from '../../utils/laptopSounds';
 
 /**
- * "SreejaSpace": a 2006-style social profile for the About section.
- * Visitors can re-skin it Quotev-style (theme / font / glitter name); their
- * choice is remembered in localStorage.
+ * About me: Sreeja's own bedazzled laptop, where she codes. Closed, it shows the silver
+ * lid with rhinestone swirls; open it and the screen is a code editor with the about-me
+ * notes as files (hello.md, now.json, wins.ts, fun.tsx, say-hi.sh, sreeja.jpg), while
+ * soft lo-fi music plays. A plain one-line summary sits underneath for quick readers.
+ * The origami swan version is kept behind ABOUT_STYLE.
  */
 
-/* ── Customisation ─────────────────────────────────────────────────── */
+// colours the small pieces below share
+const VARS = {
+  '--sp-border': 'rgba(255, 143, 216, 0.55)',
+  '--sp-head': '#ff5fb0',
+  '--sp-head-text': '#ffffff',
+  '--sp-muted': '#7a4a6a',
+  '--sp-link': '#c2006f',
+  '--sp-accent': '#ff2e93',
+} as React.CSSProperties;
 
-type ThemeId = 'bubblegum' | 'classic' | 'lilac' | 'emo';
-type FontId = 'default' | 'comic' | 'pixel';
-type Custom = { theme: ThemeId; font: FontId; glitter: boolean };
-
-const THEMES: Record<ThemeId, { label: string; swatch: string; vars: Record<string, string> }> = {
-  bubblegum: {
-    label: 'bubblegum',
-    swatch: '#ff5fb0',
-    vars: {
-      '--sp-page': 'repeating-conic-gradient(#ffe1f1 0 25%, #ffd0ea 0 50%) 0 0 / 26px 26px',
-      '--sp-head': '#ff5fb0',
-      '--sp-head-text': '#ffffff',
-      '--sp-panel': '#fff7fc',
-      '--sp-text': '#1a0f1f',
-      '--sp-muted': '#7a4a6a',
-      '--sp-link': '#c2006f',
-      '--sp-accent': '#ff2e93',
-      '--sp-border': '#ff5fb0',
-    },
-  },
-  classic: {
-    label: 'classic blue',
-    swatch: '#6699cc',
-    vars: {
-      '--sp-page': '#e5ecf7',
-      '--sp-head': '#6699cc',
-      '--sp-head-text': '#ffffff',
-      '--sp-panel': '#ffffff',
-      '--sp-text': '#000000',
-      '--sp-muted': '#555555',
-      '--sp-link': '#003399',
-      '--sp-accent': '#ff6600',
-      '--sp-border': '#6699cc',
-    },
-  },
-  lilac: {
-    label: 'lilac dream',
-    swatch: '#9b6bff',
-    vars: {
-      '--sp-page': 'radial-gradient(#c9a7ff 1.5px, transparent 1.7px) 0 0 / 16px 16px, #f3ecff',
-      '--sp-head': '#9b6bff',
-      '--sp-head-text': '#ffffff',
-      '--sp-panel': '#fbf8ff',
-      '--sp-text': '#24123f',
-      '--sp-muted': '#6b5a8a',
-      '--sp-link': '#6a2cff',
-      '--sp-accent': '#7a3cff',
-      '--sp-border': '#9b6bff',
-    },
-  },
-  emo: {
-    label: 'emo night',
-    swatch: '#1a0f1f',
-    vars: {
-      '--sp-page': 'repeating-linear-gradient(45deg, #1a0f1f 0 12px, #241626 12px 24px)',
-      '--sp-head': '#000000',
-      '--sp-head-text': '#ff8fd8',
-      '--sp-panel': '#1f1420',
-      '--sp-text': '#ffd6ee',
-      '--sp-muted': '#c79ab8',
-      '--sp-link': '#ff5fb0',
-      '--sp-accent': '#ff2e93',
-      '--sp-border': '#ff2e93',
-    },
-  },
-};
-
-const FONTS: Record<FontId, { label: string; family?: string; size?: string }> = {
-  default: { label: 'normal' },
-  comic: { label: 'comic sans', family: '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive' },
-  pixel: { label: 'pixel', family: 'var(--font-vt323), "Courier New", monospace', size: '1.18em' },
-};
-
-const KEY = 'sreejaspace_custom';
-const DEFAULT: Custom = { theme: 'bubblegum', font: 'default', glitter: true };
-const listeners = new Set<() => void>();
-let cache: { raw: string | null; value: Custom } = { raw: null, value: DEFAULT };
-
-function readCustom(): Custom {
-  let raw: string | null = null;
-  try {
-    raw = localStorage.getItem(KEY);
-  } catch {
-    /* storage blocked */
-  }
-  if (raw !== cache.raw) {
-    try {
-      cache = { raw, value: { ...DEFAULT, ...(raw ? JSON.parse(raw) : {}) } };
-    } catch {
-      cache = { raw, value: DEFAULT };
-    }
-  }
-  return cache.value;
-}
-function writeCustom(next: Custom) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    cache = { raw: JSON.stringify(next), value: next };
-  }
-  listeners.forEach((l) => l());
-}
-const subscribe = (cb: () => void) => {
-  listeners.add(cb);
-  return () => {
-    listeners.delete(cb);
-  };
-};
-
-/* ── Content ───────────────────────────────────────────────────────── */
-
-const DETAILS: [string, string][] = [
-  ['Status', 'Building things ✦'],
-  ['Here for', 'Collabs, cool projects, good people'],
-  ['Hometown', 'New Delhi, India'],
-  ['Education', "B.Tech CSE @ SRM IST ('23–'27) · CGPA 9.05"],
-  ['Occupation', 'Co-Founder & CTO @ The Diecast Store · Founder @ Inner Voice'],
+const WINS = [
+  { t: 'Top 10 of 107', d: 'Girls Leading Tech hackathon, built in 4 hours' },
+  { t: 'IBM Data Science', d: 'Professional Certificate' },
+  { t: 'NPTEL', d: 'Natural Language Processing' },
+  { t: 'Mentor', d: 'taught 20+ girls to code' },
 ];
 
-const INTERESTS: [string, string][] = [
-  ['General', 'creative coding, hiding tiny surprises, mental-health tech'],
-  ['Code', 'WebGL & shaders, mic-reactive toys, Web Audio'],
-  ['Design', 'UI/UX, designing in Canva, e-commerce that feels premium'],
-  ['Music', "whatever's playing on my profile song ♫"],
-];
-
-const AWARDS = [
-  { icon: '🏆', t: 'Top 10 / 107', d: 'Girls Leading Tech Hackathon' },
-  { icon: '🎓', t: 'IBM Data Science', d: 'Professional Certificate' },
-  { icon: '📜', t: 'NPTEL', d: 'Natural Language Processing' },
-  { icon: '💗', t: 'Mentor', d: '20+ girls taught to code' },
-];
-
-/* ── Pieces ────────────────────────────────────────────────────────── */
-
-function Box({ title, children, className = '' }: { title: React.ReactNode; children: React.ReactNode; className?: string }) {
-  return (
-    <section className={`border-2 ${className}`} style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}>
-      <h4 className="px-3 py-1 font-bold text-[0.95em]" style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)' }}>
-        {title}
-      </h4>
-      <div className="p-3">{children}</div>
-    </section>
-  );
-}
-
-function Table({ rows }: { rows: [string, string][] }) {
-  return (
-    <table className="w-full text-[0.92em] border-separate border-spacing-y-1">
-      <tbody>
-        {rows.map(([k, v]) => (
-          <tr key={k}>
-            <th
-              scope="row"
-              className="text-left align-top font-bold pr-2 py-1 px-2 w-[34%]"
-              style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', opacity: 0.85 }}
-            >
-              {k}:
-            </th>
-            <td className="align-top py-1 px-2" style={{ background: 'color-mix(in srgb, var(--sp-head) 12%, var(--sp-panel))' }}>
-              {v}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+/** A highlighter swipe over a few words. */
+const Hl = ({ children, c = '#fff27a' }: { children: React.ReactNode; c?: string }) => (
+  <mark className="nb-hl" style={{ '--hl': c } as React.CSSProperties}>
+    {children}
+  </mark>
+);
 
 function ProfileSong() {
   const [song, setSong] = useState<NowPlaying | null>(null);
@@ -221,27 +81,16 @@ function ProfileSong() {
     );
   }
   return (
-    <div className="flex items-center gap-3 p-2 rounded border" style={{ borderColor: 'var(--sp-border)' }}>
-      {has && song.albumArt ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={song.albumArt} alt="" className="w-11 h-11 rounded object-cover shrink-0" />
-      ) : (
-        <span className="w-11 h-11 rounded grid place-items-center text-xl shrink-0" style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)' }}>
-          ♫
-        </span>
-      )}
-      <div className="min-w-0 flex-1 text-[0.9em] leading-tight">
-        {has ? (
-          <>
-            <p className="font-bold truncate">{song.title}</p>
-            <p className="truncate" style={{ color: 'var(--sp-muted)' }}>
-              {song.artist}
-            </p>
-          </>
-        ) : (
-          <p style={{ color: 'var(--sp-muted)' }}>no profile song set (yet) ♡</p>
-        )}
-      </div>
+    <div className="nb-cassette">
+      <span className="nb-cassette-label">
+        <span className="block font-pixel text-sm leading-none text-ink/60">side A · now playing</span>
+        <span className="block truncate font-bold leading-tight">{has ? song.title : 'no song yet ♡'}</span>
+        {has && <span className="block truncate text-[0.85em] text-ink/65">{song.artist}</span>}
+      </span>
+      <span className="nb-reels" aria-hidden>
+        <span />
+        <span />
+      </span>
       {has && trackId && (
         <button
           type="button"
@@ -251,8 +100,7 @@ function ProfileSong() {
           }}
           aria-label={`Play ${song.title} here`}
           title="play it right here"
-          className="w-8 h-8 rounded-full grid place-items-center text-sm shrink-0 text-white"
-          style={{ background: 'var(--sp-accent)' }}
+          className="absolute -right-2 -top-2 w-8 h-8 rounded-full grid place-items-center text-sm text-white bg-[#ff2e93] shadow-md"
         >
           ▶
         </button>
@@ -272,16 +120,27 @@ const BLOCK_MESSAGES = [
   'ok fine, blocked. (just kidding, refresh and see) ✦',
 ];
 
-function ContactBox({ toast }: { toast: (msg: string) => void }) {
+function FriendActions({ toast }: { toast: (msg: string) => void }) {
   const [blockCount, setBlockCount] = useState(0);
   const actions: { icon: string; label: string; onClick: () => void }[] = [
-    { icon: '✉', label: 'Send Message', onClick: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) },
-    { icon: '➕', label: 'Add to Friends', onClick: () => window.open(PROFILE.links.linkedin, '_blank', 'noopener') },
-    { icon: '💬', label: 'Instant Message', onClick: () => window.dispatchEvent(new Event(OPEN_PHONE_EVENT)) },
-    { icon: '👥', label: 'Add to Group', onClick: () => window.open(PROFILE.links.github, '_blank', 'noopener') },
+    {
+      icon: '✉',
+      label: 'Message',
+      onClick: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }),
+    },
+    {
+      icon: '➕',
+      label: 'Add friend',
+      onClick: () => window.open(PROFILE.links.linkedin, '_blank', 'noopener'),
+    },
+    {
+      icon: '💬',
+      label: 'IM',
+      onClick: () => window.dispatchEvent(new Event(OPEN_PHONE_EVENT)),
+    },
     {
       icon: '↪',
-      label: 'Forward to Friend',
+      label: 'Share',
       onClick: () => {
         navigator.clipboard?.writeText(window.location.origin).then(
           () => toast('profile link copied ✦ send it to your bestie'),
@@ -291,7 +150,7 @@ function ContactBox({ toast }: { toast: (msg: string) => void }) {
     },
     {
       icon: '⛔',
-      label: 'Block User',
+      label: 'Block',
       onClick: () => {
         toast(BLOCK_MESSAGES[blockCount % BLOCK_MESSAGES.length]);
         setBlockCount((c) => c + 1);
@@ -299,204 +158,1136 @@ function ContactBox({ toast }: { toast: (msg: string) => void }) {
     },
   ];
   return (
-    <Box title="Contacting Sreeja">
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[0.92em]">
-        {actions.map((a) => (
+    <p className="nb-hand text-[22px] leading-tight text-[#c2006f]">
+      {actions.map((a, i) => (
+        <React.Fragment key={a.label}>
+          {i > 0 && <span className="text-ink/30"> · </span>}
           <button
-            key={a.label}
             type="button"
             onClick={() => {
               retroAudio.playHover();
               a.onClick();
             }}
-            className="flex items-center gap-1.5 text-left hover:underline"
-            style={{ color: 'var(--sp-link)' }}
+            className="underline decoration-wavy decoration-[#ff8fd8] underline-offset-4 hover:text-ink"
           >
-            <span aria-hidden className="w-5 text-center">
-              {a.icon}
-            </span>
-            {a.label}
+            {a.label.toLowerCase()}
+            {a.label === 'Block' ? ' (try it)' : ''}
           </button>
-        ))}
-      </div>
-    </Box>
+        </React.Fragment>
+      ))}
+    </p>
   );
 }
 
-function TopFriends() {
-  return (
-    <Box title={<>Sreeja&apos;s Friend Space · <span className="font-normal">Sreeja has {PROJECTS_DATA.length} friends (projects)</span></>}>
-      <p className="text-[0.85em] mb-2" style={{ color: 'var(--sp-muted)' }}>
-        Sreeja&apos;s Top 8 · click one to play it in the disc player
-      </p>
-      <div className="grid grid-cols-4 2xl:grid-cols-8 gap-2 sm:gap-3">
-        {PROJECTS_DATA.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => {
-              retroAudio.playCassetteInsert();
-              window.dispatchEvent(new CustomEvent(PLAY_PROJECT_EVENT, { detail: p.id }));
-            }}
-            className="group flex flex-col items-center gap-1 text-center"
-          >
-            <span
-              className="w-full aspect-square rounded border-2 overflow-hidden grid place-items-center transition-transform group-hover:-translate-y-0.5"
-              style={{ borderColor: 'var(--sp-border)', background: p.logo ? (p.logoBg ?? '#fff') : p.colors[0] }}
-            >
-              {p.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.logo} alt="" className="w-3/4 h-3/4 object-contain" />
-              ) : (
-                <span className="font-bubble text-2xl text-white">{p.title[0]}</span>
-              )}
-            </span>
-            <span className="text-[0.72em] leading-tight font-bold group-hover:underline line-clamp-2" style={{ color: 'var(--sp-link)' }}>
-              {p.title.split(':')[0]}
-            </span>
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-          className="group flex flex-col items-center gap-1 text-center"
-        >
-          <span
-            className="w-full aspect-square rounded border-2 border-dashed grid place-items-center text-2xl"
-            style={{ borderColor: 'var(--sp-border)', color: 'var(--sp-muted)' }}
-          >
-            ?
-          </span>
-          <span className="text-[0.72em] leading-tight font-bold group-hover:underline" style={{ color: 'var(--sp-link)' }}>
-            your project here?
-          </span>
-        </button>
-      </div>
-    </Box>
-  );
-}
-
-function Customizer({ custom }: { custom: Custom }) {
-  const set = (patch: Partial<Custom>) => {
-    retroAudio.playHover();
-    writeCustom({ ...custom, ...patch });
-  };
-  return (
-    <div className="font-pixel text-lg text-ink bg-white border-2 border-ink rounded-xl shadow-[3px_3px_0_#1a0f1f] p-3 space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-16">theme:</span>
-        {(Object.keys(THEMES) as ThemeId[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => set({ theme: id })}
-            aria-pressed={custom.theme === id}
-            title={THEMES[id].label}
-            className={`flex items-center gap-1.5 px-2 rounded-full border-2 ${custom.theme === id ? 'border-ink bg-babypink' : 'border-transparent hover:border-ink/30'}`}
-          >
-            <span className="w-4 h-4 rounded-full border border-ink/40" style={{ background: THEMES[id].swatch }} />
-            {THEMES[id].label}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-16">font:</span>
-        {(Object.keys(FONTS) as FontId[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => set({ font: id })}
-            aria-pressed={custom.font === id}
-            className={`px-2 rounded-full border-2 ${custom.font === id ? 'border-ink bg-babypink' : 'border-transparent hover:border-ink/30'}`}
-            style={{ fontFamily: FONTS[id].family }}
-          >
-            {FONTS[id].label}
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-16">extras:</span>
-        <label className="flex items-center gap-1.5 cursor-pointer">
-          <input type="checkbox" checked={custom.glitter} onChange={(e) => set({ glitter: e.target.checked })} className="accent-hotpink" />
-          glitter name
-        </label>
-        <button type="button" onClick={() => set(DEFAULT)} className="ml-auto underline text-ink/60 hover:text-ink">
-          reset
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* Sreeja's Arcade: one game to play, one to find (Berry Basket unlocks once discovered). */
+/* One game to play, one to find (Berry Basket unlocks once discovered). */
 function Arcade() {
   const berry = useSyncExternalStore(subscribeBerryUnlock, isBerryUnlocked, () => false);
   const play = (id: 'berry' | 'stack') => {
     retroAudio.playCassetteInsert();
     openGame(id);
   };
-  const row = 'flex items-center gap-3 border rounded px-2.5 py-2';
-  const btn = 'shrink-0 font-bold text-[0.85em] px-2.5 py-1 rounded-full border-2 hover:brightness-110 active:translate-y-px';
   return (
-    <Box title="🕹️ Sreeja's Arcade">
-      <div className="space-y-2 text-[0.9em]">
-        <div className={row} style={{ borderColor: 'var(--sp-border)' }}>
-          <span className="text-2xl" aria-hidden>💿</span>
-          <div className="flex-1 min-w-0 leading-tight">
-            <p className="font-bold">Disc Stacker</p>
-            <p style={{ color: 'var(--sp-muted)' }}>tap to stack CD cases. how high can you go?</p>
-          </div>
-          <button type="button" onClick={() => play('stack')} className={btn} style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', borderColor: 'var(--sp-border)' }}>
-            ▶ play
-          </button>
-        </div>
-        {berry ? (
-          <div className={row} style={{ borderColor: 'var(--sp-border)' }}>
-            <span className="text-2xl" aria-hidden>🍓</span>
-            <div className="flex-1 min-w-0 leading-tight">
-              <p className="font-bold">Berry Basket <span className="font-normal" style={{ color: 'var(--sp-accent)' }}>✦ found it!</span></p>
-              <p style={{ color: 'var(--sp-muted)' }}>catch berries, dodge beetles</p>
-            </div>
-            <button type="button" onClick={() => play('berry')} className={btn} style={{ background: 'var(--sp-head)', color: 'var(--sp-head-text)', borderColor: 'var(--sp-border)' }}>
-              ▶ play
-            </button>
-          </div>
-        ) : (
-          <div className={`${row} border-dashed`} style={{ borderColor: 'var(--sp-border)' }}>
-            <span className="text-2xl grayscale opacity-60" aria-hidden>🔒</span>
-            <div className="flex-1 min-w-0 leading-tight">
-              <p className="font-bold">??? <span className="font-normal" style={{ color: 'var(--sp-muted)' }}>· secret cartridge</span></p>
-              <p style={{ color: 'var(--sp-muted)' }}>psst… the pink banner up top is ticklish 🍓</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </Box>
+    <div className="flex gap-3">
+      <button type="button" onClick={() => play('stack')} className="nb-cart" style={{ '--cart': '#8fd3ff' } as React.CSSProperties}>
+        <span className="nb-cart-label">
+          <span aria-hidden className="text-xl">
+            💿
+          </span>
+          <b>Disc Stacker</b>
+          <span>▶ play</span>
+        </span>
+      </button>
+      {berry ? (
+        <button type="button" onClick={() => play('berry')} className="nb-cart" style={{ '--cart': '#ff9cc6' } as React.CSSProperties}>
+          <span className="nb-cart-label">
+            <span aria-hidden className="text-xl">
+              🍓
+            </span>
+            <b>Berry Basket</b>
+            <span>found it! ▶</span>
+          </span>
+        </button>
+      ) : (
+        <span className="nb-cart is-locked" title="psst… the pink banner up top is ticklish" style={{ '--cart': '#d9cfd8' } as React.CSSProperties}>
+          <span className="nb-cart-label">
+            <span aria-hidden className="text-xl">
+              🔒
+            </span>
+            <b>???</b>
+            <span>secret</span>
+          </span>
+        </span>
+      )}
+    </div>
   );
 }
 
-/* ── Profile ───────────────────────────────────────────────────────── */
+/* ── the origami swan ── */
 
-// Phones/tablets: one section at a time behind these tabs (laptops show everything).
-const TABS = [
-  ['blurbs', 'Blurbs'],
-  ['details', 'Details'],
-  ['song', 'Song'],
-  ['friends', 'Friends'],
-  ['arcade', 'Arcade'],
-  ['awards', 'Awards'],
-  ['contact', 'Contact'],
-] as const;
-type TabId = (typeof TABS)[number][0];
+const UNFOLD_URL = '/audio/unfolding_paper.mp3';
+
+type Stage = 'away' | 'flying' | 'perched' | 'unfolding' | 'open' | 'folding';
+
+let unfoldBuf: Promise<AudioBuffer | null> | null = null;
+/** Your recorded paper-unfolding sound, through the site's output (so mute covers it). */
+function playUnfoldSound(reverse = false) {
+  const io = retroAudio.getOutput();
+  if (!io) return;
+  const { ctx, out } = io;
+  unfoldBuf ??= fetch(UNFOLD_URL)
+    .then((r) => r.arrayBuffer())
+    .then((b) => ctx.decodeAudioData(b))
+    .catch(() => null);
+  unfoldBuf.then((buf) => {
+    if (!buf) return;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    if (reverse) src.playbackRate.value = 1.6; // folding back up is quicker
+    const g = ctx.createGain();
+    g.gain.value = 0.8;
+    src.connect(g).connect(out);
+    src.start();
+  });
+}
+
+/** Which About-me presentation to show: the laptop, or the origami swan (kept for comparison). */
+const ABOUT_STYLE: 'laptop' | 'swan' = 'laptop';
+
+/* ── the code editor on the laptop's screen ── */
+
+// tiny syntax-highlighting pieces
+const Kw = ({ children }: { children: React.ReactNode }) => <span className="ed-kw">{children}</span>;
+const Key = ({ children }: { children: React.ReactNode }) => <span className="ed-key">{children}</span>;
+const Str = ({ children }: { children: React.ReactNode }) => <span className="ed-str">{children}</span>;
+const Num = ({ children }: { children: React.ReactNode }) => <span className="ed-num">{children}</span>;
+const Com = ({ children }: { children: React.ReactNode }) => <span className="ed-com">{children}</span>;
+const Hd = ({ children }: { children: React.ReactNode }) => <span className="ed-hd">{children}</span>;
+
+type EdFile = { name: string; icon: string; lines?: React.ReactNode[] };
+
+const FILES: EdFile[] = [
+  {
+    name: 'hello.md',
+    icon: '✿',
+    lines: [
+      <Hd key="h"># hi, i&apos;m Sreeja ✿</Hd>,
+      '',
+      'I fell for computer science through creative coding,',
+      'and I still build things that reward curiosity:',
+      '- a photobooth that prints strips',
+      '- a snow globe you blow on',
+      '- a garden of 3D flowers for my friends',
+      '',
+      <>
+        These days most of my time goes into <b className="ed-bold">**The Diecast Store**</b>,
+      </>,
+      <>
+        which I built as a freelancer and now help run as <b className="ed-bold">**co-founder &amp; CTO**</b>.
+      </>,
+    ],
+  },
+  {
+    name: 'now.json',
+    icon: '{}',
+    lines: [
+      '{',
+      <>
+        {'  '}
+        <Key>&quot;building&quot;</Key>: <Str>&quot;The Diecast Store (Co-Founder &amp; CTO)&quot;</Str>,
+      </>,
+      <>
+        {'  '}
+        <Key>&quot;studying&quot;</Key>: <Str>&quot;B.Tech CSE @ SRM, class of &apos;27&quot;</Str>,
+      </>,
+      <>
+        {'  '}
+        <Key>&quot;cgpa&quot;</Key>: <Num>9.05</Num>,
+      </>,
+      <>
+        {'  '}
+        <Key>&quot;openTo&quot;</Key>: [<Str>&quot;freelance&quot;</Str>, <Str>&quot;remote&quot;</Str>, <Str>&quot;flexible roles&quot;</Str>],
+      </>,
+      <>
+        {'  '}
+        <Key>&quot;basedIn&quot;</Key>: <Str>&quot;New Delhi, India&quot;</Str>,
+      </>,
+      <>
+        {'  '}
+        <Key>&quot;into&quot;</Key>: [<Str>&quot;WebGL toys&quot;</Str>, <Str>&quot;Web Audio&quot;</Str>, <Str>&quot;mental-health tech&quot;</Str>]
+      </>,
+      '}',
+    ],
+  },
+  {
+    name: 'wins.ts',
+    icon: 'TS',
+    lines: [
+      <Com key="c">{'// little wins so far ✦'}</Com>,
+      <>
+        <Kw>export const</Kw> wins = [
+      </>,
+      ...WINS.map((w) => (
+        <>
+          {'  '}
+          {'{ '}
+          <Key>title</Key>: <Str>&quot;{w.t}&quot;</Str>, <Key>note</Key>: <Str>&quot;{w.d}&quot;</Str>
+          {' },'}
+        </>
+      )),
+      '];',
+    ],
+  },
+  { name: 'fun.tsx', icon: '♫' },
+  { name: 'say-hi.sh', icon: '$' },
+  { name: 'sreeja.jpg', icon: '▣' },
+];
+
+/* ── the terminal at the bottom of the editor: type on the laptop's keyboard or your own ── */
+
+const QUIZ_WIN_EVENT = 'about-quiz-win';
+
+/* her birthday cake: blown out once per visit */
+const CAKE_KEY = 'birthday_cake_blown';
+// "happy birthday", as [note, beats]
+const BIRTHDAY_TUNE: [number, number][] = [
+  [392, 0.75],
+  [392, 0.25],
+  [440, 1],
+  [392, 1],
+  [523, 1],
+  [494, 2],
+  [392, 0.75],
+  [392, 0.25],
+  [440, 1],
+  [392, 1],
+  [587, 1],
+  [523, 2],
+  [392, 0.75],
+  [392, 0.25],
+  [784, 1],
+  [659, 1],
+  [523, 1],
+  [494, 1],
+  [440, 2],
+  [698, 0.75],
+  [698, 0.25],
+  [659, 1],
+  [523, 1],
+  [587, 1],
+  [523, 3],
+];
+const BEAT = 0.36;
+const BIRTHDAY_TUNE_MS = BIRTHDAY_TUNE.reduce((t, [, b]) => t + b, 0) * BEAT * 1000;
+/** Play the tune like a little music box, after `delay` ms; returns a stop function. */
+function playBirthdayTune(delay = 0) {
+  const timers: number[] = [];
+  let at = delay;
+  for (const [f, b] of BIRTHDAY_TUNE) {
+    timers.push(window.setTimeout(() => retroAudio.playNote(f, 0.22, Math.min(0.9, b * BEAT * 1.4)), at));
+    at += b * BEAT * 1000;
+  }
+  return () => timers.forEach(clearTimeout);
+}
+
+/** Confetti of hearts and sparkles, falling across the page for a few seconds. */
+const CONFETTI = Array.from({ length: 44 }, (_, i) => ({
+  left: (i * 37) % 100,
+  delay: ((i * 13) % 20) / 10,
+  dur: 2.4 + ((i * 7) % 10) / 6,
+  glyph: ['♡', '✦', '💗', '✿', '✧'][i % 5],
+  color: ['#ff5fa2', '#ffd27a', '#c9a7ff', '#7fe3ff', '#ff8fc4'][i % 5],
+  drift: ((i * 29) % 60) - 30,
+}));
+function Confetti() {
+  return (
+    <div className="qz-confetti" aria-hidden>
+      {CONFETTI.map((c, i) => (
+        <span
+          key={i}
+          style={
+            {
+              left: `${c.left}%`,
+              color: c.color,
+              animationDelay: `${c.delay}s`,
+              animationDuration: `${c.dur}s`,
+              '--drift': `${c.drift}px`,
+            } as React.CSSProperties
+          }
+        >
+          {c.glyph}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+type TermLine = { t: string; kind?: 'in' | 'ok' | 'err' | 'dim' | 'hi' };
+
+// a little quiz about Sreeja; every answer is something true on this site
+const QUIZ: { q: string; ok: (a: string) => boolean; yes: string }[] = [
+  {
+    q: "what's my favourite command to run?",
+    ok: (a) => /npm\s+run\s+dev/.test(a),
+    yes: 'npm run dev, every single time ♡',
+  },
+  {
+    q: 'which store am I co-founder & CTO of?',
+    ok: (a) => /diecast/.test(a),
+    yes: 'The Diecast Store 🏎️',
+  },
+  {
+    q: 'which of my projects placed top 10 of 107?',
+    ok: (a) => /snow|globe|timeless|christmas/.test(a),
+    yes: 'Timeless, the snow globe you blow on ❄',
+  },
+  { q: "what's my CGPA?", ok: (a) => /9\.?05/.test(a), yes: '9.05 ✦' },
+];
+
+const HELP: TermLine[] = [
+  { t: 'commands:', kind: 'dim' },
+  { t: '  whoami      who is this', kind: 'dim' },
+  { t: '  projects    what I have built', kind: 'dim' },
+  { t: '  skills      what I work with', kind: 'dim' },
+  { t: '  contact     how to reach me', kind: 'dim' },
+  { t: '  quiz        how well do you know me?', kind: 'dim' },
+  { t: '  clear       start over', kind: 'dim' },
+];
+
+function respond(cmd: string): TermLine[] | 'clear' | 'quiz' | 'resume' {
+  const c = cmd.trim().toLowerCase();
+  if (!c) return [];
+  if (c === 'help' || c === '?') return HELP;
+  if (c === 'clear' || c === 'cls') return 'clear';
+  if (c === 'quiz') return 'quiz';
+  if (c === 'resume' || c === 'cv') return 'resume';
+  if (c === 'whoami')
+    return [
+      {
+        t: "Sreeja Das · Co-Founder & CTO @ The Diecast Store · B.Tech CSE '27 · New Delhi",
+        kind: 'ok',
+      },
+    ];
+  if (c === 'projects' || c === 'ls')
+    return PROJECTS_DATA.map((p) => ({
+      t: `  ${p.title.split(':')[0]}${p.pitch ? `  — ${p.pitch}` : ''}`,
+    }));
+  if (c === 'skills')
+    return [
+      {
+        t: 'Next.js · React · TypeScript · Three.js · R3F · GLSL · Node · Postgres · Prisma · Firebase · Web Audio',
+        kind: 'ok',
+      },
+    ];
+  if (c === 'contact' || c === 'email')
+    return [
+      {
+        t: `${PROFILE.email} · linkedin.com/in/sreeja-das · github.com/sparrowdex`,
+        kind: 'ok',
+      },
+    ];
+  if (/^npm\s+run\s+dev/.test(c))
+    return [
+      { t: '▲ ready on http://localhost:3000', kind: 'ok' },
+      { t: 'my favourite command, how did you know? ♡', kind: 'hi' },
+    ];
+  if (/^(sudo|rm|del|format)\b/.test(c)) return [{ t: 'nice try ✿', kind: 'err' }];
+  if (c === 'dir') return PROJECTS_DATA.map((p) => ({ t: `  ${p.title.split(':')[0]}` }));
+  if (c === 'hi' || c === 'hello' || c === 'hey') return [{ t: 'hiii ✦ type help to look around', kind: 'hi' }];
+  return [{ t: `command not found: ${c} · try help`, kind: 'err' }];
+}
+
+/** Everything the editor remembers, kept above it so it survives moving to the up-close view. */
+type EdState = {
+  active: string;
+  lines: TermLine[];
+  input: string;
+  quiz: { i: number; score: number } | null;
+  history: string[];
+  histPos: number;
+  candlesOut: boolean;
+};
+const BIRTHDAY_FILE: EdFile = { name: 'birthday.md', icon: '🎂' };
+
+/**
+ * Listen to the mic for a while; a breath into it calls `onBlow`. Blowing on a mic is a
+ * low rumble, so this watches the lowest frequencies rather than overall loudness. The
+ * AudioContext is made (and resumed) right in the click, before the permission prompt,
+ * or the browser starts it paused and it only ever hears silence. The browser's own noise
+ * suppression is off too, since it scrubs out exactly that sound.
+ */
+function useBlow(onBlow: () => void) {
+  const [listening, setListening] = useState(false);
+  const cb = useRef(onBlow);
+  useEffect(() => {
+    cb.current = onBlow;
+  });
+  const listen = async () => {
+    if (listening) return;
+    const ctx = new AudioContext();
+    ctx.resume().catch(() => {});
+    setListening(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      });
+      if (ctx.state !== 'running') await ctx.resume();
+      const an = ctx.createAnalyser();
+      an.fftSize = 512;
+      an.smoothingTimeConstant = 0.3;
+      ctx.createMediaStreamSource(stream).connect(an);
+      const bins = new Uint8Array(an.frequencyBinCount);
+      const started = performance.now();
+      let loud = 0;
+      const stopAll = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        ctx.close();
+        setListening(false);
+      };
+      const check = () => {
+        an.getByteFrequencyData(bins);
+        // the bottom ~1kHz, where the rush of breath on the mic lands
+        let low = 0;
+        for (let i = 0; i < 12; i++) low += bins[i];
+        low /= 12;
+        loud = low > 150 ? loud + 1 : Math.max(0, loud - 1);
+        if (loud >= 6) {
+          cb.current();
+          return stopAll();
+        }
+        if (performance.now() - started > 15000) return stopAll();
+        requestAnimationFrame(check);
+      };
+      check();
+    } catch {
+      ctx.close();
+      setListening(false);
+    }
+  };
+  return { listening, listen };
+}
+
+/** A cake with five candles; blow them out by typing `blow`, or by blowing into the mic. */
+function BirthdayCake({ store }: { store: EdStore }) {
+  const out = store.st.candlesOut;
+  const blowOut = () => {
+    if (store.st.candlesOut) return;
+    retroAudio.playBell();
+    store.set({
+      ...store.st,
+      candlesOut: true,
+      lines: [...store.st.lines, { t: '🎂 *whoosh* you blew them out! make a wish ✦', kind: 'hi' }],
+    });
+  };
+  const blowRef = useRef(blowOut);
+  useEffect(() => {
+    blowRef.current = blowOut;
+  });
+  const { listening, listen: useMic } = useBlow(() => blowRef.current());
+  return (
+    <div className="bd-file">
+      <p className="ed-hd"># it&apos;s my birthday today 🎂</p>
+      <p className="ed-com">{'// 4 December. thanks for stopping by ♡'}</p>
+      <div
+        className={`bd-cake ${out ? 'is-out' : ''}`}
+        aria-label={out ? 'a birthday cake, candles blown out' : 'a birthday cake with five lit candles'}
+        role="img"
+      >
+        <div className="bd-candles">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span key={i} className="bd-candle" style={{ '--i': i } as React.CSSProperties}>
+              <i className="bd-flame" />
+              <i className="bd-smoke" />
+            </span>
+          ))}
+        </div>
+        <div className="bd-tier is-top" />
+        <div className="bd-tier is-bottom" />
+        <div className="bd-plate" />
+      </div>
+      {out ? (
+        <p className="ed-str">make a wish ✦ (type relight to try again)</p>
+      ) : (
+        <p>
+          type <span className="ed-key">blow</span> in the terminal, or{' '}
+          <button type="button" className="ed-zoom" onClick={useMic}>
+            {listening ? '🎤 listening… blow!' : '🎤 blow into your mic'}
+          </button>
+        </p>
+      )}
+    </div>
+  );
+}
+
+const ED_START: EdState = {
+  active: 'hello.md',
+  lines: [
+    {
+      t: 'just start typing, or tap my keys ✦  try help · psst… try quiz',
+      kind: 'dim',
+    },
+  ],
+  input: '',
+  quiz: null,
+  history: [],
+  histPos: -1,
+  candlesOut: false,
+};
+type EdStore = {
+  st: EdState;
+  set: React.Dispatch<React.SetStateAction<EdState>>;
+};
+
+/** Run one line typed into the terminal; returns the new state (pure, so it can't run twice by accident). */
+function runLine(st: EdState, raw: string): EdState {
+  const echo: TermLine = { t: `${st.quiz ? '?' : '$'} ${raw}`, kind: 'in' };
+  const history = raw.trim() ? [...st.history, raw].slice(-30) : st.history;
+  const base = { ...st, input: '', history, histPos: -1 };
+  if (st.quiz) {
+    const q = QUIZ[st.quiz.i];
+    const right = q.ok(raw.trim().toLowerCase());
+    const score = st.quiz.score + (right ? 1 : 0);
+    const out: TermLine[] = [echo, right ? { t: `✓ ${q.yes}`, kind: 'ok' } : { t: `✗ it's ${q.yes}`, kind: 'err' }];
+    if (st.quiz.i + 1 < QUIZ.length) {
+      out.push({
+        t: `${st.quiz.i + 2}/${QUIZ.length} · ${QUIZ[st.quiz.i + 1].q}`,
+        kind: 'hi',
+      });
+      return {
+        ...base,
+        lines: [...st.lines, ...out],
+        quiz: { i: st.quiz.i + 1, score },
+      };
+    }
+    out.push({
+      t:
+        score === QUIZ.length
+          ? `${score}/${QUIZ.length}! you know me so well ✦`
+          : `${score}/${QUIZ.length} · now you know me a little better ♡ (type quiz to try again)`,
+      kind: 'hi',
+    });
+    if (score === QUIZ.length)
+      out.push({
+        t: '🎁 prize unlocked: my secret game, Berry Basket. open fun.tsx to play it 🍓',
+        kind: 'ok',
+      });
+    return { ...base, lines: [...st.lines, ...out], quiz: null };
+  }
+  if (/^\s*blow\s*$/i.test(raw))
+    return st.candlesOut
+      ? {
+          ...base,
+          lines: [
+            ...st.lines,
+            echo,
+            {
+              t: 'the candles are already out ♡ (type relight for another go)',
+              kind: 'dim',
+            },
+          ],
+        }
+      : {
+          ...base,
+          candlesOut: true,
+          lines: [
+            ...st.lines,
+            echo,
+            {
+              t: '🎂 *whoosh* all the candles are out! make a wish ✦',
+              kind: 'hi',
+            },
+          ],
+        };
+  if (/^\s*relight\s*$/i.test(raw))
+    return {
+      ...base,
+      candlesOut: false,
+      lines: [...st.lines, echo, { t: '🕯️ candles relit', kind: 'ok' }],
+    };
+  const r = respond(raw);
+  if (r === 'clear') return { ...base, lines: [] };
+  if (r === 'quiz')
+    return {
+      ...base,
+      lines: [...st.lines, echo, { t: `quiz time ✦ 1/${QUIZ.length} · ${QUIZ[0].q}`, kind: 'hi' }],
+      quiz: { i: 0, score: 0 },
+    };
+  if (r === 'resume')
+    return {
+      ...base,
+      lines: [...st.lines, echo, { t: 'opening my résumé ↗', kind: 'ok' }],
+    };
+  return { ...base, lines: [...st.lines, echo, ...r] };
+}
+
+/** Handle one key (from the laptop's keys or the visitor's keyboard). */
+function pressKey(store: EdStore, k: string) {
+  const { st, set } = store;
+  if (k === 'Enter') {
+    const raw = st.input;
+    if (/^\s*(resume|cv)\s*$/i.test(raw) && !st.quiz) window.open('/resume', '_blank', 'noopener');
+    // a perfect quiz: confetti, a chime, and the secret game unlocked
+    if (st.quiz && st.quiz.i === QUIZ.length - 1 && QUIZ[st.quiz.i].ok(raw.trim().toLowerCase()) && st.quiz.score + 1 === QUIZ.length) {
+      retroAudio.playBell();
+      markBerryUnlocked();
+      window.dispatchEvent(new Event(QUIZ_WIN_EVENT));
+    }
+    set(runLine(st, raw));
+  } else if (k === 'Backspace') set({ ...st, input: st.input.slice(0, -1) });
+  else if (k === 'ArrowUp' || k === 'ArrowDown') {
+    // walk back and forth through the commands typed so far
+    if (!st.history.length) return;
+    const pos = k === 'ArrowUp' ? (st.histPos < 0 ? st.history.length - 1 : Math.max(0, st.histPos - 1)) : st.histPos < 0 ? -1 : st.histPos + 1;
+    if (pos < 0 || pos >= st.history.length) set({ ...st, histPos: -1, input: '' });
+    else set({ ...st, histPos: pos, input: st.history[pos] });
+  } else if (k.length === 1) set({ ...st, input: (st.input + k).slice(0, 80) });
+}
+
+function Terminal({ store }: { store: EdStore }) {
+  const { st } = store;
+  const logRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
+  }, [st.lines]);
+  return (
+    <div className="ed-term-panel">
+      <div className="ed-term-h">
+        <span className="is-on">TERMINAL</span>
+        <span>{st.quiz ? 'quiz.ps1' : 'powershell'}</span>
+        <span className="ed-term-tip">↑ ↓ history · scroll to read back</span>
+      </div>
+      {/* the log scrolls on its own (wheel, trackpad or a finger); the page doesn't steal it */}
+      <div ref={logRef} className="ed-term-log" onWheel={(e) => e.stopPropagation()}>
+        {st.lines.map((l, i) => (
+          <p key={i} className={l.kind ? `t-${l.kind}` : undefined}>
+            {l.t}
+          </p>
+        ))}
+        <form
+          className="ed-term-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            pressKey(store, 'Enter');
+          }}
+        >
+          <span className="t-prompt">{st.quiz ? '?' : 'PS C:\\Users\\sreeja>'}</span>
+          <input
+            value={st.input}
+            onChange={(e) => store.set({ ...st, input: e.target.value.slice(0, 80) })}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                pressKey(store, e.key);
+              }
+            }}
+            aria-label="Type a command"
+            spellCheck={false}
+            autoComplete="off"
+            autoCapitalize="off"
+          />
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function Editor({
+  toast,
+  store,
+  zoomed,
+  onZoom,
+  onWin,
+}: {
+  toast: (msg: string) => void;
+  store: EdStore;
+  zoomed: boolean;
+  onZoom: () => void;
+  onWin: (w: 'min' | 'closed') => void;
+}) {
+  const active = store.st.active;
+  const setActive = (name: string) => store.set({ ...store.st, active: name });
+  const birthday = useBirthday();
+  const files = birthday ? [BIRTHDAY_FILE, ...FILES] : FILES;
+  const file = files.find((f) => f.name === active) ?? files[0];
+  return (
+    <div className="ed">
+      {/* a little title bar */}
+      <div className="ed-bar">
+        <span className="ed-appicon" aria-hidden>
+          ✿
+        </span>
+        <span>about-me — sreeja</span>
+        <button type="button" className="ed-zoom" onClick={onZoom}>
+          {zoomed ? '⤡ back to laptop' : '⤢ read up close'}
+        </button>
+        {/* Windows-style window buttons */}
+        <span className="ed-winbtns">
+          <button type="button" aria-label="Minimize" title="Minimize" onClick={() => onWin('min')}>
+            ─
+          </button>
+          <button type="button" aria-label={zoomed ? 'Restore down' : 'Maximize'} title={zoomed ? 'Restore down' : 'Maximize'} onClick={onZoom}>
+            {zoomed ? '❐' : '▢'}
+          </button>
+          <button type="button" className="is-x" aria-label="Close" title="Close" onClick={() => onWin('closed')}>
+            ✕
+          </button>
+        </span>
+      </div>
+      <div className="ed-body">
+        {/* the file list */}
+        <nav className="ed-side" aria-label="About-me files">
+          <p className="ed-side-h">ABOUT-ME</p>
+          {files.map((f) => (
+            <button
+              key={f.name}
+              type="button"
+              onClick={() => setActive(f.name)}
+              className={`ed-file ${f.name === active ? 'is-on' : ''}`}
+              aria-pressed={f.name === active}
+            >
+              <span className="ed-icon">{f.icon}</span>
+              {f.name}
+            </button>
+          ))}
+        </nav>
+
+        <div className="ed-main">
+          <div className="ed-tabs">
+            <span className="ed-tab is-on">
+              {file.icon} {file.name}
+            </span>
+          </div>
+          <div className="ed-code">
+            {file.lines && (
+              <ol className="ed-lines">
+                {file.lines.map((l, i) => (
+                  <li key={i}>{l === '' ? ' ' : l}</li>
+                ))}
+              </ol>
+            )}
+            {file.name === 'fun.tsx' && (
+              <div className="ed-preview">
+                <p className="ed-com">{'// my games and my music live on my desktop now ✦'}</p>
+                <p className="mt-2">
+                  <button type="button" className="ed-zoom" onClick={() => onWin('min')}>
+                    ─ show my desktop
+                  </button>
+                </p>
+              </div>
+            )}
+            {file.name === 'say-hi.sh' && (
+              <div className="ed-term">
+                <p>
+                  <span className="ed-kw">$</span> echo &quot;working on something fun, or need a hand with a build?&quot;
+                </p>
+                <p className="ed-str">I&apos;d love to hear about it ♡</p>
+                <p className="mt-2">
+                  <span className="ed-kw">$</span> mail <span className="ed-str">{PROFILE.email}</span>
+                </p>
+                <div className="ed-actions">
+                  <FriendActions toast={toast} />
+                </div>
+              </div>
+            )}
+            {file.name === 'birthday.md' && <BirthdayCake store={store} />}
+            {file.name === 'sreeja.jpg' && (
+              <figure className="ed-photo">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/sreeja/sreeja_party.jpeg" alt="Sreeja" />
+                <figcaption>sreeja.jpg · New Delhi</figcaption>
+              </figure>
+            )}
+          </div>
+          <Terminal store={store} />
+          <div className="ed-status">
+            <span>♡ main</span>
+            <span>Ln {file.lines?.length ?? 1}, Col 1</span>
+            <span>UTF-8</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** About Me: a closed, bedazzled laptop; open it to read the files on screen. */
+function LaptopAbout() {
+  const [open, setOpen] = useState(false);
+  const [ed, setEd] = useState<EdState>(ED_START);
+  const birthday = useBirthday();
+  const [shownBirthday, setShownBirthday] = useState(false);
+  if (birthday && !shownBirthday) {
+    setShownBirthday(true);
+    setEd((s) => ({ ...s, active: 'birthday.md' }));
+  }
+  const store: EdStore = { st: ed, set: setEd };
+  const storeRef = useRef(store);
+  useEffect(() => {
+    storeRef.current = store;
+  });
+  // a key from the laptop's keys or the visitor's keyboard goes to the terminal
+  const typeKey = (k: string) => {
+    retroAudio.playHover();
+    pressKey(storeRef.current, k);
+  };
+  const [won, setWon] = useState(false);
+  // birthday: a cake on the closed lid, decorated with toppings that each lead to a project
+  const [candles, setLitCandles] = useState([true, true, true, true, true]);
+  const puff = (which: number | 'all') => {
+    setLitCandles((prev) => {
+      const next = prev.map((l, i) => (which === 'all' || i === which ? false : l));
+      return next;
+    });
+    if (which !== 'all') retroAudio.playHover();
+  };
+  const { listening, listen } = useBlow(() => puff('all'));
+  const candlesOut = candles.every((l) => !l);
+  // once they're blown out: confetti, a little "happy birthday" tune, then the cake is
+  // cleared away for the rest of this visit
+  const [cakeGone, setCakeGone] = useState(() => {
+    try {
+      return sessionStorage.getItem(CAKE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [cakeLeaving, setCakeLeaving] = useState(false);
+  useEffect(() => {
+    if (!candlesOut || cakeGone) return;
+    retroAudio.playBell();
+    window.dispatchEvent(new Event(QUIZ_WIN_EVENT)); // confetti
+    try {
+      sessionStorage.setItem(CAKE_KEY, '1');
+    } catch {
+      /* storage blocked: it just comes back on reload */
+    }
+    const stopTune = playBirthdayTune(900);
+    const leave = window.setTimeout(() => setCakeLeaving(true), BIRTHDAY_TUNE_MS + 1400);
+    const gone = window.setTimeout(() => setCakeGone(true), BIRTHDAY_TUNE_MS + 2400);
+    return () => {
+      stopTune();
+      clearTimeout(leave);
+      clearTimeout(gone);
+    };
+  }, [candlesOut, cakeGone]);
+  const showCake = birthday && !cakeGone;
+  useEffect(() => {
+    let t = 0;
+    const win = () => {
+      setWon(true);
+      clearTimeout(t);
+      t = window.setTimeout(() => setWon(false), 4500);
+    };
+    window.addEventListener(QUIZ_WIN_EVENT, win);
+    return () => {
+      window.removeEventListener(QUIZ_WIN_EVENT, win);
+      clearTimeout(t);
+    };
+  }, []);
+  // "read up close": the screen comes out of the laptop, big and flat
+  const [zoom, setZoom] = useState(false);
+  useEffect(() => {
+    if (!zoom) return;
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setZoom(false);
+    window.addEventListener('keydown', esc);
+    // the page underneath stays put while you read up close
+    const root = document.documentElement;
+    const prev = [root.style.overflow, document.body.style.overflow];
+    root.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', esc);
+      [root.style.overflow, document.body.style.overflow] = prev;
+    };
+  }, [zoom]);
+  // the editor is a real window on her desktop: minimise it, close it, open it again
+  const [win, setWin] = useState<'open' | 'min' | 'closed'>('open');
+  const winTo = (w: 'min' | 'closed') => {
+    setZoom(false);
+    setWin(w);
+  };
+  const [lit, setLit] = useState<string | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const lightKey = (k: string) => {
+    setLit(k);
+    window.setTimeout(() => setLit(null), 140);
+  };
+  const zoomRef = useRef(zoom);
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+  // while the laptop is open and on screen, the visitor's own keyboard types into it
+  useEffect(() => {
+    if (!open) return;
+    const el = wrapRef.current;
+    let visible = true;
+    const io = el
+      ? new IntersectionObserver(([e]) => (visible = e.isIntersecting), {
+          threshold: 0.3,
+        })
+      : null;
+    if (el && io) io.observe(el);
+    const down = (e: KeyboardEvent) => {
+      if ((!visible && !zoomRef.current) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (document.documentElement.dataset.overlay === 'true') return; // a game is open
+      const target = e.target as HTMLElement | null;
+      const inTerminal = !!target?.closest?.('.ed-term-panel');
+      // typing in some other box on the page is left alone
+      if (!inTerminal && target?.closest?.('input, textarea, [contenteditable="true"]')) return;
+      const k = e.key;
+      if (k.length !== 1 && k !== 'Backspace' && k !== 'Enter') return;
+      lightKey(k);
+      if (inTerminal) return; // the terminal's own input already takes it
+      e.preventDefault(); // e.g. space would otherwise scroll the page
+      typeKey(k);
+    };
+    window.addEventListener('keydown', down);
+    return () => {
+      window.removeEventListener('keydown', down);
+      io?.disconnect();
+    };
+  }, [open]);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toastMsg) return;
+    const id = setTimeout(() => setToastMsg(null), 2800);
+    return () => clearTimeout(id);
+  }, [toastMsg]);
+  // the lo-fi music stops if you leave while it's open
+  useEffect(() => () => setMusicBoxOpen(false), []);
+
+  // the lo-fi beat: on while the laptop's open, unless you switch it off from the desktop
+  const [musicOn, setMusicOn] = useState(true);
+  const toggleMusic = () => {
+    setMusicOn(!musicOn);
+    setMusicBoxOpen(open && !musicOn);
+  };
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (!next) setZoom(false);
+    if (next) playLaptopOpen();
+    else playLaptopClose();
+    setMusicBoxOpen(next && musicOn);
+  };
+
+  return (
+    <>
+      <SectionTitle kicker="profile" title="About Me" />
+      <div ref={wrapRef} className="lp-about" style={VARS}>
+        <Laptop
+          open={open}
+          lidTop={showCake ? <LidCake lit={candles} onPuff={puff} leaving={cakeLeaving} /> : undefined}
+          onToggle={toggle}
+          lit={lit}
+          onKey={(k) => {
+            lightKey(k);
+            typeKey(k);
+          }}
+          screen={
+            zoom ? (
+              <button type="button" className="ed-away nb-hand" onClick={() => setZoom(false)}>
+                reading up close ↗
+              </button>
+            ) : win === 'open' ? (
+              <Editor toast={setToastMsg} store={store} zoomed={false} onZoom={() => setZoom(true)} onWin={winTo} />
+            ) : (
+              <Desktop minimized={win === 'min'} onOpen={() => setWin('open')} musicOn={musicOn} onMusic={toggleMusic} />
+            )
+          }
+        />
+        <div className={`lp-actions ${showCake && !open ? 'is-birthday' : ''}`}>
+          <button type="button" onClick={toggle} className="lp-toggle nb-hand" aria-pressed={open}>
+            {open ? 'close my laptop' : 'open my laptop ♪'}
+          </button>
+          {showCake && !open && <CakeTray candlesOut={candlesOut} listening={listening} onBlow={listen} />}
+        </div>
+      </div>
+      {won && <Confetti />}
+      {zoom && (
+        <div className="ed-zoomed" style={VARS} onClick={(e) => e.target === e.currentTarget && setZoom(false)}>
+          <div className="ed-zoomed-screen">
+            <Editor toast={setToastMsg} store={store} zoomed onZoom={() => setZoom(false)} onWin={winTo} />
+          </div>
+        </div>
+      )}
+      {toastMsg && (
+        <div
+          role="status"
+          className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] max-w-[calc(100vw-2rem)] text-center font-pixel text-xl px-5 py-2 rounded-full bg-white text-ink shadow-[0_10px_30px_rgba(140,50,80,0.3)] animate-pop-in"
+        >
+          {toastMsg}
+        </div>
+      )}
+    </>
+  );
+}
+
+// sugar pearls scattered over the buttercream (x, y inside the tier, size)
+const PEARLS = [
+  [12, 30, 7],
+  [40, 22, 5],
+  [118, 18, 6],
+  [160, 34, 7],
+  [28, 62, 5],
+  [92, 48, 4],
+  [150, 70, 6],
+  [8, 96, 6],
+  [64, 88, 5],
+  [126, 104, 7],
+  [172, 112, 5],
+  [36, 122, 7],
+  [98, 132, 5],
+  [146, 140, 4],
+  [20, 150, 5],
+  [80, 158, 6],
+];
+
+/** The cake itself, standing on the closed lid on a plate; tap a flame to put it out. */
+function LidCake({ lit, onPuff, leaving }: { lit: boolean[]; onPuff: (i: number) => void; leaving: boolean }) {
+  return (
+    <>
+      <div className={`ck-stand ${leaving ? 'is-leaving' : ''}`}>
+        <div className="ck" role="img" aria-label={`a birthday cake with ${lit.filter(Boolean).length} lit candles`}>
+          <span className="ck-board" />
+          <div className="ck-tier">
+            {PEARLS.map(([x, y, r], i) => (
+              <i key={i} className="ck-pearl" style={{ left: x, top: y, width: r, height: r }} />
+            ))}
+          </div>
+          <div className="ck-candles">
+            {lit.map((on, i) => (
+              <button
+                type="button"
+                key={i}
+                className={`ck-candle ${on ? '' : 'is-out'}`}
+                style={{ '--i': i } as React.CSSProperties}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (on) onPuff(i);
+                }}
+                aria-label={on ? `blow out candle ${i + 1}` : `candle ${i + 1} is out`}
+              >
+                <i className="ck-flame" />
+                <i className="ck-smoke" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/** Under the laptop on her birthday: blow out the candles (mic, or tap the flames). */
+function CakeTray({ candlesOut, listening, onBlow }: { candlesOut: boolean; listening: boolean; onBlow: () => void }) {
+  if (candlesOut) return <span className="nb-hand ck-note">make a wish ✦</span>;
+  return (
+    <button type="button" className="ed-zoom ck-blow" onClick={onBlow} title="blow into your mic, or tap the flames">
+      {listening ? '🎤 blow now!' : '🎂 blow my candles'}
+    </button>
+  );
+}
+
+/** Her song on repeat, as Spotify's own preview player sitting on the desktop like a widget. */
+function SongWidget() {
+  const [song, setSong] = useState<NowPlaying | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/now-playing')
+      .then((r) => r.json())
+      .then((j: NowPlaying) => alive && setSong(j))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const trackId = song?.url?.match(/open\.spotify\.com\/track\/([A-Za-z0-9]+)/)?.[1];
+  if (!trackId) return null;
+  return (
+    <div className="ed-widget">
+      <iframe
+        title={`${song?.title ?? 'my song'} on Spotify`}
+        src={`https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`}
+        width="100%"
+        height="80"
+        loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      />
+    </div>
+  );
+}
+
+/**
+ * Her desktop, behind the editor (minimised or closed), on her own wallpaper: icons for
+ * the about-me app and her games, and her song as a Spotify widget. One click opens.
+ */
+function Desktop({ minimized, onOpen, musicOn, onMusic }: { minimized: boolean; onOpen: () => void; musicOn: boolean; onMusic: () => void }) {
+  const berry = useSyncExternalStore(subscribeBerryUnlock, isBerryUnlocked, () => false);
+  const play = (id: 'berry' | 'stack' | 'bugs') => {
+    retroAudio.playCassetteInsert();
+    openGame(id);
+  };
+  const icons: { key: string; icon: string; label: string; open?: () => void; hint?: string }[] = [
+    { key: 'about', icon: '✿', label: 'about-me', open: onOpen },
+    { key: 'bugs', icon: '🐞', label: 'Bug Squash', open: () => play('bugs') },
+    { key: 'stack', icon: '💿', label: 'Disc Stacker', open: () => play('stack') },
+    berry
+      ? { key: 'berry', icon: '🍓', label: 'Berry Basket', open: () => play('berry') }
+      : { key: 'berry', icon: '🔒', label: '???', hint: 'locked · the pink banner up top is ticklish' },
+  ];
+  return (
+    <div className="ed-desk">
+      <div className="ed-desk-icons">
+        {icons.map((ic) => (
+          <button
+            type="button"
+            key={ic.key}
+            className={`ed-desk-icon ${ic.open ? '' : 'is-locked'}`}
+            title={ic.hint ?? `open ${ic.label}`}
+            onClick={() => ic.open?.()}
+          >
+            <span aria-hidden>{ic.icon}</span>
+            {ic.label}
+          </button>
+        ))}
+      </div>
+      <SongWidget />
+      {minimized && <p className="ed-desk-hint nb-hand">about-me is still open down there ↓</p>}
+      <div className="ed-taskbar">
+        <span className="ed-start" aria-hidden>
+          ❀
+        </span>
+        {minimized && (
+          <button type="button" className="ed-task" onClick={onOpen}>
+            ✿ about-me — sreeja
+          </button>
+        )}
+        <span className="ed-clock">
+          <button
+            type="button"
+            className="ed-tray-btn"
+            onClick={onMusic}
+            aria-pressed={musicOn}
+            title={musicOn ? 'turn the lo-fi beat off' : 'turn the lo-fi beat on'}
+          >
+            ♪ lo-fi
+          </button>{' '}
+          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export function AboutProfile() {
-  const custom = useSyncExternalStore(subscribe, readCustom, () => DEFAULT);
-  const [editing, setEditing] = useState(false);
-  const [tab, setTab] = useState<TabId>('blurbs');
-  const show = (id: TabId) => (tab === id ? '' : 'hidden lg:block');
+  return ABOUT_STYLE === 'laptop' ? <LaptopAbout /> : <SwanAbout />;
+}
+
+function SwanAbout() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const theme = THEMES[custom.theme] ?? THEMES.bubblegum;
-  const font = FONTS[custom.font] ?? FONTS.default;
+  const [stage, setStage] = useState<Stage>('away');
+  const stageRef = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
 
   useEffect(() => {
     if (!toastMsg) return;
@@ -504,198 +1295,149 @@ export function AboutProfile() {
     return () => clearTimeout(id);
   }, [toastMsg]);
 
-  return (
-    <Y2KWindow title="sreejaspace.com/sreeja" icon="💖" bodyClassName="p-0">
-      {/* fake browser address bar + customise toggle */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#f4eef2] border-b-2 border-ink/15 font-pixel text-lg">
-        <span className="flex-1 min-w-0 truncate rounded bg-white border border-ink/25 px-2 text-ink/70">http://www.sreejaspace.com/sreeja</span>
-        <button
-          type="button"
-          onClick={() => {
-            retroAudio.playButtonClack();
-            setEditing((e) => !e);
-          }}
-          aria-expanded={editing}
-          className="shrink-0 px-2.5 rounded-full border-2 border-ink bg-white hover:bg-babypink"
-        >
-          ✎ {editing ? 'done' : 'customize'}
-        </button>
-      </div>
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms));
+  };
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
-      <div
-        className="relative p-3 sm:p-5"
-        style={{
-          ...(theme.vars as React.CSSProperties),
-          background: 'var(--sp-page)',
-          color: 'var(--sp-text)',
-          fontFamily: font.family,
-          fontSize: font.size,
-        }}
-      >
-        {editing && (
-          <div className="mb-4">
-            <Customizer custom={custom} />
-          </div>
+  // the swan flies in the first time the section comes into view
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setStage(still ? 'perched' : 'flying');
+        if (!still) later(() => setStage('perched'), 2600);
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const unfold = () => {
+    if (stage !== 'perched') return;
+    playUnfoldSound();
+    setStage('unfolding');
+  };
+  const foldBack = () => {
+    if (stage !== 'open') return;
+    playUnfoldSound(true);
+    setStage('folding');
+  };
+
+  const showSwan = stage !== 'open';
+  const swanMode: SwanMode =
+    stage === 'flying' || stage === 'away' ? 'flying' : stage === 'unfolding' ? 'unfolding' : stage === 'folding' ? 'folding' : 'resting';
+
+  return (
+    <>
+      <SectionTitle kicker="profile" title="About Me" className={`og-heading ${stage === 'away' ? 'is-waiting' : ''}`} />
+      <div ref={stageRef} className="og-stage" style={VARS}>
+        {showSwan && (
+          <button
+            type="button"
+            onClick={unfold}
+            disabled={stage !== 'perched'}
+            className={`og-swan is-${stage}`}
+            aria-label="Unfold the paper swan to read about me"
+          >
+            <OrigamiSwan
+              mode={swanMode}
+              size={460}
+              onDone={() => {
+                if (stage === 'unfolding') later(() => setStage('open'), 150);
+                if (stage === 'folding') setStage('perched');
+              }}
+            />
+            {stage === 'perched' && <span className="og-hint nb-hand">tap the swan to unfold it ✿</span>}
+          </button>
         )}
 
-        {/* extended network banner */}
-        <div
-          className="hidden lg:block mb-4 px-3 py-2 border-2 text-center font-bold text-[1.05em]"
-          style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)', color: 'var(--sp-accent)' }}
-        >
-          Sreeja is in your extended network ✦
-        </div>
-
-        <div className="grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-4 xl:gap-6 items-start">
-          {/* ── left column ── */}
-          <div className="space-y-4 min-w-0">
-            <div className="border-2 p-3" style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}>
-              <h3 className={`font-bubble text-3xl leading-none ${custom.glitter ? 'sp-glitter' : ''}`} style={custom.glitter ? undefined : { color: 'var(--sp-accent)' }}>
-                Sreeja ✦
-              </h3>
-              <div className="flex gap-3 mt-3">
+        {stage === 'open' && (
+          <article className="og-sheet">
+            <div className="og-sheet-grid">
+              <figure className="og-photo">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/sreeja/sreeja_party.jpeg"
-                  alt="Sreeja"
-                  className="w-32 h-32 object-cover object-[64%_38%] border-2 shrink-0"
-                  style={{ borderColor: 'var(--sp-border)' }}
-                />
-                <div className="text-[0.9em] leading-snug space-y-1 min-w-0">
-                  <p className="italic">&ldquo;bridging logic &amp; emotion&rdquo;</p>
-                  <p>New Delhi, India</p>
-                  <p>
-                    <span className="font-bold">Mood:</span> 💗 shipping
-                  </p>
-                  <p className="font-bold flex items-center gap-1" style={{ color: 'var(--sp-accent)' }}>
-                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#22c55e] animate-blink" aria-hidden />
-                    Online Now!
-                  </p>
-                </div>
-              </div>
-              <p className="mt-3 text-[0.88em]">
-                <span className="font-bold">View My: </span>
-                <a href="#player" className="hover:underline" style={{ color: 'var(--sp-link)' }}>
-                  Projects
-                </a>{' '}
-                |{' '}
-                <a href="/resume" className="hover:underline" style={{ color: 'var(--sp-link)' }}>
-                  Résumé
-                </a>{' '}
-                |{' '}
-                <a href={PROFILE.links.github} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: 'var(--sp-link)' }}>
-                  Code
-                </a>
-              </p>
-            </div>
+                <img src="/images/sreeja/sreeja_party.jpeg" alt="Sreeja" />
+                <figcaption className="nb-hand">Sreeja Das · New Delhi</figcaption>
+              </figure>
 
-            {/* MySpace-style section links (phones/tablets only) */}
-            <nav
-              aria-label="Profile sections"
-              className="lg:hidden border-2 px-2 py-1.5 flex flex-wrap justify-center gap-x-1 gap-y-0.5 text-[0.9em]"
-              style={{ borderColor: 'var(--sp-border)', background: 'var(--sp-panel)' }}
-            >
-              {TABS.map(([id, label], i) => (
-                <React.Fragment key={id}>
-                  {i > 0 && <span aria-hidden style={{ color: 'var(--sp-muted)' }}>|</span>}
-                  <button
-                    type="button"
-                    aria-pressed={tab === id}
-                    onClick={() => {
-                      retroAudio.playHover();
-                      setTab(id);
-                    }}
-                    className={`px-1 rounded-sm ${tab === id ? 'font-bold' : 'underline underline-offset-2'}`}
-                    style={tab === id ? { background: 'var(--sp-head)', color: 'var(--sp-head-text)' } : { color: 'var(--sp-link)' }}
-                  >
-                    {label}
-                  </button>
-                </React.Fragment>
-              ))}
-            </nav>
-
-            <Box title="♫ Sreeja's Profile Song" className={show('song')}>
-              <ProfileSong />
-            </Box>
-
-            <div className={show('contact')}>
-              <ContactBox toast={setToastMsg} />
-            </div>
-
-            <Box title="Sreeja's Details" className={show('details')}>
-              <Table rows={DETAILS} />
-            </Box>
-
-            <Box title="Sreeja's Interests" className={show('details')}>
-              <Table rows={INTERESTS} />
-            </Box>
-          </div>
-
-          {/* ── right column ── */}
-          <div className="space-y-4 min-w-0">
-            <Box title="Sreeja's Blurbs" className={show('blurbs')}>
-              <h5 className="font-bold text-[1.05em]" style={{ color: 'var(--sp-accent)' }}>
-                About me:
-              </h5>
-              <div className="mt-1 space-y-2 leading-relaxed">
+              <div className="og-story">
+                <h3 className="og-h">Hello,</h3>
                 <p>
-                  My view of computer science changed the moment I found creative coding. Now I build interfaces that reward curiosity: a
-                  photobooth that prints strips, a snow globe you blow on, a garden of 3D flowers made for friends.
+                  I fell for computer science through creative coding, and I still build things that reward curiosity: a photobooth that prints strips, a snow
+                  globe you blow on, a garden of 3D flowers for my friends.
                 </p>
                 <p>
-                  I also love the unglamorous half. Most of my time goes into <b>The Diecast Store</b>, a diecast-car store I first built as
-                  its freelance developer and now help run as Co-Founder &amp; CTO. The rest goes into building fun things, like the ones on
-                  the disc player below.
-                </p>
-                <p style={{ color: 'var(--sp-muted)' }}>
-                  what I care about: ✦ rewarding curiosity ✦ logic meets reliability ✦ the bigger picture
+                  These days most of my time goes into <Hl>The Diecast Store</Hl>, which I built as a freelancer and now help run as{' '}
+                  <Hl>co-founder &amp; CTO</Hl>.
                 </p>
               </div>
-              <h5 className="font-bold text-[1.05em] mt-4" style={{ color: 'var(--sp-accent)' }}>
-                Who I&apos;d like to meet:
-              </h5>
-              <ul className="mt-1 space-y-1">
-                <li>♡ teams building tactile, delightful products</li>
-                <li>♡ founders who care about UX as much as uptime</li>
-                <li>♡ anyone who thinks a site deserves a personality as much as a design (they kinda go hand in hand)</li>
-              </ul>
-            </Box>
 
-            <div className={show('friends')}>
-              <TopFriends />
-            </div>
-
-            <div className={show('arcade')}>
-              <Arcade />
-            </div>
-
-            <Box title="Sreeja's Awards" className={show('awards')}>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {AWARDS.map((a) => (
-                  <div key={a.t} className="text-center border rounded px-2 py-2" style={{ borderColor: 'var(--sp-border)' }}>
-                    <div className="text-xl" aria-hidden>
-                      {a.icon}
-                    </div>
-                    <div className="font-bold text-[0.85em] leading-tight mt-1">{a.t}</div>
-                    <div className="text-[0.75em] leading-tight" style={{ color: 'var(--sp-muted)' }}>
-                      {a.d}
-                    </div>
+              <div>
+                <h4 className="og-sub">Right now</h4>
+                <dl className="og-facts">
+                  <div>
+                    <dt>studying</dt>
+                    <dd>
+                      B.Tech CSE at SRM, &apos;27 · <Hl c="#ffd2e6">9.05 CGPA</Hl>
+                    </dd>
                   </div>
-                ))}
+                  <div>
+                    <dt>open to</dt>
+                    <dd>
+                      <Hl c="#cfefff">freelance, remote &amp; flexible</Hl> work
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>into</dt>
+                    <dd>WebGL toys, Web Audio, mental-health tech</dd>
+                  </div>
+                </dl>
               </div>
-            </Box>
-          </div>
-        </div>
+
+              <div>
+                <h4 className="og-sub">Little wins</h4>
+                <ul className="og-wins">
+                  {WINS.map((w) => (
+                    <li key={w.t}>
+                      <b>{w.t}</b> <span>{w.d}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="og-fun">
+              <div className="w-[250px] max-w-full">
+                <ProfileSong />
+              </div>
+              <Arcade />
+              <div className="flex-1 min-w-[220px]">
+                <p className="nb-hand text-[20px] leading-none text-ink/50 mb-1">say hi ↓</p>
+                <FriendActions toast={setToastMsg} />
+              </div>
+            </div>
+
+            <button type="button" onClick={foldBack} className="og-refold nb-hand">
+              fold it back into a swan ↺
+            </button>
+          </article>
+        )}
 
         {toastMsg && (
           <div
             role="status"
-            className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] max-w-[calc(100vw-2rem)] text-center font-pixel text-xl px-5 py-2 rounded-full bg-white text-ink border-2 border-ink shadow-[3px_3px_0_#1a0f1f] animate-pop-in"
+            className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] max-w-[calc(100vw-2rem)] text-center font-pixel text-xl px-5 py-2 rounded-full bg-white text-ink shadow-[0_10px_30px_rgba(140,50,80,0.3)] animate-pop-in"
           >
             {toastMsg}
           </div>
         )}
       </div>
-    </Y2KWindow>
+    </>
   );
 }

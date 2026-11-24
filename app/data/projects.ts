@@ -3,6 +3,7 @@ import type { Project } from '../types/project';
 export const PROJECTS_DATA: Project[] = [
   {
     id: 1,
+    pitch: 'Web + Android photobooth with filters, GIFs and photo strips',
     links: [
       { kind: 'live', label: 'pinkphotobooth.vercel.app', href: 'https://pinkphotobooth.vercel.app' },
       { kind: 'code', label: 'sparrowdex/photobooth-web', href: 'https://github.com/sparrowdex/photobooth-web' },
@@ -23,6 +24,7 @@ export const PROJECTS_DATA: Project[] = [
   },
   {
     id: 2,
+    pitch: 'Anonymous peer-support app built on Next.js and Firebase',
     links: [
       { kind: 'live', label: 'theinnervoice.vercel.app', href: 'https://theinnervoice.vercel.app' },
     ],
@@ -42,6 +44,7 @@ export const PROJECTS_DATA: Project[] = [
   },
   {
     id: 3,
+    pitch: 'Live e-commerce PWA I co-founded and run as CTO',
     links: [
       { kind: 'live', label: 'thediecaststore.in', href: 'https://www.thediecaststore.in' },
     ],
@@ -62,6 +65,7 @@ export const PROJECTS_DATA: Project[] = [
   },
   {
     id: 4,
+    pitch: 'Interactive 3D team page, judged most creative',
     links: [
       { kind: 'live', label: 'armatrix-team-page-delta.vercel.app', href: 'https://armatrix-team-page-delta.vercel.app' },
       { kind: 'api', label: 'backend on Hugging Face', href: 'https://huggingface.co/spaces/sparrowdex/armatrix-backend' },
@@ -83,6 +87,7 @@ export const PROJECTS_DATA: Project[] = [
   },
   {
     id: 5,
+    pitch: 'Procedural 3D bouquets that bloom when you breathe',
     links: [
       { kind: 'live', label: 'flowers-two-pi.vercel.app', href: 'https://flowers-two-pi.vercel.app' },
       { kind: 'code', label: 'sparrowdex/flowers', href: 'https://github.com/sparrowdex/flowers' },
@@ -102,6 +107,7 @@ export const PROJECTS_DATA: Project[] = [
   },
   {
     id: 6,
+    pitch: 'Recipe social network with an ML recommender',
     links: [
       { kind: 'live', label: 'spice-vault.vercel.app', href: 'https://spice-vault.vercel.app' },
       { kind: 'code', label: 'sparrowdex/SpiceVault', href: 'https://github.com/sparrowdex/SpiceVault' },
@@ -121,6 +127,7 @@ export const PROJECTS_DATA: Project[] = [
   },
   {
     id: 7,
+    pitch: 'Mic-reactive 3D snow globe, top 10 of 107',
     links: [
       { kind: 'live', label: 'ghostsofchristmas.vercel.app', href: 'https://ghostsofchristmas.vercel.app' },
       { kind: 'code', label: 'sparrowdex/merry-christmas', href: 'https://github.com/sparrowdex/merry-christmas' },

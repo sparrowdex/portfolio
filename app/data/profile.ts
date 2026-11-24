@@ -1,4 +1,4 @@
-// Single source for the facts shown in both Fun mode and Recruiter mode.
+// Single source for the facts shown on the home page and the /resume page.
 // The full résumé text lives in app/data/resume.ts.
 
 export const PROFILE = {

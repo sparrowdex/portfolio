@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { retroAudio } from '../utils/retroAudio';
 import { answer, type ProjectKey } from '../utils/assistantEngine';
 import { usePathname } from 'next/navigation';
-import { useViewMode } from './y2k/viewMode';
 import { Keychain } from './y2k/Keychain';
 import { PROJECTS_DATA } from '../data/projects';
 import type { NowPlaying } from '../utils/spotify';
@@ -246,7 +245,6 @@ function Clock() {
 }
 
 export function RetroPhoneAssistant() {
-  const mode = useViewMode();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -297,8 +295,8 @@ export function RetroPhoneAssistant() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen]);
 
-  // Not on the recruiter view or the print-ready /resume page.
-  if (mode === 'recruiter' || pathname?.startsWith('/resume')) return null;
+  // Not on the print-ready /resume page.
+  if (pathname?.startsWith('/resume')) return null;
 
   const send = (raw?: string) => {
     const q = (raw ?? input).trim();
